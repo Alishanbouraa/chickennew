@@ -239,9 +239,9 @@ namespace PoultrySlaughterPOS
         }
 
         /// <summary>
-        /// Handles unhandled exceptions at the application level
+        /// Configures global exception handling for unhandled exceptions
         /// </summary>
-        protected override void OnStartup(StartupEventArgs e)
+        private void ConfigureGlobalExceptionHandling()
         {
             // Global exception handling
             AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
@@ -266,9 +266,6 @@ namespace PoultrySlaughterPOS
 
                 args.Handled = true; // Prevent application crash
             };
-
-            // Call the base startup after exception handlers are set
-            base.OnStartup(e);
         }
     }
 

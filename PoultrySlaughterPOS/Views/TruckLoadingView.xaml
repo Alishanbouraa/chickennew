@@ -183,11 +183,10 @@
                     <StackPanel>
                         <TextBlock Text="معلومات التحميل" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,20"/>
 
-                        <!-- Truck Selection -->
+                        <!-- Truck Selection - FIXED: Removed DisplayMemberPath to avoid conflict with ItemTemplate -->
                         <Label Content="اختيار الشاحنة *" Style="{StaticResource ModernLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding AvailableTrucks}"
                                   SelectedItem="{Binding SelectedTruck}"
-                                  DisplayMemberPath="TruckNumber"
                                   Style="{StaticResource ModernComboBoxStyle}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
@@ -415,7 +414,7 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal">
                     <fa:ImageAwesome Icon="Spinner" Width="16" Height="16" Foreground="#007BFF" 
                                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                     Spin="True" Margin="0,0,5,0"/>
+                                     SpinDuration="2" Margin="0,0,5,0"/>
                     <TextBlock Text="جاري التحميل..." 
                                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
                                FontSize="14" Foreground="#495057"/>

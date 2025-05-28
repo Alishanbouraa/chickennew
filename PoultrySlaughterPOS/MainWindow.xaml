@@ -101,7 +101,7 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <fa:ImageAwesome Icon="Clock" Width="16" Height="16" Foreground="White" Margin="0,0,5,0"/>
+                    <fa:ImageAwesome Icon="ClockOutline" Width="16" Height="16" Foreground="White" Margin="0,0,5,0"/>
                     <TextBlock x:Name="TimeTextBlock" Foreground="White" FontSize="14" VerticalAlignment="Center"/>
                 </StackPanel>
             </Grid>
@@ -126,7 +126,7 @@
                     <!-- Dashboard Button -->
                     <Button Style="{StaticResource NavButtonStyle}" Click="Dashboard_Click">
                         <StackPanel Orientation="Horizontal">
-                            <fa:ImageAwesome Icon="Dashboard" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <fa:ImageAwesome Icon="Tachometer" Width="20" Height="20" Margin="0,0,10,0"/>
                             <TextBlock Text="لوحة التحكم" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -142,7 +142,7 @@
                     <!-- POS Sales Button -->
                     <Button Style="{StaticResource NavButtonStyle}" Click="POSSales_Click">
                         <StackPanel Orientation="Horizontal">
-                            <fa:ImageAwesome Icon="CashRegister" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <fa:ImageAwesome Icon="ShoppingCart" Width="20" Height="20" Margin="0,0,10,0"/>
                             <TextBlock Text="نقطة البيع" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -166,7 +166,7 @@
                     <!-- Reports Button -->
                     <Button Style="{StaticResource NavButtonStyle}" Click="Reports_Click">
                         <StackPanel Orientation="Horizontal">
-                            <fa:ImageAwesome Icon="ChartBar" Width="20" Height="20" Margin="0,0,10,0"/>
+                            <fa:ImageAwesome Icon="BarChart" Width="20" Height="20" Margin="0,0,10,0"/>
                             <TextBlock Text="التقارير" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Button>
@@ -222,7 +222,7 @@
 
                                 <Border Background="#FFF3CD" CornerRadius="8" Padding="15" Margin="10">
                                     <StackPanel HorizontalAlignment="Center">
-                                        <fa:ImageAwesome Icon="FileInvoice" Width="24" Height="24" Foreground="#FFC107"/>
+                                        <fa:ImageAwesome Icon="FileText" Width="24" Height="24" Foreground="#FFC107"/>
                                         <TextBlock Text="فواتير اليوم" FontSize="12" Foreground="#495057" Margin="0,5,0,0"/>
                                         <TextBlock x:Name="TodayInvoicesCount" Text="0" FontSize="18" FontWeight="Bold" Foreground="#FFC107" HorizontalAlignment="Center"/>
                                     </StackPanel>
