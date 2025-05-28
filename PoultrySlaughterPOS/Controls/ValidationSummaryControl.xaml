@@ -4,11 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:local="clr-namespace:PoultrySlaughterPOS.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400"
              FlowDirection="RightToLeft">
 
     <UserControl.Resources>
+        <!-- Value Converters -->
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+
         <!-- Success Message Style -->
         <Style x:Key="SuccessMessageStyle" TargetType="Border">
             <Setter Property="Background" Value="#D4EDDA"/>
@@ -60,6 +65,35 @@
                 </StackPanel>
             </Border>
         </DataTemplate>
+
+        <!-- Modern Button Style -->
+        <Style x:Key="ModernButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <Border Background="White" CornerRadius="8" Padding="0" BorderBrush="#E9ECEF" BorderThickness="1">
@@ -194,13 +228,11 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,10">
                     <Button x:Name="RefreshButton" Content="إعادة فحص" 
                             Background="#007BFF" Foreground="White" 
-                            Padding="12,6" Margin="5" FontSize="12" 
-                            BorderThickness="0" CornerRadius="4"
+                            Style="{StaticResource ModernButtonStyle}"
                             Click="RefreshButton_Click"/>
                     <Button x:Name="ClearButton" Content="مسح الأخطاء" 
                             Background="#6C757D" Foreground="White" 
-                            Padding="12,6" Margin="5" FontSize="12" 
-                            BorderThickness="0" CornerRadius="4"
+                            Style="{StaticResource ModernButtonStyle}"
                             Click="ClearButton_Click"/>
                 </StackPanel>
             </StackPanel>

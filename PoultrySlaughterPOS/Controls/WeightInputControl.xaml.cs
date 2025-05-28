@@ -9,6 +9,7 @@ namespace PoultrySlaughterPOS.Controls
     /// <summary>
     /// Advanced weight input control with real-time calculation, validation, and efficiency metrics.
     /// Provides comprehensive weight and cage count input with automatic validation and visual feedback.
+    /// Implements enterprise-grade validation patterns with shared event architecture.
     /// </summary>
     public partial class WeightInputControl : UserControl
     {
@@ -256,7 +257,7 @@ namespace PoultrySlaughterPOS.Controls
         public event EventHandler<WeightValuesChangedEventArgs>? WeightValuesChanged;
 
         /// <summary>
-        /// Event raised when validation state changes
+        /// Event raised when validation state changes - uses shared ValidationStateChangedEventArgs
         /// </summary>
         public event EventHandler<ValidationStateChangedEventArgs>? ValidationStateChanged;
 
@@ -507,17 +508,24 @@ namespace PoultrySlaughterPOS.Controls
         }
 
         /// <summary>
-        /// Raises relevant events
+        /// Raises relevant events using shared event architecture
         /// </summary>
         private void RaiseEvents()
         {
             // Raise weight values changed event
             WeightValuesChanged?.Invoke(this, new WeightValuesChangedEventArgs(TotalWeight, CagesCount, WeightPerCage));
 
-            // Raise validation state changed event
+            // Raise validation state changed event using shared ValidationStateChangedEventArgs
             var hasErrors = ValidationMessages.Any();
-            ValidationStateChanged?.Invoke(this, new ValidationStateChangedEventArgs(hasErrors,
-                hasErrors ? string.Join(Environment.NewLine, ValidationMessages) : string.Empty));
+            var validationMessages = ValidationMessages.ToList();
+            var validationArgs = new ValidationStateChangedEventArgs(
+                !hasErrors,                    // isValid
+                hasErrors,                     // hasErrors
+                hasErrors ? ValidationMessages.Count : 0,  // errorCount
+                0,                            // warningCount
+                validationMessages);          // allMessages
+
+            ValidationStateChanged?.Invoke(this, validationArgs);
         }
 
         #endregion
@@ -579,11 +587,36 @@ namespace PoultrySlaughterPOS.Controls
             CagesCountTextBox.SelectAll();
         }
 
+        /// <summary>
+        /// Gets comprehensive validation summary including efficiency metrics
+        /// </summary>
+        /// <returns>Detailed validation and performance summary</returns>
+        public string GetValidationSummary()
+        {
+            var summary = new System.Text.StringBuilder();
+
+            summary.AppendLine($"حالة التحقق: {(ValidationMessages.Any() ? "غير صالح" : "صالح")}");
+            summary.AppendLine($"الأخطاء: {ValidationMessages.Count}");
+            summary.AppendLine($"كفاءة التحميل: {EfficiencyRating:F1}%");
+            summary.AppendLine($"متوسط وزن القفص: {WeightPerCage:F2} كيلو");
+
+            if (ValidationMessages.Any())
+            {
+                summary.AppendLine("\nتفاصيل الأخطاء:");
+                foreach (var message in ValidationMessages)
+                {
+                    summary.AppendLine($"• {message}");
+                }
+            }
+
+            return summary.ToString();
+        }
+
         #endregion
     }
 
     /// <summary>
-    /// Event arguments for weight values changed event
+    /// Event arguments for weight values changed event - specific to WeightInputControl
     /// </summary>
     public class WeightValuesChangedEventArgs : EventArgs
     {
@@ -603,13 +636,46 @@ namespace PoultrySlaughterPOS.Controls
         public decimal WeightPerCage { get; }
 
         /// <summary>
+        /// Gets the calculated efficiency rating
+        /// </summary>
+        public double EfficiencyRating { get; }
+
+        /// <summary>
         /// Initializes a new instance of WeightValuesChangedEventArgs
         /// </summary>
+        /// <param name="totalWeight">Total weight value</param>
+        /// <param name="cagesCount">Number of cages</param>
+        /// <param name="weightPerCage">Calculated weight per cage</param>
         public WeightValuesChangedEventArgs(decimal totalWeight, int cagesCount, decimal weightPerCage)
         {
             TotalWeight = totalWeight;
             CagesCount = cagesCount;
             WeightPerCage = weightPerCage;
+
+            // Calculate efficiency rating using optimal weight range (20-30 kg per cage)
+            if (weightPerCage > 0)
+            {
+                const double optimalWeight = 25.0;
+                const double toleranceRange = 5.0;
+                var difference = Math.Abs((double)weightPerCage - optimalWeight);
+                EfficiencyRating = Math.Max(0, 100 - (difference / toleranceRange * 20));
+            }
+            else
+            {
+                EfficiencyRating = 0;
+            }
+        }
+
+        /// <summary>
+        /// Gets a formatted summary of the weight calculation
+        /// </summary>
+        /// <returns>Formatted weight summary string</returns>
+        public string GetFormattedSummary()
+        {
+            return $"الوزن الإجمالي: {TotalWeight:F2} كيلو | " +
+                   $"عدد الأقفاص: {CagesCount} | " +
+                   $"متوسط وزن القفص: {WeightPerCage:F2} كيلو | " +
+                   $"كفاءة التحميل: {EfficiencyRating:F1}%";
         }
     }
 }

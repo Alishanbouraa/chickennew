@@ -34,14 +34,14 @@ namespace PoultrySlaughterPOS.Controls
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnSelectedTruckChanged));
 
         /// <summary>
-        /// Dependency property for validation message
+        /// Dependency property for validation message text
         /// </summary>
-        public static readonly DependencyProperty ValidationMessageProperty =
+        public static readonly DependencyProperty ValidationMessageTextProperty =
             DependencyProperty.Register(
-                nameof(ValidationMessage),
+                nameof(ValidationMessageText),
                 typeof(string),
                 typeof(TruckSelectionControl),
-                new PropertyMetadata(string.Empty, OnValidationMessageChanged));
+                new PropertyMetadata(string.Empty, OnValidationMessageTextChanged));
 
         /// <summary>
         /// Dependency property for validation error state
@@ -56,12 +56,12 @@ namespace PoultrySlaughterPOS.Controls
         /// <summary>
         /// Dependency property for control enabled state
         /// </summary>
-        public static readonly DependencyProperty IsEnabledProperty =
+        public static readonly DependencyProperty IsControlEnabledProperty =
             DependencyProperty.Register(
-                nameof(IsEnabled),
+                nameof(IsControlEnabled),
                 typeof(bool),
                 typeof(TruckSelectionControl),
-                new PropertyMetadata(true, OnIsEnabledChanged));
+                new PropertyMetadata(true, OnIsControlEnabledChanged));
 
         #endregion
 
@@ -86,12 +86,12 @@ namespace PoultrySlaughterPOS.Controls
         }
 
         /// <summary>
-        /// Gets or sets the validation message to display
+        /// Gets or sets the validation message text to display
         /// </summary>
-        public string ValidationMessage
+        public string ValidationMessageText
         {
-            get => (string)GetValue(ValidationMessageProperty);
-            set => SetValue(ValidationMessageProperty, value);
+            get => (string)GetValue(ValidationMessageTextProperty);
+            set => SetValue(ValidationMessageTextProperty, value);
         }
 
         /// <summary>
@@ -106,10 +106,10 @@ namespace PoultrySlaughterPOS.Controls
         /// <summary>
         /// Gets or sets whether the control is enabled
         /// </summary>
-        public new bool IsEnabled
+        public bool IsControlEnabled
         {
-            get => (bool)GetValue(IsEnabledProperty);
-            set => SetValue(IsEnabledProperty, value);
+            get => (bool)GetValue(IsControlEnabledProperty);
+            set => SetValue(IsControlEnabledProperty, value);
         }
 
         #endregion
@@ -197,20 +197,20 @@ namespace PoultrySlaughterPOS.Controls
         }
 
         /// <summary>
-        /// Handles changes to the ValidationMessage property
+        /// Handles changes to the ValidationMessageText property
         /// </summary>
-        private static void OnValidationMessageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnValidationMessageTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TruckSelectionControl control)
             {
-                control.OnValidationMessageChanged((string)e.OldValue, (string)e.NewValue);
+                control.OnValidationMessageTextChanged((string)e.OldValue, (string)e.NewValue);
             }
         }
 
         /// <summary>
-        /// Handles changes to the IsEnabled property
+        /// Handles changes to the IsControlEnabled property
         /// </summary>
-        private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnIsControlEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is TruckSelectionControl control)
             {
@@ -253,9 +253,9 @@ namespace PoultrySlaughterPOS.Controls
         }
 
         /// <summary>
-        /// Handles validation message changes
+        /// Handles validation message text changes
         /// </summary>
-        private void OnValidationMessageChanged(string oldValue, string newValue)
+        private void OnValidationMessageTextChanged(string oldValue, string newValue)
         {
             // Update validation error state
             HasValidationError = !string.IsNullOrEmpty(newValue);
@@ -269,25 +269,25 @@ namespace PoultrySlaughterPOS.Controls
         /// </summary>
         private void ValidateSelection()
         {
-            string validationMessage = string.Empty;
+            string validationMessageText = string.Empty;
 
             // Check if truck is selected
             if (SelectedTruck == null)
             {
-                validationMessage = "يجب اختيار الشاحنة";
+                validationMessageText = "يجب اختيار الشاحنة";
             }
             // Check if truck is still available
             else if (AvailableTrucks != null && !AvailableTrucks.Contains(SelectedTruck))
             {
-                validationMessage = "الشاحنة المحددة غير متاحة";
+                validationMessageText = "الشاحنة المحددة غير متاحة";
             }
             // Check if truck is active
             else if (!SelectedTruck.IsActive)
             {
-                validationMessage = "الشاحنة المحددة غير نشطة";
+                validationMessageText = "الشاحنة المحددة غير نشطة";
             }
 
-            ValidationMessage = validationMessage;
+            ValidationMessageText = validationMessageText;
         }
 
         #endregion
@@ -306,7 +306,7 @@ namespace PoultrySlaughterPOS.Controls
         /// <summary>
         /// Focuses the truck selection ComboBox
         /// </summary>
-        public void Focus()
+        public new void Focus()
         {
             TruckComboBox.Focus();
         }
@@ -339,31 +339,45 @@ namespace PoultrySlaughterPOS.Controls
             }
         }
 
-        #endregion
-    }
-
-    /// <summary>
-    /// Event arguments for validation state changes
-    /// </summary>
-    public class ValidationStateChangedEventArgs : EventArgs
-    {
         /// <summary>
-        /// Gets whether there is a validation error
+        /// Sets the selected truck by ID
         /// </summary>
-        public bool HasError { get; }
-
-        /// <summary>
-        /// Gets the validation message
-        /// </summary>
-        public string Message { get; }
-
-        /// <summary>
-        /// Initializes a new instance of ValidationStateChangedEventArgs
-        /// </summary>
-        public ValidationStateChangedEventArgs(bool hasError, string message)
+        /// <param name="truckId">ID of the truck to select</param>
+        /// <returns>True if truck was found and selected, false otherwise</returns>
+        public bool SelectTruckById(int truckId)
         {
-            HasError = hasError;
-            Message = message;
+            if (AvailableTrucks != null)
+            {
+                var truck = AvailableTrucks.FirstOrDefault(t => t.TruckId == truckId);
+                if (truck != null)
+                {
+                    SelectedTruck = truck;
+                    return true;
+                }
+            }
+            return false;
         }
+
+        /// <summary>
+        /// Gets the validation summary for the current state
+        /// </summary>
+        /// <returns>Validation summary string</returns>
+        public string GetValidationSummary()
+        {
+            if (HasValidationError)
+            {
+                return $"خطأ في اختيار الشاحنة: {ValidationMessageText}";
+            }
+            else if (SelectedTruck != null)
+            {
+                return $"تم اختيار الشاحنة: {SelectedTruck.TruckNumber} - {SelectedTruck.DriverName}";
+            }
+            else
+            {
+                return "لم يتم اختيار شاحنة";
+            }
+        }
+
+        #endregion
     }
 }

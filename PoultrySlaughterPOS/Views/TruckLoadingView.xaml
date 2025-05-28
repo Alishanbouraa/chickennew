@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:local="clr-namespace:PoultrySlaughterPOS.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200"
              FlowDirection="RightToLeft"
@@ -11,6 +12,13 @@
              Background="#F8F9FA">
 
     <UserControl.Resources>
+        <!-- Value Converters -->
+        <local:WeightPerCageConverter x:Key="WeightPerCageConverter"/>
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:StatusToColorConverter x:Key="StatusToColorConverter"/>
+        <local:EfficiencyToColorConverter x:Key="EfficiencyToColorConverter"/>
+
         <!-- Modern Card Style -->
         <Style x:Key="ModernCardStyle" TargetType="Border">
             <Setter Property="Background" Value="White"/>
@@ -217,7 +225,8 @@
                         </Grid>
 
                         <!-- Efficiency Indicator -->
-                        <Border Background="{Binding EfficiencyColor}" CornerRadius="3" Padding="8,4" Margin="0,5">
+                        <Border Background="{Binding EfficiencyPercentage, Converter={StaticResource EfficiencyToColorConverter}}" 
+                                CornerRadius="3" Padding="8,4" Margin="0,5">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="كفاءة التحميل:" Foreground="White" FontWeight="SemiBold"/>
                                 <TextBlock Text="{Binding EfficiencyPercentage, StringFormat='F1'}" 
@@ -279,12 +288,9 @@
                             <DataGridTextColumn Header="الأقفاص" Binding="{Binding CagesCount}" Width="80"/>
                             <DataGridTextColumn Header="متوسط وزن القفص" Width="120">
                                 <DataGridTextColumn.Binding>
-                                    <MultiBinding StringFormat="{}{0:F2} كيلو">
+                                    <MultiBinding Converter="{StaticResource WeightPerCageConverter}" StringFormat="{}{0} كيلو">
                                         <Binding Path="TotalWeight"/>
                                         <Binding Path="CagesCount"/>
-                                        <MultiBinding.Converter>
-                                            <local:WeightPerCageConverter/>
-                                        </MultiBinding.Converter>
                                     </MultiBinding>
                                 </DataGridTextColumn.Binding>
                             </DataGridTextColumn>

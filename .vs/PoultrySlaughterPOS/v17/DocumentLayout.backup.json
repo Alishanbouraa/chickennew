@@ -3,44 +3,12 @@
   "WorkspaceRootPath": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\validationsummarycontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\validationsummarycontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\weightinputcontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\weightinputcontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\weightinputcontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\weightinputcontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\truckselectioncontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\truckselectioncontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\truckselectioncontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\truckselectioncontrol.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\views\\truckloadingview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\views\\truckloadingview.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\viewmodels\\truckloadingviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\viewmodels\\truckloadingviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\controls\\validationsummarycontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\controls\\validationsummarycontrol.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -55,118 +23,27 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ValidationSummaryControl.xaml",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-28T08:20:48.829Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "WeightInputControl.xaml.cs",
               "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml.cs",
               "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml.cs",
               "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml.cs",
               "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml.cs",
-              "ViewState": "AgIAAFgCAAAAAAAAAAAcwGYCAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAJsCAAAAAAAAAAAwwKgCAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T08:20:04.85Z"
+              "WhenOpened": "2025-05-28T18:11:16.075Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "WeightInputControl.xaml",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\WeightInputControl.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-28T08:18:31.213Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "TruckSelectionControl.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml.cs",
-              "ViewState": "AgIAABUBAAAAAAAAAAAQwHABAAABAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "ValidationSummaryControl.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml.cs",
+              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml.cs",
+              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml.cs",
+              "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\ValidationSummaryControl.xaml.cs",
+              "ViewState": "AgIAAAMDAAAAAAAAAAAwwAsDAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T08:18:01.604Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "TruckSelectionControl.xaml",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Controls\\TruckSelectionControl.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-28T08:17:35.1Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\MainWindow.xaml.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAJcBAAAAAAAAAAAwwOkBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T08:15:55.733Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\MainWindow.xaml",
-              "RelativeToolTip": "PoultrySlaughterPOS\\MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-28T08:15:43.975Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "TruckLoadingView.xaml",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Views\\TruckLoadingView.xaml",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Views\\TruckLoadingView.xaml",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Views\\TruckLoadingView.xaml",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Views\\TruckLoadingView.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-05-28T08:15:23.316Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "App.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\App.xaml.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\App.xaml.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\App.xaml.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\App.xaml.cs",
-              "ViewState": "AgIAAB4AAAAAAAAAAAAQwB8BAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T08:13:34.684Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "TruckLoadingViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\TruckLoadingViewModel.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\ViewModels\\TruckLoadingViewModel.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\TruckLoadingViewModel.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\ViewModels\\TruckLoadingViewModel.cs",
-              "ViewState": "AgIAANMBAAAAAAAAAAAIwOkBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-28T08:09:38.176Z"
+              "WhenOpened": "2025-05-28T12:58:16.723Z"
             }
           ]
         }

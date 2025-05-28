@@ -387,14 +387,14 @@ namespace PoultrySlaughterPOS.Controls
         {
             // Update header icon and color
             HeaderIcon.Icon = FontAwesome.WPF.FontAwesomeIcon.CheckCircle;
-            HeaderIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745"));
+            HeaderIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")!);
 
             // Update status badge
-            StatusBadge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745"));
+            StatusBadge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#28A745")!);
             StatusText.Text = "صالح";
 
             // Update header text color
-            HeaderText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#155724"));
+            HeaderText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#155724")!);
         }
 
         /// <summary>
@@ -404,14 +404,14 @@ namespace PoultrySlaughterPOS.Controls
         {
             // Update header icon and color
             HeaderIcon.Icon = FontAwesome.WPF.FontAwesomeIcon.ExclamationTriangle;
-            HeaderIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC3545"));
+            HeaderIcon.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC3545")!);
 
             // Update status badge
-            StatusBadge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC3545"));
+            StatusBadge.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#DC3545")!);
             StatusText.Text = "غير صالح";
 
             // Update header text color
-            HeaderText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#721C24"));
+            HeaderText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#721C24")!);
         }
 
         /// <summary>
@@ -459,16 +459,17 @@ namespace PoultrySlaughterPOS.Controls
         }
 
         /// <summary>
-        /// Raises the validation state changed event
+        /// Raises the validation state changed event with comprehensive validation information
         /// </summary>
         private void RaiseValidationStateChangedEvent()
         {
+            var allMessages = GetAllValidationMessages();
             var args = new ValidationStateChangedEventArgs(
                 IsValid,
                 HasErrors,
                 ErrorCount,
                 WarningCount,
-                GetAllValidationMessages());
+                allMessages);
 
             ValidationStateChanged?.Invoke(this, args);
         }
@@ -686,6 +687,7 @@ namespace PoultrySlaughterPOS.Controls
 
     /// <summary>
     /// Enhanced event arguments for validation state changes with comprehensive state information
+    /// specific to ValidationSummaryControl requirements
     /// </summary>
     public class ValidationStateChangedEventArgs : EventArgs
     {
@@ -720,7 +722,12 @@ namespace PoultrySlaughterPOS.Controls
         public DateTime Timestamp { get; }
 
         /// <summary>
-        /// Initializes a new instance of ValidationStateChangedEventArgs
+        /// Gets the primary validation message for display
+        /// </summary>
+        public string PrimaryMessage { get; }
+
+        /// <summary>
+        /// Initializes a new instance of ValidationStateChangedEventArgs with comprehensive validation information
         /// </summary>
         /// <param name="isValid">Overall validation state</param>
         /// <param name="hasErrors">Whether errors exist</param>
@@ -740,6 +747,39 @@ namespace PoultrySlaughterPOS.Controls
             WarningCount = warningCount;
             AllMessages = allMessages.AsReadOnly();
             Timestamp = DateTime.Now;
+            PrimaryMessage = hasErrors && allMessages.Count > 0
+                ? allMessages[0]
+                : isValid ? "Validation successful" : "No validation messages";
+        }
+
+        /// <summary>
+        /// Simplified constructor for basic validation state changes
+        /// </summary>
+        /// <param name="hasError">Whether there is a validation error</param>
+        /// <param name="message">The validation message</param>
+        public ValidationStateChangedEventArgs(bool hasError, string message)
+            : this(!hasError, hasError, hasError ? 1 : 0, 0, new List<string> { message })
+        {
+        }
+
+        /// <summary>
+        /// Gets a formatted summary of all validation messages
+        /// </summary>
+        /// <returns>Formatted validation summary</returns>
+        public string GetFormattedSummary()
+        {
+            if (!HasErrors && IsValid)
+                return "All validation checks passed successfully.";
+
+            var summary = new System.Text.StringBuilder();
+            summary.AppendLine($"Validation Summary (Errors: {ErrorCount}, Warnings: {WarningCount}):");
+
+            foreach (var message in AllMessages)
+            {
+                summary.AppendLine($"• {message}");
+            }
+
+            return summary.ToString();
         }
     }
 }

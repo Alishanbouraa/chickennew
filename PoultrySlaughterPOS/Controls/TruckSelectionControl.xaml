@@ -4,11 +4,16 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
+             xmlns:local="clr-namespace:PoultrySlaughterPOS.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="400"
              FlowDirection="RightToLeft">
 
     <UserControl.Resources>
+        <!-- Value Converters -->
+        <local:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
         <!-- Modern ComboBox Style -->
         <Style x:Key="TruckComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="40"/>
@@ -39,7 +44,7 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinitions Width="20"/>
+                                                    <ColumnDefinition Width="20"/>
                                                 </Grid.ColumnDefinitions>
                                                 <Path x:Name="Arrow" Grid.Column="1" 
                                                     Fill="#6C757D" 
@@ -165,8 +170,8 @@
             </Border>
 
             <!-- Validation Message -->
-            <TextBlock x:Name="ValidationMessage" 
-                       Text="{Binding ValidationMessage, RelativeSource={RelativeSource AncestorType=UserControl}}"
+            <TextBlock x:Name="ValidationMessageDisplay" 
+                       Text="{Binding ValidationMessageText, RelativeSource={RelativeSource AncestorType=UserControl}}"
                        Foreground="#DC3545" 
                        FontSize="12" 
                        Margin="0,8,0,0"

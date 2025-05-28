@@ -11,9 +11,10 @@ namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
     /// Enterprise-grade ViewModel for truck loading operations implementing comprehensive
-    /// MVVM patterns with validation, error handling, and real-time data binding
+    /// MVVM patterns with validation, error handling, and real-time data binding.
+    /// Inherits from ObservableValidator for proper validation framework integration.
     /// </summary>
-    public partial class TruckLoadingViewModel : ObservableObject
+    public partial class TruckLoadingViewModel : ObservableValidator
     {
         #region Private Fields
 
@@ -47,6 +48,7 @@ namespace PoultrySlaughterPOS.ViewModels
         private int cagesCount;
 
         [ObservableProperty]
+        [NotifyDataErrorInfo]
         [StringLength(500, ErrorMessage = "الملاحظات يجب ألا تتجاوز 500 حرف")]
         private string notes = string.Empty;
 
@@ -170,10 +172,11 @@ namespace PoultrySlaughterPOS.ViewModels
                 // Reset form
                 ResetForm();
 
-                StatusMessage = $"تم حفظ تحميل الشاحنة {SelectedTruck?.TruckNumber} بنجاح";
-                ShowSuccessMessage($"تم تحميل الشاحنة {SelectedTruck?.TruckNumber} بوزن {TotalWeight} كيلو و {CagesCount} قفص");
+                var truckNumber = SelectedTruck?.TruckNumber ?? "غير محدد";
+                StatusMessage = $"تم حفظ تحميل الشاحنة {truckNumber} بنجاح";
+                ShowSuccessMessage($"تم تحميل الشاحنة {truckNumber} بوزن {TotalWeight} كيلو و {CagesCount} قفص");
 
-                _logger.LogInformation("Truck load saved successfully for truck {TruckNumber}", SelectedTruck?.TruckNumber);
+                _logger.LogInformation("Truck load saved successfully for truck {TruckNumber}", truckNumber);
             }
             catch (ValidationException vex)
             {
@@ -207,6 +210,9 @@ namespace PoultrySlaughterPOS.ViewModels
             ValidationErrorsVisibility = Visibility.Collapsed;
             SuccessMessageVisibility = Visibility.Collapsed;
 
+            // Clear validation errors
+            ClearErrors();
+
             StatusMessage = "تم إعادة تعيين النموذج";
             _logger.LogDebug("Form reset completed");
         }
@@ -222,6 +228,9 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             try
             {
+                // Validate all properties first
+                ValidateAllProperties();
+
                 if (SelectedTruck == null)
                 {
                     ValidationSummary = "يجب اختيار الشاحنة";
