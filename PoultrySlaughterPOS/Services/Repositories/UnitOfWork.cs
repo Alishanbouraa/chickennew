@@ -44,9 +44,7 @@ namespace PoultrySlaughterPOS.Services.Repositories
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
             _logger = _loggerFactory.CreateLogger<UnitOfWork>();
 
-            // Initialize lazy-loaded repositories with proper factory pattern
-            // Fixed: Pass IDbContextFactory instead of DbContext to BaseRepository implementations
-            _trucks = new Lazy<ITruckRepository>(() => new TruckRepository(_contextFactory, _loggerFactory.CreateLogger<TruckRepository>()));
+             _trucks = new Lazy<ITruckRepository>(() => new TruckRepository(_contextFactory, _loggerFactory.CreateLogger<TruckRepository>()));
             _customers = new Lazy<ICustomerRepository>(() => new CustomerRepository(_context, _loggerFactory.CreateLogger<CustomerRepository>()));
             _invoices = new Lazy<IInvoiceRepository>(() => new InvoiceRepository(_contextFactory, _loggerFactory.CreateLogger<InvoiceRepository>()));
             _payments = new Lazy<IPaymentRepository>(() => new PaymentRepository(_contextFactory, _loggerFactory.CreateLogger<PaymentRepository>()));
