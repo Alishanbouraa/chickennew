@@ -1,0 +1,204 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Controls.WeightInputControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:fa="http://schemas.fontawesome.io/icons/"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="400"
+             FlowDirection="RightToLeft">
+
+    <UserControl.Resources>
+        <!-- Modern TextBox Style -->
+        <Style x:Key="WeightTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#E9ECEF"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Margin" Value="0,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                            Grid.Column="0"
+                                            Margin="{TemplateBinding Padding}"
+                                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+
+                                <TextBlock Grid.Column="1" 
+                                         Text="كيلو" 
+                                         FontSize="14" 
+                                         Foreground="#6C757D" 
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,12,0"
+                                         IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#007BFF"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="BorderBrush" Value="#6C757D"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter Property="BorderBrush" Value="#DC3545"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Quick Action Button Style -->
+        <Style x:Key="QuickActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#F8F9FA"/>
+            <Setter Property="Foreground" Value="#495057"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#E9ECEF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#DEE2E6"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="White" CornerRadius="8" Padding="20" BorderBrush="#E9ECEF" BorderThickness="1">
+        <StackPanel>
+            <!-- Header -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
+                <fa:ImageAwesome Icon="Weight" Width="20" Height="20" Foreground="#007BFF" Margin="0,0,8,0"/>
+                <TextBlock Text="إدخال الأوزان" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50"/>
+                <TextBlock Text="*" FontSize="16" Foreground="#DC3545" Margin="5,0,0,0"/>
+            </StackPanel>
+
+            <!-- Total Weight Input -->
+            <Label Content="الوزن الإجمالي (كيلو)" FontWeight="SemiBold" FontSize="14" Foreground="#495057" Margin="0,5,0,0"/>
+            <TextBox x:Name="TotalWeightTextBox"
+                     Text="{Binding TotalWeight, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource WeightTextBoxStyle}"
+                     TextChanged="TotalWeightTextBox_TextChanged"/>
+
+            <!-- Cages Count Input -->
+            <Label Content="عدد الأقفاص" FontWeight="SemiBold" FontSize="14" Foreground="#495057" Margin="0,15,0,0"/>
+            <TextBox x:Name="CagesCountTextBox"
+                     Text="{Binding CagesCount, RelativeSource={RelativeSource AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource WeightTextBoxStyle}"
+                     TextChanged="CagesCountTextBox_TextChanged"/>
+
+            <!-- Quick Action Buttons -->
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                <TextBlock Text="قيم سريعة:" FontSize="12" Foreground="#6C757D" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button Content="500 كيلو" Style="{StaticResource QuickActionButtonStyle}" Click="QuickWeight_Click" Tag="500"/>
+                <Button Content="750 كيلو" Style="{StaticResource QuickActionButtonStyle}" Click="QuickWeight_Click" Tag="750"/>
+                <Button Content="1000 كيلو" Style="{StaticResource QuickActionButtonStyle}" Click="QuickWeight_Click" Tag="1000"/>
+                <Button Content="مسح" Style="{StaticResource QuickActionButtonStyle}" Click="Clear_Click" Foreground="#DC3545"/>
+            </StackPanel>
+
+            <!-- Calculated Values Display -->
+            <Border Background="#F8F9FA" CornerRadius="6" Padding="15" Margin="0,15,0,0"
+                    Visibility="{Binding HasCalculatedValues, RelativeSource={RelativeSource AncestorType=UserControl}, 
+                                 Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Header -->
+                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="القيم المحسوبة" 
+                               FontWeight="SemiBold" FontSize="14" Foreground="#2C3E50" 
+                               HorizontalAlignment="Center" Margin="0,0,0,10"/>
+
+                    <!-- Weight Per Cage -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" HorizontalAlignment="Center">
+                        <TextBlock Text="متوسط وزن القفص" FontSize="12" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                            <TextBlock Text="{Binding WeightPerCage, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat='F2'}" 
+                                       FontWeight="Bold" FontSize="16" 
+                                       Foreground="{Binding WeightPerCageColor, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            <TextBlock Text=" كيلو" FontSize="14" Foreground="#6C757D" Margin="2,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Efficiency Rating -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
+                        <TextBlock Text="تقييم الكفاءة" FontSize="12" Foreground="#6C757D" HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                            <TextBlock Text="{Binding EfficiencyRating, RelativeSource={RelativeSource AncestorType=UserControl}, StringFormat='F1'}" 
+                                       FontWeight="Bold" FontSize="16" 
+                                       Foreground="{Binding EfficiencyColor, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            <TextBlock Text="%" FontSize="14" Foreground="#6C757D" Margin="2,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Efficiency Bar -->
+                    <Border Grid.Row="2" Grid.ColumnSpan="2" Background="#E9ECEF" CornerRadius="3" Height="6" Margin="0,10,0,0">
+                        <Border Background="{Binding EfficiencyColor, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                CornerRadius="3" HorizontalAlignment="Left"
+                                Width="{Binding EfficiencyBarWidth, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Validation Messages -->
+            <ItemsControl x:Name="ValidationMessagesControl" 
+                          ItemsSource="{Binding ValidationMessages, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                          Margin="0,10,0,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#F8D7DA" BorderBrush="#F5C6CB" BorderThickness="1" 
+                                CornerRadius="4" Padding="8,6" Margin="0,2">
+                            <StackPanel Orientation="Horizontal">
+                                <fa:ImageAwesome Icon="ExclamationTriangle" Width="14" Height="14" 
+                                               Foreground="#721C24" Margin="0,0,5,0"/>
+                                <TextBlock Text="{Binding}" FontSize="12" Foreground="#721C24"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </Border>
+</UserControl>
