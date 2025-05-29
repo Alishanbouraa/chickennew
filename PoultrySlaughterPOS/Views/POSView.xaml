@@ -309,17 +309,24 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="الوزن الفلتي (كغم)" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="GrossWeightInput"
-                                             Text="{Binding CurrentInvoice.GrossWeight, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputFieldStyle}"
-                                             TextChanged="NumericInput_TextChanged"/>
+         Text="{Binding CurrentInvoice.GrossWeight, 
+                UpdateSourceTrigger=PropertyChanged, 
+                ValidatesOnDataErrors=True,
+                NotifyOnValidationError=True}"
+         Style="{StaticResource InputFieldStyle}"
+         TextChanged="NumericInput_TextChanged"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="وزن الأقفاص (كغم)" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="CagesWeightInput"
-                                             Text="{Binding CurrentInvoice.CagesWeight, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputFieldStyle}"
-                                             TextChanged="NumericInput_TextChanged"/>
+         Text="{Binding CurrentInvoice.CagesWeight, 
+                UpdateSourceTrigger=PropertyChanged, 
+                ValidatesOnDataErrors=True,
+                NotifyOnValidationError=True}"
+         Style="{StaticResource InputFieldStyle}"
+         TextChanged="NumericInput_TextChanged"/>
+
                                 </StackPanel>
                             </Grid>
 
@@ -333,9 +340,12 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="عدد الأقفاص" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="CagesCountInput"
-                                             Text="{Binding CurrentInvoice.CagesCount, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputFieldStyle}"
-                                             TextChanged="NumericInput_TextChanged"/>
+         Text="{Binding CurrentInvoice.CagesCount, 
+                UpdateSourceTrigger=PropertyChanged, 
+                ValidatesOnDataErrors=True,
+                NotifyOnValidationError=True}"
+         Style="{StaticResource InputFieldStyle}"
+         TextChanged="NumericInput_TextChanged"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
@@ -363,17 +373,23 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="سعر الكيلو (USD)" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="UnitPriceInput"
-                                             Text="{Binding CurrentInvoice.UnitPrice, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputFieldStyle}"
-                                             TextChanged="NumericInput_TextChanged"/>
+         Text="{Binding CurrentInvoice.UnitPrice, 
+                UpdateSourceTrigger=PropertyChanged, 
+                ValidatesOnDataErrors=True,
+                NotifyOnValidationError=True}"
+         Style="{StaticResource InputFieldStyle}"
+         TextChanged="NumericInput_TextChanged"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="نسبة الخصم (%)" Style="{StaticResource LabelStyle}"/>
                                     <TextBox x:Name="DiscountPercentageInput"
-                                             Text="{Binding CurrentInvoice.DiscountPercentage, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InputFieldStyle}"
-                                             TextChanged="NumericInput_TextChanged"/>
+         Text="{Binding CurrentInvoice.DiscountPercentage, 
+                UpdateSourceTrigger=PropertyChanged, 
+                ValidatesOnDataErrors=True,
+                NotifyOnValidationError=True}"
+         Style="{StaticResource InputFieldStyle}"
+         TextChanged="NumericInput_TextChanged"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>

@@ -9,6 +9,7 @@ using PoultrySlaughterPOS.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
@@ -145,12 +146,62 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 if (SetProperty(ref _currentInvoice, value))
                 {
+                    // Unsubscribe from old invoice if exists
+                    if (_currentInvoice != null)
+                    {
+                        _currentInvoice.PropertyChanged -= CurrentInvoice_PropertyChanged;
+                    }
+
+                    // Subscribe to new invoice property changes
+                    if (value != null)
+                    {
+                        value.PropertyChanged += CurrentInvoice_PropertyChanged;
+                    }
+
+                    // Trigger UI updates
                     OnPropertyChanged(nameof(DiscountAmount));
                     OnPropertyChanged(nameof(CanSaveInvoice));
+
+                    // Trigger command CanExecute reevaluation
+                    SaveInvoiceCommand.NotifyCanExecuteChanged();
+                    SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
                 }
             }
         }
+        /// <summary>
+        /// Handles property changes from the CurrentInvoice to trigger validation and calculations
+        /// </summary>
+        private void CurrentInvoice_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            try
+            {
+                // Recalculate totals when key properties change
+                var triggerCalculation = e.PropertyName switch
+                {
+                    nameof(Invoice.GrossWeight) or
+                    nameof(Invoice.CagesWeight) or
+                    nameof(Invoice.UnitPrice) or
+                    nameof(Invoice.DiscountPercentage) => true,
+                    _ => false
+                };
 
+                if (triggerCalculation)
+                {
+                    RecalculateInvoiceTotals();
+                }
+
+                // Always trigger validation check
+                OnPropertyChanged(nameof(CanSaveInvoice));
+                SaveInvoiceCommand.NotifyCanExecuteChanged();
+                SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
+
+                _logger.LogDebug("CurrentInvoice property changed: {PropertyName}", e.PropertyName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling CurrentInvoice property change: {PropertyName}", e.PropertyName);
+            }
+        }
         /// <summary>
         /// Current date and time for invoice
         /// </summary>
@@ -458,75 +509,107 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Validates the current invoice and returns validation result
+        /// Validates the current invoice and returns validation result with detailed logging
         /// </summary>
-        /// <param name="showErrors">Whether to display validation errors to user</param>
-        /// <returns>True if invoice is valid</returns>
         public bool ValidateCurrentInvoice(bool showErrors = true)
         {
             try
             {
                 ValidationErrors.Clear();
+                var validationResults = new List<string>();
+
+                _logger.LogDebug("Starting invoice validation...");
 
                 if (CurrentInvoice == null)
                 {
-                    ValidationErrors.Add("لا توجد فاتورة للتحقق منها");
-                    return false;
+                    validationResults.Add("لا توجد فاتورة للتحقق منها");
+                    _logger.LogWarning("Validation failed: CurrentInvoice is null");
+                }
+                else
+                {
+                    // Customer validation
+                    if (SelectedCustomer == null)
+                    {
+                        validationResults.Add("يجب اختيار زبون للفاتورة");
+                        _logger.LogDebug("Validation failed: No customer selected");
+                    }
+
+                    // Truck validation  
+                    if (SelectedTruck == null)
+                    {
+                        validationResults.Add("يجب اختيار شاحنة للفاتورة");
+                        _logger.LogDebug("Validation failed: No truck selected");
+                    }
+
+                    // Weight validations
+                    if (CurrentInvoice.GrossWeight <= 0)
+                    {
+                        validationResults.Add("يجب إدخال الوزن الفلتي");
+                        _logger.LogDebug("Validation failed: GrossWeight = {GrossWeight}", CurrentInvoice.GrossWeight);
+                    }
+
+                    if (CurrentInvoice.CagesWeight < 0)
+                    {
+                        validationResults.Add("وزن الأقفاص لا يمكن أن يكون سالباً");
+                        _logger.LogDebug("Validation failed: CagesWeight = {CagesWeight}", CurrentInvoice.CagesWeight);
+                    }
+
+                    if (CurrentInvoice.CagesWeight >= CurrentInvoice.GrossWeight && CurrentInvoice.GrossWeight > 0)
+                    {
+                        validationResults.Add("وزن الأقفاص لا يمكن أن يكون أكبر من أو يساوي الوزن الفلتي");
+                        _logger.LogDebug("Validation failed: CagesWeight ({CagesWeight}) >= GrossWeight ({GrossWeight})",
+                            CurrentInvoice.CagesWeight, CurrentInvoice.GrossWeight);
+                    }
+
+                    if (CurrentInvoice.CagesCount <= 0)
+                    {
+                        validationResults.Add("يجب إدخال عدد الأقفاص");
+                        _logger.LogDebug("Validation failed: CagesCount = {CagesCount}", CurrentInvoice.CagesCount);
+                    }
+
+                    // Price validation
+                    if (CurrentInvoice.UnitPrice <= 0)
+                    {
+                        validationResults.Add("يجب إدخال سعر الوحدة");
+                        _logger.LogDebug("Validation failed: UnitPrice = {UnitPrice}", CurrentInvoice.UnitPrice);
+                    }
+
+                    // Discount validation
+                    if (CurrentInvoice.DiscountPercentage < 0 || CurrentInvoice.DiscountPercentage > 100)
+                    {
+                        validationResults.Add("نسبة الخصم يجب أن تكون بين 0 و 100");
+                        _logger.LogDebug("Validation failed: DiscountPercentage = {DiscountPercentage}", CurrentInvoice.DiscountPercentage);
+                    }
                 }
 
-                // Customer validation
-                if (SelectedCustomer == null)
+                // Update validation state
+                foreach (var error in validationResults)
                 {
-                    ValidationErrors.Add("يجب اختيار زبون للفاتورة");
-                }
-
-                // Truck validation  
-                if (SelectedTruck == null)
-                {
-                    ValidationErrors.Add("يجب اختيار شاحنة للفاتورة");
-                }
-
-                // Weight validations
-                if (CurrentInvoice.GrossWeight <= 0)
-                {
-                    ValidationErrors.Add("يجب إدخال الوزن الفلتي");
-                }
-
-                if (CurrentInvoice.CagesWeight < 0)
-                {
-                    ValidationErrors.Add("وزن الأقفاص لا يمكن أن يكون سالباً");
-                }
-
-                if (CurrentInvoice.CagesWeight >= CurrentInvoice.GrossWeight)
-                {
-                    ValidationErrors.Add("وزن الأقفاص لا يمكن أن يكون أكبر من أو يساوي الوزن الفلتي");
-                }
-
-                if (CurrentInvoice.CagesCount <= 0)
-                {
-                    ValidationErrors.Add("يجب إدخال عدد الأقفاص");
-                }
-
-                // Price validation
-                if (CurrentInvoice.UnitPrice <= 0)
-                {
-                    ValidationErrors.Add("يجب إدخال سعر الوحدة");
-                }
-
-                // Discount validation
-                if (CurrentInvoice.DiscountPercentage < 0 || CurrentInvoice.DiscountPercentage > 100)
-                {
-                    ValidationErrors.Add("نسبة الخصم يجب أن تكون بين 0 و 100");
+                    ValidationErrors.Add(error);
                 }
 
                 HasValidationErrors = ValidationErrors.Count > 0;
+                var isValid = !HasValidationErrors;
+
+                _logger.LogDebug("Validation completed: IsValid = {IsValid}, ErrorCount = {ErrorCount}",
+                    isValid, ValidationErrors.Count);
 
                 if (HasValidationErrors && showErrors)
                 {
                     UpdateStatus($"توجد {ValidationErrors.Count} أخطاء في البيانات", "ExclamationTriangle", "#DC3545");
+
+                    // Log all validation errors for debugging
+                    foreach (var error in ValidationErrors)
+                    {
+                        _logger.LogWarning("Validation error: {Error}", error);
+                    }
+                }
+                else if (isValid)
+                {
+                    UpdateStatus("البيانات صحيحة وجاهزة للحفظ", "CheckCircle", "#28A745");
                 }
 
-                return !HasValidationErrors;
+                return isValid;
             }
             catch (Exception ex)
             {
@@ -534,7 +617,6 @@ namespace PoultrySlaughterPOS.ViewModels
                 return false;
             }
         }
-
         /// <summary>
         /// Resets the current invoice for new entry
         /// </summary>
@@ -594,11 +676,11 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Initializes a new invoice with default values
+        /// Initializes a new invoice with default values and proper event subscription
         /// </summary>
         private void InitializeCurrentInvoice()
         {
-            CurrentInvoice = new Invoice
+            var newInvoice = new Invoice
             {
                 InvoiceDate = DateTime.Now,
                 GrossWeight = 0,
@@ -615,9 +697,11 @@ namespace PoultrySlaughterPOS.ViewModels
                 UpdatedDate = DateTime.Now
             };
 
-            _logger.LogDebug("New invoice initialized with default values");
-        }
+            // This will trigger the property setter and set up event subscription
+            CurrentInvoice = newInvoice;
 
+            _logger.LogDebug("New invoice initialized with proper change tracking");
+        }
         /// <summary>
         /// Loads active customers from database
         /// </summary>
