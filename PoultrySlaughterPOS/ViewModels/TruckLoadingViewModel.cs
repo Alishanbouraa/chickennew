@@ -5,15 +5,15 @@ using PoultrySlaughterPOS.Models;
 using PoultrySlaughterPOS.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Windows;
 
 namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
     /// Enterprise-grade ViewModel for truck loading operations implementing comprehensive
-    /// MVVM patterns with validation, error handling, and real-time data binding.
-    /// Save functionality has been architecturally removed while maintaining data integrity.
-    /// Inherits from ObservableValidator for proper validation framework integration.
+    /// MVVM patterns with validation, error handling, real-time data binding, and advanced save functionality.
+    /// Features enhanced debugging, transaction management, and robust error recovery mechanisms.
     /// </summary>
     public partial class TruckLoadingViewModel : ObservableValidator
     {
@@ -22,6 +22,7 @@ namespace PoultrySlaughterPOS.ViewModels
         private readonly ITruckLoadingService _truckLoadingService;
         private readonly ILogger<TruckLoadingViewModel> _logger;
         private readonly IErrorHandlingService _errorHandlingService;
+        private readonly Stopwatch _operationStopwatch = new();
 
         #endregion
 
@@ -58,10 +59,13 @@ namespace PoultrySlaughterPOS.ViewModels
         private bool isLoading;
 
         [ObservableProperty]
+        private bool isSaving;
+
+        [ObservableProperty]
         private bool hasErrors;
 
         [ObservableProperty]
-        private string statusMessage = "عرض معلومات تحميل الشاحنات";
+        private string statusMessage = "جاهز لتسجيل تحميل جديد";
 
         [ObservableProperty]
         private string validationSummary = string.Empty;
@@ -77,6 +81,18 @@ namespace PoultrySlaughterPOS.ViewModels
 
         [ObservableProperty]
         private Visibility successMessageVisibility = Visibility.Collapsed;
+
+        [ObservableProperty]
+        private Visibility savingProgressVisibility = Visibility.Collapsed;
+
+        [ObservableProperty]
+        private string operationDuration = string.Empty;
+
+        [ObservableProperty]
+        private bool canSave = false;
+
+        [ObservableProperty]
+        private string lastSavedLoadId = string.Empty;
 
         #endregion
 
@@ -98,7 +114,7 @@ namespace PoultrySlaughterPOS.ViewModels
             PropertyChanged += TruckLoadingViewModel_PropertyChanged;
             ErrorsChanged += TruckLoadingViewModel_ErrorsChanged;
 
-            _logger.LogInformation("TruckLoadingViewModel initialized in view-only mode (save functionality disabled)");
+            _logger.LogInformation("TruckLoadingViewModel initialized with enhanced save functionality and debugging capabilities");
         }
 
         #endregion
@@ -110,6 +126,7 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             try
             {
+                _operationStopwatch.Restart();
                 IsLoading = true;
                 StatusMessage = "جاري تحميل البيانات...";
 
@@ -117,13 +134,17 @@ namespace PoultrySlaughterPOS.ViewModels
                 await LoadTodaysTruckLoadsAsync();
                 await LoadSummaryAsync();
 
+                _operationStopwatch.Stop();
+                OperationDuration = $"تم التحميل في {_operationStopwatch.ElapsedMilliseconds} مللي ثانية";
                 StatusMessage = "تم تحميل البيانات بنجاح";
-                _logger.LogInformation("Truck loading data loaded successfully");
+
+                _logger.LogInformation("Truck loading data loaded successfully in {ElapsedMs}ms", _operationStopwatch.ElapsedMilliseconds);
             }
             catch (Exception ex)
             {
+                _operationStopwatch.Stop();
                 StatusMessage = "خطأ في تحميل البيانات";
-                _logger.LogError(ex, "Error loading truck loading data");
+                _logger.LogError(ex, "Error loading truck loading data after {ElapsedMs}ms", _operationStopwatch.ElapsedMilliseconds);
                 await _errorHandlingService.HandleExceptionAsync(ex, "LoadDataAsync");
                 ShowErrorMessage("فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.");
             }
@@ -133,9 +154,102 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
+        [RelayCommand(CanExecute = nameof(CanExecuteSave))]
+        private async Task SaveTruckLoadAsync()
+        {
+            _operationStopwatch.Restart();
+
+            try
+            {
+                _logger.LogInformation("Starting truck load save operation for truck {TruckId} with weight {Weight}kg and {CagesCount} cages",
+                    SelectedTruck?.TruckId, TotalWeight, CagesCount);
+
+                IsSaving = true;
+                SavingProgressVisibility = Visibility.Visible;
+                StatusMessage = "جاري حفظ تحميل الشاحنة...";
+
+                // Clear previous messages
+                HideAllMessages();
+
+                // Final validation before save
+                await ValidateCurrentLoadAsync();
+
+                if (HasErrors)
+                {
+                    _logger.LogWarning("Save operation cancelled due to validation errors");
+                    StatusMessage = "لا يمكن الحفظ - يوجد أخطاء في البيانات";
+                    return;
+                }
+
+                // Create truck load request
+                var request = new TruckLoadRequest
+                {
+                    TruckId = SelectedTruck!.TruckId,
+                    TotalWeight = TotalWeight,
+                    CagesCount = CagesCount,
+                    Notes = Notes,
+                    LoadDate = LoadDate
+                };
+
+                _logger.LogDebug("Truck load request created: {@TruckLoadRequest}", request);
+
+                // Save to database with enhanced error handling
+                var savedLoad = await _truckLoadingService.CreateTruckLoadAsync(request);
+
+                _operationStopwatch.Stop();
+                OperationDuration = $"تم الحفظ في {_operationStopwatch.ElapsedMilliseconds} مللي ثانية";
+                LastSavedLoadId = $"Load ID: {savedLoad.LoadId}";
+
+                _logger.LogInformation("Truck load saved successfully with ID {LoadId} in {ElapsedMs}ms",
+                    savedLoad.LoadId, _operationStopwatch.ElapsedMilliseconds);
+
+                // Refresh data to show new load
+                await LoadTodaysTruckLoadsAsync();
+                await LoadSummaryAsync();
+                await LoadAvailableTrucksAsync(); // Refresh as truck may no longer be available
+
+                // Show success message
+                ShowSuccessMessage($"تم حفظ تحميل الشاحنة بنجاح - رقم العملية: {savedLoad.LoadId}");
+
+                // Reset form for next entry
+                await Task.Delay(1500); // Show success message briefly
+                ResetFormForNextEntry();
+
+            }
+            catch (ValidationException validationEx)
+            {
+                _operationStopwatch.Stop();
+                _logger.LogWarning(validationEx, "Validation failed during save operation after {ElapsedMs}ms", _operationStopwatch.ElapsedMilliseconds);
+                ShowErrorMessage($"خطأ في التحقق من البيانات: {validationEx.Message}");
+                StatusMessage = "فشل في التحقق من البيانات";
+            }
+            catch (InvalidOperationException invalidOpEx)
+            {
+                _operationStopwatch.Stop();
+                _logger.LogError(invalidOpEx, "Invalid operation during save after {ElapsedMs}ms", _operationStopwatch.ElapsedMilliseconds);
+                ShowErrorMessage($"عملية غير صالحة: {invalidOpEx.Message}");
+                StatusMessage = "عملية غير صالحة";
+            }
+            catch (Exception ex)
+            {
+                _operationStopwatch.Stop();
+                _logger.LogError(ex, "Critical error during truck load save operation after {ElapsedMs}ms", _operationStopwatch.ElapsedMilliseconds);
+                await _errorHandlingService.HandleExceptionAsync(ex, "SaveTruckLoadAsync");
+                ShowErrorMessage("حدث خطأ غير متوقع أثناء الحفظ. يرجى المحاولة مرة أخرى أو الاتصال بالدعم الفني.");
+                StatusMessage = "فشل في حفظ البيانات";
+            }
+            finally
+            {
+                IsSaving = false;
+                SavingProgressVisibility = Visibility.Collapsed;
+            }
+        }
+
         [RelayCommand]
         private void ResetForm()
         {
+            _logger.LogDebug("Resetting truck loading form");
+
             SelectedTruck = null;
             TotalWeight = 0;
             CagesCount = 0;
@@ -143,11 +257,12 @@ namespace PoultrySlaughterPOS.ViewModels
             LoadDate = DateTime.Today;
             CalculatedWeightPerCage = 0;
             ValidationSummary = string.Empty;
-            ValidationErrorsVisibility = Visibility.Collapsed;
-            SuccessMessageVisibility = Visibility.Collapsed;
+            LastSavedLoadId = string.Empty;
+            OperationDuration = string.Empty;
 
-            // Clear validation errors
+            HideAllMessages();
             ClearErrors();
+            UpdateCanSaveState();
 
             StatusMessage = "تم إعادة تعيين النموذج";
             _logger.LogDebug("Form reset completed");
@@ -156,6 +271,7 @@ namespace PoultrySlaughterPOS.ViewModels
         [RelayCommand]
         private async Task RefreshAsync()
         {
+            _logger.LogDebug("Refreshing truck loading data");
             await LoadDataAsync();
         }
 
@@ -164,6 +280,8 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             try
             {
+                _logger.LogDebug("Starting validation for current load data");
+
                 // Validate all properties first
                 ValidateAllProperties();
 
@@ -172,6 +290,7 @@ namespace PoultrySlaughterPOS.ViewModels
                     ValidationSummary = "يجب اختيار الشاحنة";
                     HasErrors = true;
                     ValidationErrorsVisibility = Visibility.Visible;
+                    UpdateCanSaveState();
                     return;
                 }
 
@@ -184,6 +303,8 @@ namespace PoultrySlaughterPOS.ViewModels
                     LoadDate = LoadDate
                 };
 
+                _logger.LogDebug("Validating truck load request: {@TruckLoadRequest}", request);
+
                 var validationResult = await _truckLoadingService.ValidateTruckLoadRequestAsync(request);
 
                 if (!validationResult.IsValid)
@@ -192,6 +313,9 @@ namespace PoultrySlaughterPOS.ViewModels
                     HasErrors = true;
                     ValidationErrorsVisibility = Visibility.Visible;
                     StatusMessage = "يوجد أخطاء في البيانات المدخلة";
+
+                    _logger.LogWarning("Validation failed with {ErrorCount} errors: {Errors}",
+                        validationResult.ErrorMessages.Count, string.Join(", ", validationResult.ErrorMessages));
                 }
                 else
                 {
@@ -199,22 +323,65 @@ namespace PoultrySlaughterPOS.ViewModels
                     HasErrors = false;
                     ValidationErrorsVisibility = Visibility.Collapsed;
                     StatusMessage = "البيانات صالحة للحفظ";
-                    ShowSuccessMessage("تم التحقق من صحة البيانات بنجاح");
+
+                    _logger.LogDebug("Validation passed successfully");
                 }
+
+                UpdateCanSaveState();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error validating current load");
+                _logger.LogError(ex, "Error during validation");
                 ValidationSummary = "خطأ في التحقق من صحة البيانات";
                 HasErrors = true;
                 ValidationErrorsVisibility = Visibility.Visible;
                 StatusMessage = "خطأ في عملية التحقق";
+                UpdateCanSaveState();
             }
         }
 
         #endregion
 
         #region Private Methods
+
+        private bool CanExecuteSave()
+        {
+            return CanSave && !IsSaving && !IsLoading && !HasErrors &&
+                   SelectedTruck != null && TotalWeight > 0 && CagesCount > 0;
+        }
+
+        private void UpdateCanSaveState()
+        {
+            var canSaveNow = !HasErrors &&
+                           SelectedTruck != null &&
+                           TotalWeight > 0 &&
+                           CagesCount > 0 &&
+                           !string.IsNullOrWhiteSpace(SelectedTruck?.TruckNumber);
+
+            if (CanSave != canSaveNow)
+            {
+                CanSave = canSaveNow;
+                SaveTruckLoadCommand.NotifyCanExecuteChanged();
+                _logger.LogDebug("CanSave state updated to {CanSave}", CanSave);
+            }
+        }
+
+        private void ResetFormForNextEntry()
+        {
+            _logger.LogDebug("Resetting form for next entry while preserving date");
+
+            SelectedTruck = null;
+            TotalWeight = 0;
+            CagesCount = 0;
+            Notes = string.Empty;
+            // Keep LoadDate as is for convenience
+            CalculatedWeightPerCage = 0;
+            ValidationSummary = string.Empty;
+
+            HideAllMessages();
+            ClearErrors();
+            UpdateCanSaveState();
+        }
 
         private async Task LoadAvailableTrucksAsync()
         {
@@ -261,7 +428,7 @@ namespace PoultrySlaughterPOS.ViewModels
             try
             {
                 LoadSummary = await _truckLoadingService.GetLoadSummaryAsync(LoadDate);
-                _logger.LogDebug("Loaded summary for date {Date}", LoadDate);
+                _logger.LogDebug("Loaded summary for date {Date}: {Summary}", LoadDate, LoadSummary);
             }
             catch (Exception ex)
             {
@@ -275,6 +442,7 @@ namespace PoultrySlaughterPOS.ViewModels
             if (CagesCount > 0 && TotalWeight > 0)
             {
                 CalculatedWeightPerCage = TotalWeight / CagesCount;
+                _logger.LogDebug("Weight per cage calculated: {WeightPerCage:F2}kg", CalculatedWeightPerCage);
             }
             else
             {
@@ -288,12 +456,18 @@ namespace PoultrySlaughterPOS.ViewModels
             SuccessMessageVisibility = Visibility.Visible;
             ValidationErrorsVisibility = Visibility.Collapsed;
 
-            // Auto-hide success message after 3 seconds
-            Task.Delay(3000).ContinueWith(_ =>
+            _logger.LogInformation("Success message displayed: {Message}", message);
+
+            // Auto-hide success message after 4 seconds
+            Task.Delay(4000).ContinueWith(_ =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     SuccessMessageVisibility = Visibility.Collapsed;
+                    if (StatusMessage == message) // Only clear if it hasn't changed
+                    {
+                        StatusMessage = "جاهز لتسجيل تحميل جديد";
+                    }
                 });
             });
         }
@@ -304,6 +478,15 @@ namespace PoultrySlaughterPOS.ViewModels
             HasErrors = true;
             ValidationErrorsVisibility = Visibility.Visible;
             SuccessMessageVisibility = Visibility.Collapsed;
+
+            _logger.LogWarning("Error message displayed: {Message}", message);
+        }
+
+        private void HideAllMessages()
+        {
+            ValidationErrorsVisibility = Visibility.Collapsed;
+            SuccessMessageVisibility = Visibility.Collapsed;
+            SavingProgressVisibility = Visibility.Collapsed;
         }
 
         #endregion
@@ -327,12 +510,17 @@ namespace PoultrySlaughterPOS.ViewModels
                 case nameof(LoadDate):
                     _ = LoadSummaryAsync();
                     break;
+
+                case nameof(HasErrors):
+                    UpdateCanSaveState();
+                    break;
             }
         }
 
         private void TruckLoadingViewModel_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
         {
             HasErrors = HasErrors;
+            UpdateCanSaveState();
         }
 
         #endregion
@@ -340,24 +528,26 @@ namespace PoultrySlaughterPOS.ViewModels
         #region Public Methods
 
         /// <summary>
-        /// Initialize the ViewModel with data loading
+        /// Initialize the ViewModel with comprehensive data loading and debugging setup
         /// </summary>
         public async Task InitializeAsync()
         {
             try
             {
+                _logger.LogInformation("Initializing TruckLoadingViewModel with enhanced save capabilities");
                 await LoadDataAsync();
-                _logger.LogInformation("TruckLoadingViewModel initialized successfully in view-only mode");
+                UpdateCanSaveState();
+                _logger.LogInformation("TruckLoadingViewModel initialized successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error initializing TruckLoadingViewModel");
+                _logger.LogError(ex, "Critical error initializing TruckLoadingViewModel");
                 await _errorHandlingService.HandleExceptionAsync(ex, "InitializeAsync");
             }
         }
 
         /// <summary>
-        /// Cleanup resources when ViewModel is disposed
+        /// Cleanup resources and event handlers
         /// </summary>
         public void Cleanup()
         {
@@ -365,6 +555,7 @@ namespace PoultrySlaughterPOS.ViewModels
             TodaysTruckLoads.Clear();
             PropertyChanged -= TruckLoadingViewModel_PropertyChanged;
             ErrorsChanged -= TruckLoadingViewModel_ErrorsChanged;
+            _operationStopwatch.Stop();
             _logger.LogDebug("TruckLoadingViewModel cleanup completed");
         }
 
@@ -415,6 +606,14 @@ namespace PoultrySlaughterPOS.ViewModels
                 };
             }
         }
+
+        /// <summary>
+        /// Comprehensive debugging information for development and troubleshooting
+        /// </summary>
+        public string DebugInfo => $"CanSave: {CanSave}, HasErrors: {HasErrors}, IsSaving: {IsSaving}, " +
+                                  $"IsLoading: {IsLoading}, SelectedTruck: {SelectedTruck?.TruckNumber ?? "None"}, " +
+                                  $"TotalWeight: {TotalWeight}, CagesCount: {CagesCount}, " +
+                                  $"AvailableTrucks: {AvailableTrucks.Count}, TodaysLoads: {TodaysTruckLoads.Count}";
 
         #endregion
     }

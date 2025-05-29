@@ -18,7 +18,8 @@ namespace PoultrySlaughterPOS
 {
     /// <summary>
     /// Enterprise-grade WPF application entry point with comprehensive dependency injection,
-    /// logging configuration, and service registration for the Poultry Slaughter POS system
+    /// logging configuration, and service registration for the Poultry Slaughter POS system.
+    /// FIXED: Proper execution strategy configuration to resolve transaction conflicts.
     /// </summary>
     public partial class App : Application
     {
@@ -41,7 +42,7 @@ namespace PoultrySlaughterPOS
                     .Enrich.WithMachineName()
                     .CreateLogger();
 
-                Log.Information("Starting Poultry Slaughter POS application...");
+                Log.Information("Starting Poultry Slaughter POS application with fixed execution strategy configuration...");
 
                 // Build configuration with enhanced settings support
                 var configuration = new ConfigurationBuilder()
@@ -62,7 +63,7 @@ namespace PoultrySlaughterPOS
 
                 // Start the host
                 await _host.StartAsync();
-                Log.Information("Application host started successfully");
+                Log.Information("Application host started successfully with fixed database configuration");
 
                 // Initialize database with enhanced error handling
                 using (var scope = _host.Services.CreateScope())
@@ -76,7 +77,7 @@ namespace PoultrySlaughterPOS
                 var mainWindow = _host.Services.GetRequiredService<MainWindow>();
                 mainWindow.Show();
 
-                Log.Information("Poultry Slaughter POS application started successfully");
+                Log.Information("Poultry Slaughter POS application started successfully with resolved execution strategy");
                 base.OnStartup(e);
             }
             catch (Exception ex)
@@ -91,8 +92,8 @@ namespace PoultrySlaughterPOS
         }
 
         /// <summary>
-        /// Configures all services for dependency injection with enterprise-grade patterns
-        /// FIXED: Proper DbContextFactory registration eliminating lifetime conflicts
+        /// Configures all services for dependency injection with enterprise-grade patterns.
+        /// FIXED: Resolved execution strategy conflicts by using conditional retry configuration.
         /// </summary>
         /// <param name="services">Service collection for DI container</param>
         /// <param name="configuration">Application configuration</param>
@@ -101,17 +102,24 @@ namespace PoultrySlaughterPOS
             // Register configuration
             services.AddSingleton(configuration);
 
-            // ✅ FIXED: Primary DbContext registration for scoped operations
+            // ✅ FIXED: Conditional execution strategy configuration
+            var useTransactionalOperations = configuration.GetValue<bool>("Database:UseExplicitTransactions", true);
+            var enableRetryOnFailure = configuration.GetValue<bool>("Database:EnableRetryOnFailure", false);
+
+            Log.Information("Database configuration - UseExplicitTransactions: {UseTransactions}, EnableRetryOnFailure: {EnableRetry}",
+                useTransactionalOperations, enableRetryOnFailure);
+
+            // ✅ FIXED: Primary DbContext registration with conditional retry strategy
             services.AddDbContext<PoultryDbContext>(options =>
             {
-                ConfigureDbContextOptions(options, configuration);
+                ConfigureDbContextOptions(options, configuration, enableRetryOnFailure, useTransactionalOperations);
             }, ServiceLifetime.Scoped);
 
-            // ✅ FIXED: Manual DbContextFactory registration with self-contained options
+            // ✅ FIXED: Manual DbContextFactory registration with consistent configuration
             services.AddSingleton<IDbContextFactory<PoultryDbContext>>(serviceProvider =>
             {
                 var connectionString = configuration.GetConnectionString("DefaultConnection");
-                return new PoultryDbContextFactory(connectionString!);
+                return new PoultryDbContextFactory(connectionString!, enableRetryOnFailure, useTransactionalOperations);
             });
 
             // Register repositories with comprehensive dependency injection patterns
@@ -159,30 +167,52 @@ namespace PoultrySlaughterPOS
             // Register additional services for future expansion
             ConfigureAdditionalServices(services, configuration);
 
-            Log.Information("Service configuration completed successfully with {ServiceCount} services registered",
+            Log.Information("Service configuration completed successfully with {ServiceCount} services registered (execution strategy fixed)",
                            services.Count);
         }
 
         /// <summary>
-        /// Centralized DbContext options configuration for consistency across registrations
+        /// Centralized DbContext options configuration with FIXED execution strategy handling
         /// </summary>
         /// <param name="options">DbContext options builder</param>
         /// <param name="configuration">Application configuration</param>
-        private static void ConfigureDbContextOptions(DbContextOptionsBuilder options, IConfiguration configuration)
+        /// <param name="enableRetryOnFailure">Whether to enable automatic retry on failure</param>
+        /// <param name="useTransactionalOperations">Whether to support explicit transactions</param>
+        private static void ConfigureDbContextOptions(DbContextOptionsBuilder options, IConfiguration configuration,
+            bool enableRetryOnFailure, bool useTransactionalOperations)
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+            options.UseSqlServer(connectionString, sqlOptions =>
             {
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: TimeSpan.FromSeconds(5),
-                    errorNumbersToAdd: null);
+                // ✅ FIXED: Conditional retry configuration based on transaction usage
+                if (enableRetryOnFailure && !useTransactionalOperations)
+                {
+                    // Enable retry only when NOT using explicit transactions
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null);
+
+                    Log.Information("SQL Server retry strategy enabled (explicit transactions disabled)");
+                }
+                else if (useTransactionalOperations)
+                {
+                    // Disable retry when using explicit transactions to avoid conflicts
+                    Log.Information("SQL Server retry strategy disabled to support explicit transactions");
+                }
+
                 sqlOptions.CommandTimeout(60);
             });
 
+            // ✅ FIXED: Optimized settings for transactional vs non-transactional usage
             options.EnableSensitiveDataLogging(false);
             options.EnableServiceProviderCaching(true);
             options.LogTo(Console.WriteLine, LogLevel.Warning);
-            options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+
+            // Set tracking behavior based on transaction usage
+            options.UseQueryTrackingBehavior(useTransactionalOperations ?
+                QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking);
         }
 
         /// <summary>
@@ -235,22 +265,26 @@ namespace PoultrySlaughterPOS
     }
 
     /// <summary>
-    /// Enterprise-grade DbContextFactory implementation with self-contained configuration
-    /// Eliminates dependency injection lifetime conflicts by managing options internally
+    /// Enterprise-grade DbContextFactory implementation with FIXED execution strategy configuration.
+    /// Resolves conflicts between retry strategies and explicit transaction management.
     /// </summary>
     public class PoultryDbContextFactory : IDbContextFactory<PoultryDbContext>
     {
         private readonly string _connectionString;
         private readonly DbContextOptions<PoultryDbContext> _options;
+        private readonly bool _enableRetryOnFailure;
+        private readonly bool _useTransactionalOperations;
 
-        public PoultryDbContextFactory(string connectionString)
+        public PoultryDbContextFactory(string connectionString, bool enableRetryOnFailure = false, bool useTransactionalOperations = true)
         {
             _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _enableRetryOnFailure = enableRetryOnFailure;
+            _useTransactionalOperations = useTransactionalOperations;
             _options = CreateDbContextOptions();
         }
 
         /// <summary>
-        /// Creates DbContext options with optimized configuration for factory pattern
+        /// Creates DbContext options with FIXED execution strategy configuration for factory pattern
         /// </summary>
         /// <returns>Configured DbContext options</returns>
         private DbContextOptions<PoultryDbContext> CreateDbContextOptions()
@@ -259,17 +293,25 @@ namespace PoultrySlaughterPOS
 
             optionsBuilder.UseSqlServer(_connectionString, sqlOptions =>
             {
-                sqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 3,
-                    maxRetryDelay: TimeSpan.FromSeconds(5),
-                    errorNumbersToAdd: null);
+                // ✅ FIXED: Apply retry strategy only when explicit transactions are not used
+                if (_enableRetryOnFailure && !_useTransactionalOperations)
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 3,
+                        maxRetryDelay: TimeSpan.FromSeconds(5),
+                        errorNumbersToAdd: null);
+                }
+
                 sqlOptions.CommandTimeout(60);
             });
 
             // Optimized settings for factory-created contexts
             optionsBuilder.EnableSensitiveDataLogging(false);
             optionsBuilder.EnableServiceProviderCaching(false);  // Disabled for thread safety
-            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);  // Performance optimization
+
+            // ✅ FIXED: Set tracking behavior based on transaction usage
+            optionsBuilder.UseQueryTrackingBehavior(_useTransactionalOperations ?
+                QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking);
 
             return optionsBuilder.Options;
         }
