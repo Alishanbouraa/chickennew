@@ -10,6 +10,7 @@ using PoultrySlaughterPOS.Services.Repositories;
 using PoultrySlaughterPOS.Services.Repositories.Implementations;
 using PoultrySlaughterPOS.ViewModels;
 using PoultrySlaughterPOS.Views;
+using PoultrySlaughterPOS.Views.Dialogs;
 using Serilog;
 using System.IO;
 using System.Windows;
@@ -19,7 +20,7 @@ namespace PoultrySlaughterPOS
     /// <summary>
     /// Enterprise-grade WPF application entry point with comprehensive dependency injection,
     /// logging configuration, and service registration for the Poultry Slaughter POS system.
-    /// FIXED: Proper execution strategy configuration to resolve transaction conflicts.
+    /// FIXED: Proper execution strategy configuration and complete POS module integration.
     /// </summary>
     public partial class App : Application
     {
@@ -42,7 +43,7 @@ namespace PoultrySlaughterPOS
                     .Enrich.WithMachineName()
                     .CreateLogger();
 
-                Log.Information("Starting Poultry Slaughter POS application with fixed execution strategy configuration...");
+                Log.Information("Starting Poultry Slaughter POS application with complete POS module integration...");
 
                 // Build configuration with enhanced settings support
                 var configuration = new ConfigurationBuilder()
@@ -63,7 +64,7 @@ namespace PoultrySlaughterPOS
 
                 // Start the host
                 await _host.StartAsync();
-                Log.Information("Application host started successfully with fixed database configuration");
+                Log.Information("Application host started successfully with complete POS module configuration");
 
                 // Initialize database with enhanced error handling
                 using (var scope = _host.Services.CreateScope())
@@ -77,7 +78,7 @@ namespace PoultrySlaughterPOS
                 var mainWindow = _host.Services.GetRequiredService<MainWindow>();
                 mainWindow.Show();
 
-                Log.Information("Poultry Slaughter POS application started successfully with resolved execution strategy");
+                Log.Information("Poultry Slaughter POS application started successfully with complete POS integration");
                 base.OnStartup(e);
             }
             catch (Exception ex)
@@ -93,7 +94,7 @@ namespace PoultrySlaughterPOS
 
         /// <summary>
         /// Configures all services for dependency injection with enterprise-grade patterns.
-        /// FIXED: Resolved execution strategy conflicts by using conditional retry configuration.
+        /// FIXED: Complete POS module service registration and repository dependencies.
         /// </summary>
         /// <param name="services">Service collection for DI container</param>
         /// <param name="configuration">Application configuration</param>
@@ -122,7 +123,7 @@ namespace PoultrySlaughterPOS
                 return new PoultryDbContextFactory(connectionString!, enableRetryOnFailure, useTransactionalOperations);
             });
 
-            // Register repositories with comprehensive dependency injection patterns
+            // ✅ COMPLETE: Register all repositories with comprehensive dependency injection
             services.AddScoped<ITruckRepository, TruckRepository>();
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
@@ -141,16 +142,23 @@ namespace PoultrySlaughterPOS
                 return new UnitOfWork(context, contextFactory, loggerFactory);
             });
 
-            // Register business services with comprehensive error handling support
+            // ✅ NEW: Register business services with comprehensive error handling support
             services.AddTransient<IDatabaseInitializationService, DatabaseInitializationService>();
             services.AddScoped<IErrorHandlingService, ErrorHandlingService>();
             services.AddScoped<ITruckLoadingService, TruckLoadingService>();
 
-            // Register ViewModels with proper scoping for MVVM pattern
-            services.AddTransient<TruckLoadingViewModel>();
+            // ✅ NEW: Register POS Service with complete business logic integration
+            services.AddScoped<IPOSService, POSService>();
 
-            // Register Views with dependency injection support
+            // ✅ NEW: Register ViewModels with proper scoping for MVVM pattern
+            services.AddTransient<TruckLoadingViewModel>();
+            services.AddTransient<POSViewModel>();
+            services.AddTransient<AddCustomerDialogViewModel>();
+
+            // ✅ NEW: Register Views with dependency injection support
             services.AddTransient<TruckLoadingView>();
+            services.AddTransient<POSView>();
+            services.AddTransient<AddCustomerDialog>();
 
             // ✅ FIXED: Register MainWindow as TRANSIENT
             services.AddTransient<MainWindow>();
@@ -167,7 +175,7 @@ namespace PoultrySlaughterPOS
             // Register additional services for future expansion
             ConfigureAdditionalServices(services, configuration);
 
-            Log.Information("Service configuration completed successfully with {ServiceCount} services registered (execution strategy fixed)",
+            Log.Information("Service configuration completed successfully with {ServiceCount} services registered (complete POS module)",
                            services.Count);
         }
 

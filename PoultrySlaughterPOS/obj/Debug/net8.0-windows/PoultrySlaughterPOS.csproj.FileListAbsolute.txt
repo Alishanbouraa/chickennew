@@ -1,0 +1,13 @@
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\PoultrySlaughterPOS.csproj.AssemblyReference.cache
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\Controls\WeightInputControl.baml
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\MainWindow.baml
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\Controls\TruckSelectionControl.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\Controls\ValidationSummaryControl.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\Controls\WeightInputControl.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\MainWindow.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\Views\TruckLoadingView.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\App.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\PoultrySlaughterPOS_Content.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\PoultrySlaughterPOS_MarkupCompile.cache
+C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\obj\Debug\net8.0-windows\PoultrySlaughterPOS_MarkupCompile.lref
