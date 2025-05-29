@@ -1,15 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
 using PoultrySlaughterPOS.Services;
 using PoultrySlaughterPOS.Services.Repositories;
+using PoultrySlaughterPOS.Views.Dialogs;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PoultrySlaughterPOS.ViewModels
@@ -18,6 +21,7 @@ namespace PoultrySlaughterPOS.ViewModels
     /// Enterprise-grade Point of Sale ViewModel implementing comprehensive invoice processing,
     /// real-time calculations, customer management, and business logic orchestration
     /// for poultry slaughter operations with MVVM architecture and async patterns.
+    /// UPDATED: Complete AddCustomerDialog integration with dependency injection support.
     /// </summary>
     public partial class POSViewModel : ObservableObject
     {
@@ -26,6 +30,7 @@ namespace PoultrySlaughterPOS.ViewModels
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<POSViewModel> _logger;
         private readonly IErrorHandlingService _errorHandlingService;
+        private readonly IServiceProvider _serviceProvider; // Added for dialog dependency injection
         private bool _isLoading = false;
         private bool _hasValidationErrors = false;
 
@@ -55,24 +60,27 @@ namespace PoultrySlaughterPOS.ViewModels
         #region Constructor
 
         /// <summary>
-        /// Initializes POSViewModel with dependency injection and comprehensive service integration
+        /// Initializes POSViewModel with comprehensive dependency injection including dialog services
         /// </summary>
         /// <param name="unitOfWork">Unit of work for database operations</param>
         /// <param name="logger">Logger for diagnostic and error tracking</param>
         /// <param name="errorHandlingService">Centralized error handling service</param>
+        /// <param name="serviceProvider">Service provider for dialog dependency injection</param>
         public POSViewModel(
             IUnitOfWork unitOfWork,
             ILogger<POSViewModel> logger,
-            IErrorHandlingService errorHandlingService)
+            IErrorHandlingService errorHandlingService,
+            IServiceProvider serviceProvider)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _errorHandlingService = errorHandlingService ?? throw new ArgumentNullException(nameof(errorHandlingService));
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             InitializeCommands();
             InitializeCurrentInvoice();
 
-            _logger.LogInformation("POSViewModel initialized with enterprise-grade dependency injection");
+            _logger.LogInformation("POSViewModel initialized with complete dependency injection including dialog services");
         }
 
         #endregion
@@ -310,18 +318,65 @@ namespace PoultrySlaughterPOS.ViewModels
             }, "فاتورة جديدة");
         }
 
+        /// <summary>
+        /// UPDATED: Complete AddNewCustomer command implementation with dialog integration
+        /// </summary>
         [RelayCommand]
         private async Task AddNewCustomerAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing AddNewCustomer command");
+                _logger.LogInformation("Executing AddNewCustomer command with dialog integration");
 
-                // Implementation for adding new customer
-                // This would typically open a customer creation dialog
-                UpdateStatus("إضافة زبون جديد قيد التطوير", "Info", "#FFC107");
+                try
+                {
+                    UpdateStatus("جاري فتح نافذة إضافة زبون جديد...", "UserPlus", "#007BFF");
 
-                await Task.Delay(100); // Placeholder for actual implementation
+                    // Get current window for modal dialog positioning
+                    var currentWindow = GetCurrentWindow();
+
+                    // Create and show customer dialog using dependency injection
+                    var createdCustomer = await AddCustomerDialog.ShowNewCustomerDialogAsync(_serviceProvider, currentWindow);
+
+                    if (createdCustomer != null)
+                    {
+                        _logger.LogInformation("New customer created successfully: {CustomerName} (ID: {CustomerId})",
+                            createdCustomer.CustomerName, createdCustomer.CustomerId);
+
+                        // Add new customer to the collection for immediate availability
+                        Customers.Insert(0, createdCustomer); // Add at top for easy selection
+
+                        // Automatically select the newly created customer
+                        SelectedCustomer = createdCustomer;
+
+                        // Update status with success message
+                        UpdateStatus($"تم إضافة الزبون '{createdCustomer.CustomerName}' بنجاح", "CheckCircle", "#28A745");
+
+                        // Trigger property change notifications for UI updates
+                        OnPropertyChanged(nameof(Customers));
+                        OnPropertyChanged(nameof(SelectedCustomer));
+
+                        _logger.LogInformation("Customer '{CustomerName}' added to collection and auto-selected", createdCustomer.CustomerName);
+                    }
+                    else
+                    {
+                        // User cancelled the dialog
+                        UpdateStatus("تم إلغاء إضافة الزبون", "Times", "#6C757D");
+                        _logger.LogDebug("AddCustomer dialog was cancelled by user");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error in AddNewCustomer command execution");
+                    UpdateStatus("خطأ في إضافة الزبون", "ExclamationTriangle", "#DC3545");
+
+                    // Show user-friendly error message
+                    var currentWindow = GetCurrentWindow();
+                    MessageBox.Show($"خطأ في إضافة زبون جديد:\n{ex.Message}",
+                                   "خطأ",
+                                   MessageBoxButton.OK,
+                                   MessageBoxImage.Warning);
+                }
             }, "إضافة زبون جديد");
         }
 
@@ -573,7 +628,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 var customers = await _unitOfWork.Customers.GetActiveCustomersAsync();
 
                 Customers.Clear();
-                foreach (var customer in customers)
+                foreach (var customer in customers.OrderBy(c => c.CustomerName))
                 {
                     Customers.Add(customer);
                 }
@@ -597,7 +652,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 var trucks = await _unitOfWork.Trucks.GetActiveTrucksAsync();
 
                 AvailableTrucks.Clear();
-                foreach (var truck in trucks)
+                foreach (var truck in trucks.OrderBy(t => t.TruckNumber))
                 {
                     AvailableTrucks.Add(truck);
                 }
@@ -779,6 +834,29 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 _logger.LogError(ex, "Error resetting form for new invoice");
                 throw;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current WPF window for dialog positioning - NEW METHOD
+        /// </summary>
+        /// <returns>Current active window or application main window</returns>
+        private Window? GetCurrentWindow()
+        {
+            try
+            {
+                // Try to get the currently active window
+                var activeWindow = Application.Current.Windows
+                    .Cast<Window>()
+                    .FirstOrDefault(w => w.IsActive);
+
+                // Fallback to main window if no active window found
+                return activeWindow ?? Application.Current.MainWindow;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting current window for dialog positioning");
+                return Application.Current.MainWindow;
             }
         }
 

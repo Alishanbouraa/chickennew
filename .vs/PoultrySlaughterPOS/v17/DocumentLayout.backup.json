@@ -3,14 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\services\\posservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\services\\posservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\viewmodels\\posviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\viewmodels\\posviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\views\\posview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\views\\posview.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -27,40 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "POSService.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Services\\POSService.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Services\\POSService.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Services\\POSService.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\Services\\POSService.cs",
-              "ViewState": "AgIAAH0BAAAAAAAAAAAlwE4DAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-29T13:12:25.155Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "POSViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\POSViewModel.cs",
-              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\ViewModels\\POSViewModel.cs",
-              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\POSViewModel.cs",
-              "RelativeToolTip": "PoultrySlaughterPOS\\ViewModels\\POSViewModel.cs",
-              "ViewState": "AgIAAKcCAAAAAAAAAAAtwDQDAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-29T13:09:29.309Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
               "Title": "POSView.xaml.cs",
               "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Views\\POSView.xaml.cs",
               "RelativeDocumentMoniker": "PoultrySlaughterPOS\\Views\\POSView.xaml.cs",
               "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\Views\\POSView.xaml.cs",
               "RelativeToolTip": "PoultrySlaughterPOS\\Views\\POSView.xaml.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAQwIABAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAEACAAAAAAAAAAAiwE4CAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-29T13:07:06.346Z",
+              "WhenOpened": "2025-05-29T18:17:48.63Z",
               "EditorCaption": ""
             }
           ]

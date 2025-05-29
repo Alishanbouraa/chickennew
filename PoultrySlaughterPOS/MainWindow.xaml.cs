@@ -15,6 +15,7 @@ namespace PoultrySlaughterPOS
     /// <summary>
     /// Enterprise-grade main window with comprehensive navigation system and real-time dashboard.
     /// Implements modern WPF patterns with dependency injection and robust error handling.
+    /// UPDATED: Complete POS module integration with navigation support.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -71,7 +72,7 @@ namespace PoultrySlaughterPOS
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
 
-            _logger.LogInformation("MainWindow initialized successfully");
+            _logger.LogInformation("MainWindow initialized successfully with complete POS navigation integration");
         }
 
         #endregion
@@ -85,7 +86,7 @@ namespace PoultrySlaughterPOS
         {
             try
             {
-                _logger.LogInformation("MainWindow loaded, starting initialization");
+                _logger.LogInformation("MainWindow loaded, starting initialization with POS module support");
 
                 // Start real-time clock
                 _clockTimer.Start();
@@ -97,7 +98,7 @@ namespace PoultrySlaughterPOS
                 // Start periodic status updates
                 _statusUpdateTimer.Start();
 
-                _logger.LogInformation("MainWindow initialization completed successfully");
+                _logger.LogInformation("MainWindow initialization completed successfully with POS integration");
             }
             catch (Exception ex)
             {
@@ -181,7 +182,7 @@ namespace PoultrySlaughterPOS
         }
 
         /// <summary>
-        /// Navigates to the POS Sales view (placeholder)
+        /// Navigates to the POS Sales view - FULLY IMPLEMENTED
         /// </summary>
         private async void POSSales_Click(object sender, RoutedEventArgs e)
         {
@@ -294,6 +295,7 @@ namespace PoultrySlaughterPOS
 
         /// <summary>
         /// Handles navigation between different pages with proper cleanup and initialization
+        /// UPDATED: Complete POS module integration added
         /// </summary>
         /// <param name="pageName">Name of the page to navigate to</param>
         private async Task NavigateToPageAsync(string pageName)
@@ -326,6 +328,9 @@ namespace PoultrySlaughterPOS
                         break;
 
                     case "POSSales":
+                        await LoadPOSPageAsync();
+                        break;
+
                     case "CustomerAccounts":
                     case "TransactionHistory":
                     case "Reports":
@@ -381,6 +386,56 @@ namespace PoultrySlaughterPOS
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading truck loading page");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Loads the POS Sales page with comprehensive dependency injection and initialization
+        /// NEWLY IMPLEMENTED: Complete POS module integration
+        /// </summary>
+        private async Task LoadPOSPageAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Loading POS Sales page with full dependency injection");
+
+                // Get POS view from DI container
+                var posView = _serviceProvider.GetRequiredService<POSView>();
+
+                // Set as current page
+                _currentPage = posView;
+
+                // Update content display
+                DashboardContent.Visibility = Visibility.Collapsed;
+                DynamicContentPresenter.Content = posView;
+                DynamicContentPresenter.Visibility = Visibility.Visible;
+
+                // Initialize the POS view with comprehensive data loading
+                if (posView.ViewModel != null)
+                {
+                    await posView.ViewModel.InitializeAsync();
+                    _logger.LogInformation("POS ViewModel initialized with customer and truck data");
+                }
+
+                // Set focus to the first input field for improved UX
+                posView.FocusCustomerSelection();
+
+                _logger.LogInformation("POS Sales page loaded successfully with full functionality");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading POS Sales page");
+
+                // Provide user-friendly error message
+                var errorMessage = ex.InnerException?.Message ?? ex.Message;
+                MessageBox.Show($"خطأ في تحميل صفحة نقطة البيع:\n{errorMessage}\n\nيرجى التأكد من توفر البيانات المطلوبة.",
+                               "خطأ في تحميل نقطة البيع",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Error);
+
+                // Fallback to dashboard
+                await NavigateToPageAsync("Dashboard");
                 throw;
             }
         }
@@ -483,6 +538,14 @@ namespace PoultrySlaughterPOS
         public async Task RefreshCurrentPageAsync()
         {
             await NavigateToPageAsync(_currentPageName);
+        }
+
+        /// <summary>
+        /// Quick navigation method for POS Sales (can be called from external shortcuts)
+        /// </summary>
+        public async Task NavigateToPOSAsync()
+        {
+            await NavigateToPageAsync("POSSales");
         }
 
         #endregion

@@ -20,7 +20,7 @@ namespace PoultrySlaughterPOS
     /// <summary>
     /// Enterprise-grade WPF application entry point with comprehensive dependency injection,
     /// logging configuration, and service registration for the Poultry Slaughter POS system.
-    /// FIXED: Proper execution strategy configuration and complete POS module integration.
+    /// FIXED: Complete service registration including dialog components and missing dependencies.
     /// </summary>
     public partial class App : Application
     {
@@ -43,7 +43,7 @@ namespace PoultrySlaughterPOS
                     .Enrich.WithMachineName()
                     .CreateLogger();
 
-                Log.Information("Starting Poultry Slaughter POS application with complete POS module integration...");
+                Log.Information("Starting Poultry Slaughter POS application with complete dialog integration...");
 
                 // Build configuration with enhanced settings support
                 var configuration = new ConfigurationBuilder()
@@ -64,7 +64,7 @@ namespace PoultrySlaughterPOS
 
                 // Start the host
                 await _host.StartAsync();
-                Log.Information("Application host started successfully with complete POS module configuration");
+                Log.Information("Application host started successfully with complete dialog integration");
 
                 // Initialize database with enhanced error handling
                 using (var scope = _host.Services.CreateScope())
@@ -78,7 +78,7 @@ namespace PoultrySlaughterPOS
                 var mainWindow = _host.Services.GetRequiredService<MainWindow>();
                 mainWindow.Show();
 
-                Log.Information("Poultry Slaughter POS application started successfully with complete POS integration");
+                Log.Information("Poultry Slaughter POS application started successfully with complete integration");
                 base.OnStartup(e);
             }
             catch (Exception ex)
@@ -94,7 +94,7 @@ namespace PoultrySlaughterPOS
 
         /// <summary>
         /// Configures all services for dependency injection with enterprise-grade patterns.
-        /// FIXED: Complete POS module service registration and repository dependencies.
+        /// FIXED: Complete dialog integration and missing service registrations.
         /// </summary>
         /// <param name="services">Service collection for DI container</param>
         /// <param name="configuration">Application configuration</param>
@@ -146,21 +146,23 @@ namespace PoultrySlaughterPOS
             services.AddTransient<IDatabaseInitializationService, DatabaseInitializationService>();
             services.AddScoped<IErrorHandlingService, ErrorHandlingService>();
             services.AddScoped<ITruckLoadingService, TruckLoadingService>();
-
-            // ✅ NEW: Register POS Service with complete business logic integration
             services.AddScoped<IPOSService, POSService>();
 
-            // ✅ NEW: Register ViewModels with proper scoping for MVVM pattern
+            // ✅ FIXED: Register ViewModels with proper scoping for MVVM pattern
             services.AddTransient<TruckLoadingViewModel>();
             services.AddTransient<POSViewModel>();
+
+            // ✅ NEW: Register Dialog ViewModels for customer management
             services.AddTransient<AddCustomerDialogViewModel>();
 
-            // ✅ NEW: Register Views with dependency injection support
+            // ✅ FIXED: Register Views with dependency injection support
             services.AddTransient<TruckLoadingView>();
             services.AddTransient<POSView>();
+
+            // ✅ NEW: Register Dialog Views for complete customer management workflow
             services.AddTransient<AddCustomerDialog>();
 
-            // ✅ FIXED: Register MainWindow as TRANSIENT
+            // ✅ FIXED: Register MainWindow as TRANSIENT for proper lifecycle management
             services.AddTransient<MainWindow>();
 
             // Configure enhanced logging with Serilog integration
@@ -175,7 +177,7 @@ namespace PoultrySlaughterPOS
             // Register additional services for future expansion
             ConfigureAdditionalServices(services, configuration);
 
-            Log.Information("Service configuration completed successfully with {ServiceCount} services registered (complete POS module)",
+            Log.Information("Service configuration completed successfully with {ServiceCount} services registered (complete dialog integration)",
                            services.Count);
         }
 

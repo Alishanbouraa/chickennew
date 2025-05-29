@@ -3,46 +3,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:fa="http://schemas.fontawesome.io/icons/"
              xmlns:converters="clr-namespace:PoultrySlaughterPOS.Converters"
+             xmlns:viewmodels="clr-namespace:PoultrySlaughterPOS.ViewModels"
+             x:Name="POSViewControl"
              FlowDirection="RightToLeft"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             Background="#F8F9FA">
 
     <UserControl.Resources>
-        <!-- Value Converters -->
-        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <!-- Value Converters for Data Binding -->
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <converters:WeightConverter x:Key="WeightConverter"/>
+        <converters:PercentageConverter x:Key="PercentageConverter"/>
 
-        <!-- Modern Card Style -->
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Padding" Value="20"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.1"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Input Field Style -->
+        <!-- Professional Input Field Styles -->
         <Style x:Key="InputFieldStyle" TargetType="TextBox">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="0,5,0,10"/>
             <Setter Property="BorderBrush" Value="#DEE2E6"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ScrollViewer Margin="0" x:Name="PART_ContentHost"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.1"/>
+                            </Border.Effect>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="#007BFF"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="Validation.HasError" Value="True">
+                                <Setter Property="BorderBrush" Value="#DC3545"/>
+                                <Setter Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <!-- ComboBox Style -->
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="0,5,0,10"/>
             <Setter Property="Height" Value="40"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
         <!-- Button Styles -->
@@ -58,8 +78,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="4">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="3" ShadowDepth="1" Opacity="0.2"/>
+                            </Border.Effect>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -67,6 +90,10 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="#004085"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#6C757D"/>
+                                <Setter Property="Opacity" Value="0.6"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -92,24 +119,37 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Label Style -->
+        <!-- Label Styles -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Foreground" Value="#495057"/>
-            <Setter Property="Margin" Value="5,5,5,2"/>
+            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Margin" Value="0,5,0,3"/>
         </Style>
 
-        <!-- Header Style -->
-        <Style x:Key="HeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="18"/>
+        <Style x:Key="ValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#2C3E50"/>
+            <Setter Property="Foreground" Value="#007BFF"/>
+        </Style>
+
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#DEE2E6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="20"/>
             <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="5" ShadowDepth="2" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="#F8F9FA">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -120,25 +160,27 @@
         <Border Grid.Row="0" Background="#007BFF" Padding="20,15">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <fa:ImageAwesome Icon="ShoppingCart" Width="24" Height="24" Foreground="White" Margin="0,0,10,0"/>
-                    <TextBlock Text="نقطة البيع - إنشاء فاتورة" FontSize="20" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                <fa:ImageAwesome Grid.Column="0" Icon="Calculator" Width="28" Height="28" 
+                                 Foreground="White" VerticalAlignment="Center" Margin="0,0,15,0"/>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="نقطة البيع - Point of Sale" 
+                               FontSize="20" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="{Binding StatusMessage}" 
+                               FontSize="12" Foreground="#E3F2FF" Margin="0,5,0,0"/>
                 </StackPanel>
 
-                <TextBlock Grid.Column="1" x:Name="InvoiceNumberDisplay" 
-                           Text="{Binding CurrentInvoice.InvoiceNumber, StringFormat='فاتورة رقم: {0}'}" 
-                           FontSize="16" FontWeight="SemiBold" Foreground="White" 
-                           VerticalAlignment="Center" Margin="20,0"/>
-
-                <TextBlock Grid.Column="2" x:Name="DateTimeDisplay" 
-                           Text="{Binding CurrentDateTime, StringFormat='التاريخ: {0:yyyy/MM/dd HH:mm}'}" 
-                           FontSize="14" Foreground="#E3F2FD" 
-                           VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <fa:ImageAwesome Icon="{Binding StatusIcon}" Width="20" Height="20" 
+                                     Foreground="{Binding StatusColor}" Margin="0,0,10,0"/>
+                    <TextBlock Text="{Binding CurrentDateTime, StringFormat='HH:mm:ss'}" 
+                               FontSize="14" Foreground="White" FontWeight="Medium"/>
+                </StackPanel>
             </Grid>
         </Border>
 
@@ -147,309 +189,406 @@
             <Grid Margin="20">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="1.5*"/>
+                    <ColumnDefinition Width="15"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- Left Panel - Invoice Data Entry -->
-                <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <StackPanel Grid.Column="0">
 
                     <!-- Customer Selection Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="🏢 بيانات الزبون" Style="{StaticResource HeaderStyle}"/>
-
-                            <Grid>
+                            <Grid Margin="0,0,0,15">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="اختيار الزبون *" Style="{StaticResource LabelStyle}"/>
-                                    <ComboBox x:Name="CustomerComboBox" 
-                                              Style="{StaticResource ComboBoxStyle}"
-                                              ItemsSource="{Binding Customers}"
-                                              SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
-                                              DisplayMemberPath="CustomerName"
-                                              IsEditable="True"
-                                              IsTextSearchEnabled="True"/>
-                                </StackPanel>
+                                <TextBlock Grid.Column="0" Text="بيانات الزبون" 
+                                           FontSize="18" FontWeight="Bold" Foreground="#2C3E50"/>
 
-                                <Button Grid.Column="1" Content="إضافة زبون جديد" 
+                                <Button Grid.Column="1" Content="زبون جديد" 
                                         Style="{StaticResource SecondaryButtonStyle}" 
-                                        Width="120" Margin="10,25,0,0"
-                                        Command="{Binding AddNewCustomerCommand}"/>
+                                        Width="100" Height="35"
+                                        Command="{Binding AddNewCustomerCommand}">
+                                    <Button.Content>
+                                        <StackPanel Orientation="Horizontal">
+                                            <fa:ImageAwesome Icon="UserPlus" Width="12" Height="12" Margin="0,0,5,0"/>
+                                            <TextBlock Text="جديد"/>
+                                        </StackPanel>
+                                    </Button.Content>
+                                </Button>
                             </Grid>
 
+                            <TextBlock Text="اختر الزبون" Style="{StaticResource LabelStyle}"/>
+                            <ComboBox x:Name="CustomerSelectionComboBox"
+                                      ItemsSource="{Binding Customers}"
+                                      SelectedItem="{Binding SelectedCustomer}"
+                                      DisplayMemberPath="CustomerName"
+                                      Style="{StaticResource ComboBoxStyle}"
+                                      IsEditable="True"
+                                      IsTextSearchEnabled="True"/>
+
                             <!-- Customer Info Display -->
-                            <Border Background="#F8F9FA" CornerRadius="5" Padding="10" Margin="0,10,0,0"
-                                    Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                            <Grid Margin="0,10,0,0" 
+                                  Visibility="{Binding SelectedCustomer, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="رقم الهاتف:" FontSize="12" Foreground="#6C757D"/>
-                                        <TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" FontWeight="SemiBold"/>
-                                    </StackPanel>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="رقم الهاتف" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding SelectedCustomer.PhoneNumber}" 
+                                               FontSize="13" Foreground="#6C757D"/>
+                                </StackPanel>
 
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="العنوان:" FontSize="12" Foreground="#6C757D"/>
-                                        <TextBlock Text="{Binding SelectedCustomer.Address}" FontWeight="SemiBold"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="الرصيد السابق:" FontSize="12" Foreground="#6C757D"/>
-                                        <TextBlock Text="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource CurrencyConverter}}" 
-                                                   FontWeight="Bold" Foreground="#DC3545"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="الرصيد السابق" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource CurrencyConverter}}" 
+                                               Style="{StaticResource ValueStyle}"
+                                               Foreground="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource DebtColorConverter}}"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
                     <!-- Truck Selection Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="🚛 اختيار الشاحنة" Style="{StaticResource HeaderStyle}"/>
+                            <TextBlock Text="بيانات الشاحنة" 
+                                       FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
 
-                            <TextBlock Text="الشاحنة *" Style="{StaticResource LabelStyle}"/>
-                            <ComboBox x:Name="TruckComboBox" 
-                                      Style="{StaticResource ComboBoxStyle}"
+                            <TextBlock Text="اختر الشاحنة" Style="{StaticResource LabelStyle}"/>
+                            <ComboBox x:Name="TruckSelectionComboBox"
                                       ItemsSource="{Binding AvailableTrucks}"
-                                      SelectedItem="{Binding SelectedTruck, Mode=TwoWay}"
-                                      DisplayMemberPath="TruckNumber"/>
+                                      SelectedItem="{Binding SelectedTruck}"
+                                      DisplayMemberPath="TruckNumber"
+                                      Style="{StaticResource ComboBoxStyle}"/>
 
                             <!-- Truck Info Display -->
-                            <Border Background="#F8F9FA" CornerRadius="5" Padding="10" Margin="0,10,0,0"
-                                    Visibility="{Binding SelectedTruck, Converter={StaticResource NullToVisibilityConverter}}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="اسم السائق:" FontSize="12" Foreground="#6C757D"/>
-                                        <TextBlock Text="{Binding SelectedTruck.DriverName}" FontWeight="SemiBold"/>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="1">
-                                        <TextBlock Text="آخر تحميل:" FontSize="12" Foreground="#6C757D"/>
-                                        <TextBlock Text="{Binding LastTruckLoadDate, StringFormat='{0:yyyy/MM/dd}'}" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Weight and Calculation Card -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="⚖️ الأوزان والحسابات" Style="{StaticResource HeaderStyle}"/>
-
-                            <Grid>
+                            <Grid Margin="0,10,0,0" 
+                                  Visibility="{Binding SelectedTruck, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Left Column -->
-                                <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                                    <TextBlock Text="الوزن الفلتي (كغم) *" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="GrossWeightTextBox" 
-                                             Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.GrossWeight, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"/>
-
-                                    <TextBlock Text="وزن الأقفاص (كغم) *" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="CageWeightTextBox" 
-                                             Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.CagesWeight, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"/>
-
-                                    <TextBlock Text="عدد الأقفاص *" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="CageCountTextBox" 
-                                             Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.CagesCount, UpdateSourceTrigger=PropertyChanged}"/>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="اسم السائق" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding SelectedTruck.DriverName}" 
+                                               FontSize="13" Foreground="#6C757D"/>
                                 </StackPanel>
 
-                                <!-- Right Column -->
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                                    <TextBlock Text="الوزن الصافي (كغم)" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.NetWeight, Mode=OneWay, StringFormat=F2}"
-                                             IsReadOnly="True" Background="#F8F9FA"/>
-
-                                    <TextBlock Text="سعر الوحدة (دولار/كغم) *" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="UnitPriceTextBox" 
-                                             Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.UnitPrice, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"/>
-
-                                    <TextBlock Text="نسبة الخصم (%)" Style="{StaticResource LabelStyle}"/>
-                                    <TextBox x:Name="DiscountTextBox" 
-                                             Style="{StaticResource InputFieldStyle}"
-                                             Text="{Binding CurrentInvoice.DiscountPercentage, UpdateSourceTrigger=PropertyChanged, StringFormat=F2}"/>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="آخر تحميل" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding LastTruckLoadDate, StringFormat='dd/MM/yyyy'}" 
+                                               FontSize="13" Foreground="#6C757D"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
                     </Border>
+
+                    <!-- Weight and Quantity Input Card -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="بيانات الوزن والكمية" 
+                                       FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="الوزن الفلتي (كغم)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="GrossWeightInput"
+                                             Text="{Binding CurrentInvoice.GrossWeight, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputFieldStyle}"
+                                             TextChanged="NumericInput_TextChanged"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="وزن الأقفاص (كغم)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="CagesWeightInput"
+                                             Text="{Binding CurrentInvoice.CagesWeight, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputFieldStyle}"
+                                             TextChanged="NumericInput_TextChanged"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="عدد الأقفاص" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="CagesCountInput"
+                                             Text="{Binding CurrentInvoice.CagesCount, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputFieldStyle}"
+                                             TextChanged="NumericInput_TextChanged"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="الوزن الصافي" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding CurrentInvoice.NetWeight, Converter={StaticResource WeightConverter}}" 
+                                               Style="{StaticResource ValueStyle}" FontSize="16"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Pricing Card -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="بيانات السعر" 
+                                       FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="15"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="سعر الكيلو (USD)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="UnitPriceInput"
+                                             Text="{Binding CurrentInvoice.UnitPrice, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputFieldStyle}"
+                                             TextChanged="NumericInput_TextChanged"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="نسبة الخصم (%)" Style="{StaticResource LabelStyle}"/>
+                                    <TextBox x:Name="DiscountPercentageInput"
+                                             Text="{Binding CurrentInvoice.DiscountPercentage, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InputFieldStyle}"
+                                             TextChanged="NumericInput_TextChanged"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
 
-                <!-- Right Panel - Invoice Preview and Totals -->
-                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <!-- Right Panel - Invoice Summary -->
+                <StackPanel Grid.Column="2">
 
-                    <!-- Invoice Totals Card -->
+                    <!-- Invoice Summary Card -->
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
-                            <TextBlock Text="💰 مجموع الفاتورة" Style="{StaticResource HeaderStyle}"/>
+                            <TextBlock Text="ملخص الفاتورة" 
+                                       FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,15"/>
 
-                            <!-- Calculation Summary -->
-                            <Border Background="Linear Gradient" CornerRadius="8" Padding="15">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#E3F2FD" Offset="0"/>
-                                        <GradientStop Color="#F8F9FA" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="2"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-                                <StackPanel>
-                                    <!-- Calculation Steps -->
-                                    <Grid Margin="0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="المجموع الجزئي:" FontSize="14"/>
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding CurrentInvoice.TotalAmount, Converter={StaticResource CurrencyConverter}}" 
-                                                   FontSize="14" FontWeight="SemiBold"/>
-                                    </Grid>
+                                <!-- Invoice Number -->
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="رقم الفاتورة:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding CurrentInvoice.InvoiceNumber}" 
+                                           FontWeight="Bold" FontSize="14"/>
 
-                                    <Grid Margin="0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="قيمة الخصم:" FontSize="14"/>
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding DiscountAmount, Converter={StaticResource CurrencyConverter}}" 
-                                                   FontSize="14" FontWeight="SemiBold" Foreground="#DC3545"/>
-                                    </Grid>
+                                <!-- Total Amount -->
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="المبلغ الإجمالي:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentInvoice.TotalAmount, Converter={StaticResource CurrencyConverter}}" 
+                                           Style="{StaticResource ValueStyle}"/>
 
-                                    <Separator Margin="0,10"/>
+                                <!-- Discount -->
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="مبلغ الخصم:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding DiscountAmount, Converter={StaticResource CurrencyConverter}}" 
+                                           FontSize="14" Foreground="#DC3545"/>
 
-                                    <Grid Margin="0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="المجموع النهائي:" FontSize="16" FontWeight="Bold"/>
-                                        <TextBlock Grid.Column="1" 
-                                                   Text="{Binding CurrentInvoice.FinalAmount, Converter={StaticResource CurrencyConverter}}" 
-                                                   FontSize="16" FontWeight="Bold" Foreground="#007BFF"/>
-                                    </Grid>
-                                </StackPanel>
-                            </Border>
+                                <!-- Final Amount -->
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="المبلغ النهائي:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CurrentInvoice.FinalAmount, Converter={StaticResource CurrencyConverter}}" 
+                                           Style="{StaticResource ValueStyle}" FontSize="18"/>
 
-                            <!-- Balance Information -->
-                            <StackPanel Margin="0,15,0,0">
-                                <TextBlock Text="💳 معلومات الحساب" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                                <!-- Previous Balance -->
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="الرصيد السابق:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CurrentInvoice.PreviousBalance, Converter={StaticResource CurrencyConverter}}" 
+                                           FontSize="14" Foreground="#6C757D"/>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="الرصيد السابق:" FontSize="14"/>
-                                    <TextBlock Grid.Column="1" 
-                                               Text="{Binding CurrentInvoice.PreviousBalance, Converter={StaticResource CurrencyConverter}}" 
-                                               FontSize="14" FontWeight="SemiBold"/>
-                                </Grid>
+                                <!-- Current Balance -->
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="الرصيد الحالي:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding CurrentInvoice.CurrentBalance, Converter={StaticResource CurrencyConverter}}" 
+                                           Style="{StaticResource ValueStyle}" FontSize="16"/>
 
-                                <Grid Margin="0,5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="الرصيد الحالي:" FontSize="14" FontWeight="Bold"/>
-                                    <TextBlock Grid.Column="1" 
-                                               Text="{Binding CurrentInvoice.CurrentBalance, Converter={StaticResource CurrencyConverter}}" 
-                                               FontSize="14" FontWeight="Bold" Foreground="#DC3545"/>
-                                </Grid>
+                                <!-- Separator -->
+                                <Rectangle Grid.Row="6" Grid.ColumnSpan="2" Height="1" Fill="#DEE2E6" Margin="0,10"/>
+
+                                <!-- Invoice Date -->
+                                <TextBlock Grid.Row="7" Grid.Column="0" Text="تاريخ الفاتورة:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding CurrentInvoice.InvoiceDate, StringFormat='dd/MM/yyyy HH:mm'}" 
+                                           FontSize="12" Foreground="#6C757D"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Statistics Card -->
+                    <Border Style="{StaticResource CardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="إحصائيات اليوم" 
+                                       FontSize="16" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="عدد الفواتير:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding TodayInvoiceCount}" 
+                                           FontWeight="Bold" FontSize="16" Foreground="#28A745"/>
+
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="آخر فاتورة:" Style="{StaticResource LabelStyle}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding LastInvoiceTime, StringFormat='HH:mm'}" 
+                                           FontSize="12" Foreground="#6C757D"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Validation Errors -->
+                    <Border Style="{StaticResource CardStyle}" Background="#FFF5F5" BorderBrush="#FED7D7"
+                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <fa:ImageAwesome Icon="ExclamationTriangle" Width="16" Height="16" 
+                                                 Foreground="#E53E3E" Margin="0,0,8,0"/>
+                                <TextBlock Text="أخطاء في البيانات:" FontWeight="Bold" Foreground="#E53E3E"/>
                             </StackPanel>
-                        </StackPanel>
-                    </Border>
 
-                    <!-- Quick Actions Card -->
-                    <Border Style="{StaticResource CardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="⚡ إجراءات سريعة" Style="{StaticResource HeaderStyle}"/>
-
-                            <Button Content="💾 حفظ وطباعة الفاتورة" 
-                                    Style="{StaticResource SuccessButtonStyle}" 
-                                    Command="{Binding SaveAndPrintInvoiceCommand}"
-                                    IsEnabled="{Binding CanSaveInvoice}"/>
-
-                            <Button Content="💾 حفظ بدون طباعة" 
-                                    Style="{StaticResource PrimaryButtonStyle}" 
-                                    Command="{Binding SaveInvoiceCommand}"
-                                    IsEnabled="{Binding CanSaveInvoice}"/>
-
-                            <Button Content="🖨️ طباعة سابقة" 
-                                    Style="{StaticResource SecondaryButtonStyle}" 
-                                    Command="{Binding PrintPreviousInvoiceCommand}"/>
-
-                            <Button Content="🔄 فاتورة جديدة" 
-                                    Style="{StaticResource SecondaryButtonStyle}" 
-                                    Command="{Binding NewInvoiceCommand}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Validation Messages -->
-                    <Border Style="{StaticResource CardStyle}" 
-                            Visibility="{Binding HasValidationErrors, Converter={StaticResource BooleanToVisibilityConverter}}"
-                            BorderBrush="#DC3545" BorderThickness="1">
-                        <StackPanel>
-                            <TextBlock Text="⚠️ تنبيهات التحقق" Style="{StaticResource HeaderStyle}" Foreground="#DC3545"/>
                             <ItemsControl ItemsSource="{Binding ValidationErrors}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding}" Foreground="#DC3545" Margin="0,2"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                                            <Ellipse Width="4" Height="4" Fill="#E53E3E" 
+                                                     VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                            <TextBlock Text="{Binding}" FontSize="12" 
+                                                       Foreground="#E53E3E" TextWrapping="Wrap"/>
+                                        </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </StackPanel>
                     </Border>
+
                 </StackPanel>
             </Grid>
         </ScrollViewer>
 
-        <!-- Status Bar -->
-        <Border Grid.Row="2" Background="#F8F9FA" BorderBrush="#DEE2E6" BorderThickness="0,1,0,0" Padding="20,10">
+        <!-- Action Buttons -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#DEE2E6" BorderThickness="0,1,0,0" 
+                Padding="20,15">
             <Grid>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <fa:ImageAwesome Icon="{Binding StatusIcon}" Width="16" Height="16" 
-                                     Foreground="{Binding StatusColor}" Margin="0,0,5,0"/>
-                    <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#495057"/>
+                <!-- Loading Indicator -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center"
+                            Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <fa:ImageAwesome Icon="Spinner" Width="16" Height="16" 
+                                     Foreground="#007BFF" Margin="0,0,8,0"
+                                     RenderTransformOrigin="0.5,0.5">
+                        <fa:ImageAwesome.RenderTransform>
+                            <RotateTransform/>
+                        </fa:ImageAwesome.RenderTransform>
+                        <fa:ImageAwesome.Triggers>
+                            <EventTrigger RoutedEvent="Loaded">
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                         From="0" To="360" Duration="0:0:1"
+                                                         RepeatBehavior="Forever"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </fa:ImageAwesome.Triggers>
+                    </fa:ImageAwesome>
+                    <TextBlock Text="جاري المعالجة..." FontSize="12" Foreground="#007BFF" 
+                               VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="20,0">
-                    <TextBlock Text="إجمالي الفواتير اليوم: " FontSize="12" Foreground="#6C757D"/>
-                    <TextBlock Text="{Binding TodayInvoiceCount}" FontSize="12" FontWeight="Bold" Foreground="#007BFF"/>
-                </StackPanel>
+                <!-- New Invoice Button -->
+                <Button Grid.Column="2" Content="فاتورة جديدة" 
+                        Style="{StaticResource SecondaryButtonStyle}" 
+                        Width="120"
+                        Command="{Binding NewInvoiceCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="Plus" Width="14" Height="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="جديد"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
 
-                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                    <TextBlock Text="آخر فاتورة: " FontSize="12" Foreground="#6C757D"/>
-                    <TextBlock Text="{Binding LastInvoiceTime, StringFormat='{0:HH:mm}'}" FontSize="12" FontWeight="Bold" Foreground="#28A745"/>
-                </StackPanel>
+                <!-- Print Previous Button -->
+                <Button Grid.Column="3" Content="طباعة سابقة" 
+                        Style="{StaticResource SecondaryButtonStyle}" 
+                        Width="120"
+                        Command="{Binding PrintPreviousInvoiceCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="History" Width="14" Height="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="سابقة"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <!-- Save Button -->
+                <Button Grid.Column="4" Content="حفظ الفاتورة" 
+                        Style="{StaticResource PrimaryButtonStyle}" 
+                        Width="120"
+                        Command="{Binding SaveInvoiceCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="Save" Width="14" Height="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="حفظ"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+
+                <!-- Save and Print Button -->
+                <Button Grid.Column="5" Content="حفظ وطباعة" 
+                        Style="{StaticResource SuccessButtonStyle}" 
+                        Width="130"
+                        Command="{Binding SaveAndPrintInvoiceCommand}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <fa:ImageAwesome Icon="Print" Width="14" Height="14" Margin="0,0,5,0"/>
+                            <TextBlock Text="حفظ وطباعة"/>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
             </Grid>
         </Border>
     </Grid>

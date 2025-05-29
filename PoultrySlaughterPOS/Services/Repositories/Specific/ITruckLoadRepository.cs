@@ -5,6 +5,7 @@ namespace PoultrySlaughterPOS.Services.Repositories
     /// <summary>
     /// Enterprise-level repository interface for truck loading operations management
     /// supporting complex logistics workflows and performance optimization metrics
+    /// UPDATED: Added missing GetLatestTruckLoadAsync method for POS integration
     /// </summary>
     public interface ITruckLoadRepository : IRepository<TruckLoad>
     {
@@ -12,6 +13,15 @@ namespace PoultrySlaughterPOS.Services.Repositories
         Task<TruckLoad?> GetTruckCurrentLoadAsync(int truckId, CancellationToken cancellationToken = default);
         Task<IEnumerable<TruckLoad>> GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken = default);
         Task<IEnumerable<TruckLoad>> GetTruckLoadsByDateRangeAsync(int truckId, DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// FIXED: Added missing method for POS integration - Gets the most recent truck load for a specific truck
+        /// </summary>
+        /// <param name="truckId">Truck ID to get latest load for</param>
+        /// <param name="cancellationToken">Cancellation token for async operations</param>
+        /// <returns>Most recent truck load or null if no loads found</returns>
+        Task<TruckLoad?> GetLatestTruckLoadAsync(int truckId, CancellationToken cancellationToken = default);
+
         Task<TruckLoad?> GetMostRecentLoadAsync(int truckId, CancellationToken cancellationToken = default);
 
         // Load Status Management and Workflow
