@@ -92,6 +92,7 @@ namespace PoultrySlaughterPOS
 
         /// <summary>
         /// Configures all services for dependency injection with enterprise-grade patterns
+        /// FIXED: Proper DbContextFactory registration eliminating lifetime conflicts
         /// </summary>
         /// <param name="services">Service collection for DI container</param>
         /// <param name="configuration">Application configuration</param>
@@ -100,43 +101,18 @@ namespace PoultrySlaughterPOS
             // Register configuration
             services.AddSingleton(configuration);
 
-            // Configure Entity Framework DbContext with optimized settings for offline operations
+            // ✅ FIXED: Primary DbContext registration for scoped operations
             services.AddDbContext<PoultryDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 3,
-                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null);
-                    sqlOptions.CommandTimeout(60); // 60 seconds timeout for complex operations
-                });
-
-                options.EnableSensitiveDataLogging(false);
-                options.EnableServiceProviderCaching(false);
-                options.LogTo(Console.WriteLine, LogLevel.Warning);
-
-                // Enhanced performance for offline scenarios
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+                ConfigureDbContextOptions(options, configuration);
             }, ServiceLifetime.Scoped);
 
-            // Configure DbContextFactory for BaseRepository implementations with optimized connection pooling
-            services.AddDbContextFactory<PoultryDbContext>(options =>
+            // ✅ FIXED: Manual DbContextFactory registration with self-contained options
+            services.AddSingleton<IDbContextFactory<PoultryDbContext>>(serviceProvider =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 3,
-                        maxRetryDelay: TimeSpan.FromSeconds(5),
-                        errorNumbersToAdd: null);
-                    sqlOptions.CommandTimeout(60);
-                });
-
-                options.EnableSensitiveDataLogging(false);
-                options.EnableServiceProviderCaching(false);
-                options.LogTo(Console.WriteLine, LogLevel.Warning);
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            }, ServiceLifetime.Scoped);
+                var connectionString = configuration.GetConnectionString("DefaultConnection");
+                return new PoultryDbContextFactory(connectionString!);
+            });
 
             // Register repositories with comprehensive dependency injection patterns
             services.AddScoped<ITruckRepository, TruckRepository>();
@@ -147,7 +123,7 @@ namespace PoultrySlaughterPOS
             services.AddScoped<IDailyReconciliationRepository, DailyReconciliationRepository>();
             services.AddScoped<IAuditLogRepository, AuditLogRepository>();
 
-            // Register Unit of Work with explicit factory registration for proper constructor injection
+            // ✅ FIXED: Register Unit of Work with proper DbContext injection
             services.AddScoped<IUnitOfWork>(serviceProvider =>
             {
                 var context = serviceProvider.GetRequiredService<PoultryDbContext>();
@@ -168,8 +144,8 @@ namespace PoultrySlaughterPOS
             // Register Views with dependency injection support
             services.AddTransient<TruckLoadingView>();
 
-            // Register main window and shell components
-            services.AddSingleton<MainWindow>();
+            // ✅ FIXED: Register MainWindow as TRANSIENT
+            services.AddTransient<MainWindow>();
 
             // Configure enhanced logging with Serilog integration
             services.AddLogging(builder =>
@@ -188,6 +164,28 @@ namespace PoultrySlaughterPOS
         }
 
         /// <summary>
+        /// Centralized DbContext options configuration for consistency across registrations
+        /// </summary>
+        /// <param name="options">DbContext options builder</param>
+        /// <param name="configuration">Application configuration</param>
+        private static void ConfigureDbContextOptions(DbContextOptionsBuilder options, IConfiguration configuration)
+        {
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+                sqlOptions.CommandTimeout(60);
+            });
+
+            options.EnableSensitiveDataLogging(false);
+            options.EnableServiceProviderCaching(true);
+            options.LogTo(Console.WriteLine, LogLevel.Warning);
+            options.UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll);
+        }
+
+        /// <summary>
         /// Configures additional services for extensibility and future feature development
         /// </summary>
         /// <param name="services">Service collection</param>
@@ -199,9 +197,6 @@ namespace PoultrySlaughterPOS
             {
                 options.SizeLimit = 100; // Limit cache size for offline scenarios
             });
-
-            // Background services for periodic tasks (if needed)
-            // services.AddHostedService<DatabaseMaintenanceService>();
 
             // Configuration options pattern for strongly-typed settings
             services.Configure<ApplicationSettings>(configuration.GetSection("Application"));
@@ -237,35 +232,65 @@ namespace PoultrySlaughterPOS
                 Log.CloseAndFlush();
             }
         }
+    }
+
+    /// <summary>
+    /// Enterprise-grade DbContextFactory implementation with self-contained configuration
+    /// Eliminates dependency injection lifetime conflicts by managing options internally
+    /// </summary>
+    public class PoultryDbContextFactory : IDbContextFactory<PoultryDbContext>
+    {
+        private readonly string _connectionString;
+        private readonly DbContextOptions<PoultryDbContext> _options;
+
+        public PoultryDbContextFactory(string connectionString)
+        {
+            _connectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
+            _options = CreateDbContextOptions();
+        }
 
         /// <summary>
-        /// Configures global exception handling for unhandled exceptions
+        /// Creates DbContext options with optimized configuration for factory pattern
         /// </summary>
-        private void ConfigureGlobalExceptionHandling()
+        /// <returns>Configured DbContext options</returns>
+        private DbContextOptions<PoultryDbContext> CreateDbContextOptions()
         {
-            // Global exception handling
-            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            var optionsBuilder = new DbContextOptionsBuilder<PoultryDbContext>();
+
+            optionsBuilder.UseSqlServer(_connectionString, sqlOptions =>
             {
-                var exception = args.ExceptionObject as Exception;
-                Log.Fatal(exception, "Unhandled domain exception occurred");
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+                sqlOptions.CommandTimeout(60);
+            });
 
-                MessageBox.Show($"حدث خطأ غير متوقع في النظام:\n{exception?.Message}",
-                               "خطأ غير متوقع",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
-            };
+            // Optimized settings for factory-created contexts
+            optionsBuilder.EnableSensitiveDataLogging(false);
+            optionsBuilder.EnableServiceProviderCaching(false);  // Disabled for thread safety
+            optionsBuilder.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);  // Performance optimization
 
-            DispatcherUnhandledException += (sender, args) =>
-            {
-                Log.Error(args.Exception, "Unhandled dispatcher exception occurred");
+            return optionsBuilder.Options;
+        }
 
-                MessageBox.Show($"حدث خطأ في واجهة المستخدم:\n{args.Exception.Message}",
-                               "خطأ في الواجهة",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Warning);
+        /// <summary>
+        /// Creates a new DbContext instance with factory-optimized configuration
+        /// </summary>
+        /// <returns>New PoultryDbContext instance</returns>
+        public PoultryDbContext CreateDbContext()
+        {
+            return new PoultryDbContext(_options);
+        }
 
-                args.Handled = true; // Prevent application crash
-            };
+        /// <summary>
+        /// Asynchronously creates a new DbContext instance
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        /// <returns>New PoultryDbContext instance</returns>
+        public Task<PoultryDbContext> CreateDbContextAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(CreateDbContext());
         }
     }
 

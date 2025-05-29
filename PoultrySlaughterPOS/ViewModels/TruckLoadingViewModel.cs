@@ -12,6 +12,7 @@ namespace PoultrySlaughterPOS.ViewModels
     /// <summary>
     /// Enterprise-grade ViewModel for truck loading operations implementing comprehensive
     /// MVVM patterns with validation, error handling, and real-time data binding.
+    /// Save functionality has been architecturally removed while maintaining data integrity.
     /// Inherits from ObservableValidator for proper validation framework integration.
     /// </summary>
     public partial class TruckLoadingViewModel : ObservableValidator
@@ -37,13 +38,11 @@ namespace PoultrySlaughterPOS.ViewModels
 
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Required(ErrorMessage = "يجب إدخال الوزن الإجمالي")]
         [Range(0.01, 10000, ErrorMessage = "الوزن يجب أن يكون بين 0.01 و 10000 كيلو")]
         private decimal totalWeight;
 
         [ObservableProperty]
         [NotifyDataErrorInfo]
-        [Required(ErrorMessage = "يجب إدخال عدد الأقفاص")]
         [Range(1, 1000, ErrorMessage = "عدد الأقفاص يجب أن يكون بين 1 و 1000")]
         private int cagesCount;
 
@@ -62,7 +61,7 @@ namespace PoultrySlaughterPOS.ViewModels
         private bool hasErrors;
 
         [ObservableProperty]
-        private string statusMessage = "جاهز لتحميل الشاحنات";
+        private string statusMessage = "عرض معلومات تحميل الشاحنات";
 
         [ObservableProperty]
         private string validationSummary = string.Empty;
@@ -72,9 +71,6 @@ namespace PoultrySlaughterPOS.ViewModels
 
         [ObservableProperty]
         private decimal calculatedWeightPerCage;
-
-        [ObservableProperty]
-        private bool canSaveLoad;
 
         [ObservableProperty]
         private Visibility validationErrorsVisibility = Visibility.Collapsed;
@@ -101,6 +97,8 @@ namespace PoultrySlaughterPOS.ViewModels
             // Setup property change handlers
             PropertyChanged += TruckLoadingViewModel_PropertyChanged;
             ErrorsChanged += TruckLoadingViewModel_ErrorsChanged;
+
+            _logger.LogInformation("TruckLoadingViewModel initialized in view-only mode (save functionality disabled)");
         }
 
         #endregion
@@ -128,68 +126,6 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Error loading truck loading data");
                 await _errorHandlingService.HandleExceptionAsync(ex, "LoadDataAsync");
                 ShowErrorMessage("فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.");
-            }
-            finally
-            {
-                IsLoading = false;
-            }
-        }
-
-        [RelayCommand(CanExecute = nameof(CanSaveLoad))]
-        private async Task SaveTruckLoadAsync()
-        {
-            try
-            {
-                IsLoading = true;
-                StatusMessage = "جاري حفظ تحميل الشاحنة...";
-
-                // Validate before saving
-                await ValidateCurrentLoadAsync();
-                if (HasErrors)
-                {
-                    StatusMessage = "يوجد أخطاء في البيانات المدخلة";
-                    return;
-                }
-
-                // Create the request
-                var request = new TruckLoadRequest
-                {
-                    TruckId = SelectedTruck!.TruckId,
-                    TotalWeight = TotalWeight,
-                    CagesCount = CagesCount,
-                    Notes = Notes,
-                    LoadDate = LoadDate
-                };
-
-                // Save the truck load
-                var createdLoad = await _truckLoadingService.CreateTruckLoadAsync(request);
-
-                // Refresh data
-                await LoadAvailableTrucksAsync();
-                await LoadTodaysTruckLoadsAsync();
-                await LoadSummaryAsync();
-
-                // Reset form
-                ResetForm();
-
-                var truckNumber = SelectedTruck?.TruckNumber ?? "غير محدد";
-                StatusMessage = $"تم حفظ تحميل الشاحنة {truckNumber} بنجاح";
-                ShowSuccessMessage($"تم تحميل الشاحنة {truckNumber} بوزن {TotalWeight} كيلو و {CagesCount} قفص");
-
-                _logger.LogInformation("Truck load saved successfully for truck {TruckNumber}", truckNumber);
-            }
-            catch (ValidationException vex)
-            {
-                StatusMessage = "خطأ في التحقق من صحة البيانات";
-                ShowErrorMessage(vex.Message);
-                _logger.LogWarning("Validation error saving truck load: {Message}", vex.Message);
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = "خطأ في حفظ تحميل الشاحنة";
-                _logger.LogError(ex, "Error saving truck load");
-                await _errorHandlingService.HandleExceptionAsync(ex, "SaveTruckLoadAsync");
-                ShowErrorMessage("فشل في حفظ تحميل الشاحنة. يرجى المحاولة مرة أخرى.");
             }
             finally
             {
@@ -255,15 +191,16 @@ namespace PoultrySlaughterPOS.ViewModels
                     ValidationSummary = string.Join("\n", validationResult.ErrorMessages);
                     HasErrors = true;
                     ValidationErrorsVisibility = Visibility.Visible;
+                    StatusMessage = "يوجد أخطاء في البيانات المدخلة";
                 }
                 else
                 {
                     ValidationSummary = "جميع البيانات صحيحة ✓";
                     HasErrors = false;
                     ValidationErrorsVisibility = Visibility.Collapsed;
+                    StatusMessage = "البيانات صالحة للحفظ";
+                    ShowSuccessMessage("تم التحقق من صحة البيانات بنجاح");
                 }
-
-                UpdateCanSaveLoad();
             }
             catch (Exception ex)
             {
@@ -271,6 +208,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 ValidationSummary = "خطأ في التحقق من صحة البيانات";
                 HasErrors = true;
                 ValidationErrorsVisibility = Visibility.Visible;
+                StatusMessage = "خطأ في عملية التحقق";
             }
         }
 
@@ -344,15 +282,6 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-        private void UpdateCanSaveLoad()
-        {
-            CanSaveLoad = SelectedTruck != null &&
-                         TotalWeight > 0 &&
-                         CagesCount > 0 &&
-                         !HasErrors &&
-                         !IsLoading;
-        }
-
         private void ShowSuccessMessage(string message)
         {
             StatusMessage = message;
@@ -388,21 +317,15 @@ namespace PoultrySlaughterPOS.ViewModels
                 case nameof(TotalWeight):
                 case nameof(CagesCount):
                     UpdateCalculatedWeightPerCage();
-                    UpdateCanSaveLoad();
                     _ = ValidateCurrentLoadAsync();
                     break;
 
                 case nameof(SelectedTruck):
-                    UpdateCanSaveLoad();
                     _ = ValidateCurrentLoadAsync();
                     break;
 
                 case nameof(LoadDate):
                     _ = LoadSummaryAsync();
-                    break;
-
-                case nameof(HasErrors):
-                    UpdateCanSaveLoad();
                     break;
             }
         }
@@ -410,7 +333,6 @@ namespace PoultrySlaughterPOS.ViewModels
         private void TruckLoadingViewModel_ErrorsChanged(object? sender, System.ComponentModel.DataErrorsChangedEventArgs e)
         {
             HasErrors = HasErrors;
-            UpdateCanSaveLoad();
         }
 
         #endregion
@@ -425,7 +347,7 @@ namespace PoultrySlaughterPOS.ViewModels
             try
             {
                 await LoadDataAsync();
-                _logger.LogInformation("TruckLoadingViewModel initialized successfully");
+                _logger.LogInformation("TruckLoadingViewModel initialized successfully in view-only mode");
             }
             catch (Exception ex)
             {

@@ -9,6 +9,7 @@ namespace PoultrySlaughterPOS.Views
     /// <summary>
     /// Enterprise-grade WPF UserControl for truck loading operations with proper MVVM pattern implementation.
     /// Follows modern WPF best practices with dependency injection and comprehensive error handling.
+    /// Architectural modification: Save operations removed, focusing on read-only display and validation.
     /// </summary>
     public partial class TruckLoadingView : UserControl
     {
@@ -16,7 +17,7 @@ namespace PoultrySlaughterPOS.Views
         private TruckLoadingViewModel? _viewModel;
 
         /// <summary>
-        /// Constructor for dependency injection container
+        /// Constructor for dependency injection container with enhanced logging
         /// </summary>
         public TruckLoadingView(TruckLoadingViewModel viewModel, ILogger<TruckLoadingView> logger)
         {
@@ -27,7 +28,7 @@ namespace PoultrySlaughterPOS.Views
 
             DataContext = _viewModel;
 
-            _logger.LogDebug("TruckLoadingView initialized with ViewModel");
+            _logger.LogDebug("TruckLoadingView initialized with ViewModel in read-only mode (save operations disabled)");
         }
 
         /// <summary>
@@ -54,7 +55,7 @@ namespace PoultrySlaughterPOS.Views
             {
                 if (_viewModel != null && !System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
                 {
-                    _logger.LogInformation("TruckLoadingView loaded, initializing ViewModel");
+                    _logger.LogInformation("TruckLoadingView loaded, initializing ViewModel for read-only operations");
                     await _viewModel.InitializeAsync();
                 }
             }
@@ -86,6 +87,7 @@ namespace PoultrySlaughterPOS.Views
 
         /// <summary>
         /// Creates a design-time ViewModel with mock data for XAML designer
+        /// Updated to reflect read-only nature of the interface
         /// </summary>
         private static object CreateDesignTimeViewModel()
         {
@@ -115,11 +117,11 @@ namespace PoultrySlaughterPOS.Views
                     TotalCages = 50,
                     AverageWeightPerCage = 25.01m
                 },
-                StatusMessage = "جاهز لتحميل الشاحنات",
+                StatusMessage = "عرض معلومات تحميل الشاحنات (وضع القراءة فقط)",
                 IsLoading = false,
-                CanSaveLoad = true,
                 ValidationErrorsVisibility = Visibility.Collapsed,
-                SuccessMessageVisibility = Visibility.Collapsed
+                SuccessMessageVisibility = Visibility.Collapsed,
+                HasErrors = false
             };
         }
 
@@ -163,5 +165,35 @@ namespace PoultrySlaughterPOS.Views
                 throw;
             }
         }
+
+        /// <summary>
+        /// Validates current data without saving (read-only validation)
+        /// </summary>
+        public async Task ValidateDataAsync()
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    await _viewModel.ValidateCurrentLoadCommand.ExecuteAsync(null);
+                    _logger.LogDebug("TruckLoadingView data validation completed");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error validating data in TruckLoadingView");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Gets current validation status from the ViewModel
+        /// </summary>
+        public bool IsDataValid => _viewModel?.HasErrors == false;
+
+        /// <summary>
+        /// Gets current validation summary for external use
+        /// </summary>
+        public string GetValidationSummary() => _viewModel?.ValidationSummary ?? "No validation information available";
     }
 }

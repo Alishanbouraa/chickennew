@@ -69,19 +69,6 @@
             </Setter>
         </Style>
 
-        <!-- Success Button Style -->
-        <Style x:Key="SuccessButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-            <Setter Property="Background" Value="#28A745"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="#218838"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="#1E7E34"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <!-- Input Field Style -->
         <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="35"/>
@@ -183,7 +170,7 @@
                     <StackPanel>
                         <TextBlock Text="معلومات التحميل" FontSize="18" FontWeight="Bold" Foreground="#2C3E50" Margin="0,0,0,20"/>
 
-                        <!-- Truck Selection - FIXED: Removed DisplayMemberPath to avoid conflict with ItemTemplate -->
+                        <!-- Truck Selection -->
                         <Label Content="اختيار الشاحنة *" Style="{StaticResource ModernLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding AvailableTrucks}"
                                   SelectedItem="{Binding SelectedTruck}"
@@ -246,12 +233,8 @@
                                  Height="80" TextWrapping="Wrap" AcceptsReturn="True"
                                  VerticalScrollBarVisibility="Auto"/>
 
-                        <!-- Action Buttons -->
+                        <!-- Action Buttons - SAVE BUTTON REMOVED -->
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                            <Button Content="حفظ التحميل" 
-                                    Style="{StaticResource SuccessButtonStyle}"
-                                    Command="{Binding SaveTruckLoadCommand}"
-                                    IsEnabled="{Binding CanSaveLoad}"/>
                             <Button Content="التحقق من صحة البيانات" 
                                     Style="{StaticResource PrimaryButtonStyle}"
                                     Command="{Binding ValidateCurrentLoadCommand}"/>
