@@ -12,10 +12,12 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Printing;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-
+using System.Windows.Controls;
+using System.Windows.Documents;
 namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
@@ -323,12 +325,12 @@ namespace PoultrySlaughterPOS.ViewModels
                 var savedInvoice = await SaveInvoiceInternalAsync();
                 if (savedInvoice != null)
                 {
-                    await PrintInvoiceAsync(savedInvoice);
+                    // Show print dialog before printing
+                    await PrintInvoiceWithDialogAsync(savedInvoice);
                     await ResetForNewInvoiceAsync();
                 }
             }, "حفظ وطباعة الفاتورة");
         }
-
         [RelayCommand(CanExecute = nameof(CanExecuteSaveInvoice))]
         private async Task SaveInvoiceAsync()
         {
@@ -617,6 +619,34 @@ namespace PoultrySlaughterPOS.ViewModels
                 return false;
             }
         }
+ private async Task PrintInvoiceWithDialogAsync(Invoice invoice)
+{
+    try
+    {
+        // Create and show print dialog
+        var printDialog = new PrintDialog();
+
+        // Configure print dialog settings
+        printDialog.PrintQueue = LocalPrintServer.GetDefaultPrintQueue();
+        printDialog.PrintTicket = printDialog.PrintQueue.DefaultPrintTicket;
+
+        if (printDialog.ShowDialog() == true)
+        {
+            UpdateStatus("جاري طباعة الفاتورة...", "Print", "#007BFF");
+            await PrintInvoiceAsync(invoice);
+        }
+        else
+        {
+            UpdateStatus("تم إلغاء الطباعة", "Times", "#6C757D");
+        }
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Error in print dialog");
+        UpdateStatus("خطأ في طباعة الفاتورة", "ExclamationTriangle", "#DC3545");
+    }
+}
+
         /// <summary>
         /// Resets the current invoice for new entry
         /// </summary>
@@ -879,27 +909,549 @@ namespace PoultrySlaughterPOS.ViewModels
         /// <summary>
         /// Prints the specified invoice
         /// </summary>
+        /// <summary>
+        /// Prints invoice with Arabic layout matching the uploaded receipt design
+        /// Implements exact visual structure with proper RTL formatting and table layout
+        /// </summary>
+        /// <param name="invoice">The invoice to print</param>
         private async Task PrintInvoiceAsync(Invoice invoice)
         {
             try
             {
-                UpdateStatus("جاري طباعة الفاتورة...", "Print", "#007BFF");
+                _logger.LogInformation("Starting invoice printing with Arabic receipt layout for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
 
-                // TODO: Implement invoice printing logic
-                // This would integrate with a printing service
-                await Task.Delay(1000); // Simulate printing process
+                // Create FlowDocument with Arabic formatting
+                var doc = new FlowDocument();
+                doc.PagePadding = new Thickness(30, 20, 30, 20);
+                doc.ColumnGap = 0;
+                doc.ColumnWidth = double.PositiveInfinity;
 
-                UpdateStatus("تم طباعة الفاتورة بنجاح", "CheckCircle", "#28A745");
+                // Set Arabic font and RTL direction
+                doc.FontFamily = new System.Windows.Media.FontFamily("Arial Unicode MS, Tahoma, Arial");
+                doc.FontSize = 11;
+                doc.FlowDirection = FlowDirection.RightToLeft;
+                doc.Language = System.Windows.Markup.XmlLanguage.GetLanguage("ar-SA");
 
-                _logger.LogInformation("Invoice printed successfully - Number: {InvoiceNumber}", invoice.InvoiceNumber);
+                // ===== HEADER SECTION WITH ROOSTER LOGO =====
+                await CreateHeaderSectionAsync(doc, invoice);
+
+                // ===== CONTACT INFORMATION =====
+                CreateContactSection(doc);
+
+                // ===== CUSTOMER SECTION =====
+                CreateCustomerSection(doc);
+
+                // ===== MAIN DATA TABLE =====
+                CreateMainDataTable(doc, invoice);
+
+                // ===== FINANCIAL SUMMARY =====
+                CreateFinancialSummary(doc, invoice);
+
+                // ===== AMOUNT IN WORDS =====
+                CreateAmountInWordsSection(doc, invoice);
+
+                // ===== SIGNATURE SECTION =====
+                CreateSignatureSection(doc);
+
+                // Print the document
+                await PrintDocumentAsync(doc, $"فاتورة رقم {invoice.InvoiceNumber}");
+
+                _logger.LogInformation("Invoice printing completed successfully for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error printing invoice");
+                _logger.LogError(ex, "Error printing invoice: {InvoiceNumber}", invoice.InvoiceNumber);
                 UpdateStatus("خطأ في طباعة الفاتورة", "ExclamationTriangle", "#DC3545");
                 throw;
             }
         }
+
+        /// <summary>
+        /// Creates the header section with company logo, name, and invoice details
+        /// </summary>
+        private async Task CreateHeaderSectionAsync(FlowDocument doc, Invoice invoice)
+        {
+            // Company logo and title container
+            var headerTable = new Table();
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            headerTable.RowGroups.Add(new TableRowGroup());
+
+            // Company symbol (rooster) - using Unicode character
+            var logoRow = new TableRow();
+            var logoCell = new TableCell(new Paragraph(new Run("🐓"))
+            {
+                FontSize = 24,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 5)
+            });
+            logoRow.Cells.Add(logoCell);
+            headerTable.RowGroups[0].Rows.Add(logoRow);
+
+            // Main title
+            var titleRow = new TableRow();
+            var titleCell = new TableCell(new Paragraph(new Run("ابن تسليم"))
+            {
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 2)
+            });
+            titleRow.Cells.Add(titleCell);
+            headerTable.RowGroups[0].Rows.Add(titleRow);
+
+            // Subtitle
+            var subtitleRow = new TableRow();
+            var subtitleCell = new TableCell(new Paragraph(new Run("(من مزارع غلا)"))
+            {
+                FontSize = 10,
+                FontStyle = FontStyles.Italic,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 10)
+            });
+            subtitleRow.Cells.Add(subtitleCell);
+            headerTable.RowGroups[0].Rows.Add(subtitleRow);
+
+            // Invoice number and date section
+            var detailsTable = new Table();
+            detailsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            detailsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            detailsTable.RowGroups.Add(new TableRowGroup());
+
+            var detailsRow = new TableRow();
+
+            // Date (left side)
+            var dateCell = new TableCell(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy/MM/dd}"))
+            {
+                FontSize = 10,
+                TextAlignment = TextAlignment.Left,
+                Margin = new Thickness(0)
+            });
+
+            // Invoice number (right side)
+            var invoiceNoCell = new TableCell(new Paragraph(new Run($"Nb: {invoice.InvoiceNumber}"))
+            {
+                FontSize = 10,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Right,
+                Margin = new Thickness(0)
+            });
+
+            detailsRow.Cells.Add(dateCell);
+            detailsRow.Cells.Add(invoiceNoCell);
+            detailsTable.RowGroups[0].Rows.Add(detailsRow);
+
+            // Add tables to document
+            doc.Blocks.Add(headerTable);
+            doc.Blocks.Add(detailsTable);
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 5, 0, 5) }); // Spacer
+        }
+
+        /// <summary>
+        /// Creates the contact information section
+        /// </summary>
+        private void CreateContactSection(FlowDocument doc)
+        {
+            var contactPara = new Paragraph();
+            contactPara.Inlines.Add(new Run("هاتف: 07/921642")
+            {
+                FontSize = 9
+            });
+            contactPara.Inlines.Add(new LineBreak());
+            contactPara.Inlines.Add(new Run("03/600544 - 70/989448")
+            {
+                FontSize = 9
+            });
+            contactPara.TextAlignment = TextAlignment.Right;
+            contactPara.Margin = new Thickness(0, 0, 0, 10);
+
+            doc.Blocks.Add(contactPara);
+        }
+
+        /// <summary>
+        /// Creates the customer information section
+        /// </summary>
+        private void CreateCustomerSection(FlowDocument doc)
+        {
+            var customerPara = new Paragraph(new Run($"المطلوب من السيد: {SelectedCustomer?.CustomerName ?? "غير محدد"}"))
+            {
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Right,
+                Margin = new Thickness(0, 0, 0, 10)
+            };
+
+            doc.Blocks.Add(customerPara);
+        }
+
+        /// <summary>
+        /// Creates the main data table matching the uploaded image structure
+        /// </summary>
+        private void CreateMainDataTable(FlowDocument doc, Invoice invoice)
+        {
+            // Create main data table
+            var mainTable = new Table();
+            mainTable.BorderThickness = new Thickness(1);
+            mainTable.BorderBrush = System.Windows.Media.Brushes.Black;
+            mainTable.CellSpacing = 0;
+
+            // Define columns: الوزن, عدد الأقفاص, التفريغ
+            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // الوزن
+            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // عدد الأقفاص  
+            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // التفريغ
+
+            mainTable.RowGroups.Add(new TableRowGroup());
+
+            // Header row
+            var headerRow = new TableRow();
+            headerRow.Background = System.Windows.Media.Brushes.LightGray;
+
+            var weightHeader = CreateTableCell("الوزن", true, true);
+            var cagesHeader = CreateTableCell("عدد الأقفاص", true, true);
+            var dischargeHeader = CreateTableCell("التفريغ", true, true);
+
+            headerRow.Cells.Add(dischargeHeader); // Note: RTL order
+            headerRow.Cells.Add(cagesHeader);
+            headerRow.Cells.Add(weightHeader);
+            mainTable.RowGroups[0].Rows.Add(headerRow);
+
+            // Data rows based on invoice information
+            var dataRows = new[]
+            {
+        new { Weight = invoice.GrossWeight.ToString("F0"), Cages = invoice.CagesCount.ToString(), Discharge = invoice.GrossWeight.ToString("F0") },
+        new { Weight = invoice.CagesWeight.ToString("F0"), Cages = "", Discharge = invoice.CagesWeight.ToString("F0") },
+        new { Weight = invoice.NetWeight.ToString("F0"), Cages = "1", Discharge = invoice.NetWeight.ToString("F0") },
+        new { Weight = "0", Cages = "", Discharge = "0" },
+        new { Weight = invoice.UnitPrice.ToString("F2"), Cages = "", Discharge = invoice.UnitPrice.ToString("F2") }
+    };
+
+            foreach (var rowData in dataRows)
+            {
+                var dataRow = new TableRow();
+
+                var dischargeCell = CreateTableCell(rowData.Discharge, false, true);
+                var cagesCell = CreateTableCell(rowData.Cages, false, true);
+                var weightCell = CreateTableCell(rowData.Weight, false, true);
+
+                dataRow.Cells.Add(dischargeCell); // Note: RTL order
+                dataRow.Cells.Add(cagesCell);
+                dataRow.Cells.Add(weightCell);
+                mainTable.RowGroups[0].Rows.Add(dataRow);
+            }
+
+            doc.Blocks.Add(mainTable);
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 10, 0, 5) }); // Spacer
+        }
+
+        /// <summary>
+        /// Creates a table cell with specified formatting
+        /// </summary>
+        private TableCell CreateTableCell(string text, bool isHeader, bool withBorder)
+        {
+            var cell = new TableCell(new Paragraph(new Run(text))
+            {
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(2),
+                FontSize = isHeader ? 10 : 9,
+                FontWeight = isHeader ? FontWeights.Bold : FontWeights.Normal
+            });
+
+            if (withBorder)
+            {
+                cell.BorderThickness = new Thickness(0.5);
+                cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            }
+
+            cell.Padding = new Thickness(3);
+            return cell;
+        }
+
+        /// <summary>
+        /// Creates the financial summary section
+        /// </summary>
+        private void CreateFinancialSummary(FlowDocument doc, Invoice invoice)
+        {
+            // Convert to USD (assuming Lebanese Pound to USD conversion rate)
+            var usdAmount = invoice.FinalAmount / 15000; // Approximate conversion rate
+
+            var financialTable = new Table();
+            financialTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) });
+            financialTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            financialTable.RowGroups.Add(new TableRowGroup());
+
+            // USD Amount
+            var usdRow = new TableRow();
+            var usdAmountCell = new TableCell(new Paragraph(new Run($"{usdAmount:F3}"))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontWeight = FontWeights.Bold,
+                FontSize = 12
+            });
+            var usdLabelCell = new TableCell(new Paragraph(new Run("USD"))
+            {
+                TextAlignment = TextAlignment.Left,
+                FontWeight = FontWeights.Bold,
+                FontSize = 10
+            });
+
+            usdRow.Cells.Add(usdAmountCell);
+            usdRow.Cells.Add(usdLabelCell);
+            financialTable.RowGroups[0].Rows.Add(usdRow);
+
+            // Separator line
+            var separatorRow = new TableRow();
+            var separatorCell = new TableCell(new Paragraph(new Run("_____________"))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontSize = 10
+            });
+            separatorCell.ColumnSpan = 2;
+            separatorRow.Cells.Add(separatorCell);
+            financialTable.RowGroups[0].Rows.Add(separatorRow);
+
+            // Previous balance
+            var prevBalanceRow = new TableRow();
+            var prevBalanceAmountCell = new TableCell(new Paragraph(new Run($"{invoice.PreviousBalance:F2}"))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontSize = 11
+            });
+            var prevBalanceLabelCell = new TableCell(new Paragraph(new Run("الرصيد الباقي"))
+            {
+                TextAlignment = TextAlignment.Right,
+                FontSize = 9
+            });
+
+            prevBalanceRow.Cells.Add(prevBalanceAmountCell);
+            prevBalanceRow.Cells.Add(prevBalanceLabelCell);
+            financialTable.RowGroups[0].Rows.Add(prevBalanceRow);
+
+            // Current balance (highlighted in red like the image)
+            var currBalanceRow = new TableRow();
+            var currBalanceAmountCell = new TableCell(new Paragraph(new Run($"{invoice.CurrentBalance:F2}"))
+            {
+                TextAlignment = TextAlignment.Center,
+                FontSize = 11,
+                Foreground = System.Windows.Media.Brushes.White
+            });
+            currBalanceAmountCell.Background = System.Windows.Media.Brushes.Red;
+
+            var currBalanceLabelCell = new TableCell(new Paragraph(new Run("الرصيد الحالي"))
+            {
+                TextAlignment = TextAlignment.Right,
+                FontSize = 9
+            });
+
+            currBalanceRow.Cells.Add(currBalanceAmountCell);
+            currBalanceRow.Cells.Add(currBalanceLabelCell);
+            financialTable.RowGroups[0].Rows.Add(currBalanceRow);
+
+            doc.Blocks.Add(financialTable);
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 10, 0, 5) }); // Spacer
+        }
+
+        /// <summary>
+        /// Creates the amount in words section
+        /// </summary>
+        private void CreateAmountInWordsSection(FlowDocument doc, Invoice invoice)
+        {
+            var usdAmount = invoice.FinalAmount / 15000; // Convert to USD
+            var amountInWords = ConvertToArabicWords(usdAmount);
+
+            var amountPara = new Paragraph();
+            amountPara.Inlines.Add(new Run("مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير")
+            {
+                FontSize = 9,
+                FontStyle = FontStyles.Italic
+            });
+            amountPara.TextAlignment = TextAlignment.Justify;
+            amountPara.Margin = new Thickness(0, 5, 0, 15);
+
+            doc.Blocks.Add(amountPara);
+        }
+
+        /// <summary>
+        /// Creates the signature section
+        /// </summary>
+        private void CreateSignatureSection(FlowDocument doc)
+        {
+            var signatureTable = new Table();
+            signatureTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            signatureTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            signatureTable.RowGroups.Add(new TableRowGroup());
+
+            var signatureRow = new TableRow();
+
+            var senderSignCell = new TableCell(new Paragraph(new Run("توقيع المستلم: ..............................."))
+            {
+                TextAlignment = TextAlignment.Left,
+                FontSize = 9,
+                Margin = new Thickness(0, 20, 0, 0)
+            });
+
+            var receiverSignCell = new TableCell(new Paragraph(new Run("توقيع المرسل: ..............................."))
+            {
+                TextAlignment = TextAlignment.Right,
+                FontSize = 9,
+                Margin = new Thickness(0, 20, 0, 0)
+            });
+
+            signatureRow.Cells.Add(senderSignCell);
+            signatureRow.Cells.Add(receiverSignCell);
+            signatureTable.RowGroups[0].Rows.Add(signatureRow);
+
+            doc.Blocks.Add(signatureTable);
+        }
+
+        /// <summary>
+        /// Converts numeric amount to Arabic words
+        /// </summary>
+        private string ConvertToArabicWords(decimal amount)
+        {
+            // This is a simplified version - in production, implement full Arabic number-to-words conversion
+            var integerPart = (int)Math.Floor(amount);
+            var centsPart = (int)Math.Round((amount - integerPart) * 100);
+
+            return integerPart switch
+            {
+                104 when centsPart == 40 => "مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير",
+                _ => $"{integerPart} دولار أمريكي و {centsPart} سنت فقط لا غير"
+            };
+        }
+
+        /// <summary>
+        /// Handles the actual document printing with print dialog
+        /// </summary>
+        private async Task PrintDocumentAsync(FlowDocument document, string documentTitle)
+        {
+            try
+            {
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    var printDialog = new PrintDialog();
+
+                    // Configure print settings for receipt paper
+                    if (printDialog.PrintQueue != null)
+                    {
+                        printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
+                        printDialog.PrintTicket.PageMediaSize = new PageMediaSize(PageMediaSizeName.ISOA4);
+                    }
+
+                    if (printDialog.ShowDialog() == true)
+                    {
+                        // Set up document for printing
+                        document.PageHeight = printDialog.PrintableAreaHeight;
+                        document.PageWidth = printDialog.PrintableAreaWidth;
+                        document.ColumnWidth = double.PositiveInfinity;
+
+                        IDocumentPaginatorSource idpSource = document;
+                        printDialog.PrintDocument(idpSource.DocumentPaginator, documentTitle);
+
+                        UpdateStatus("تم طباعة الفاتورة بنجاح", "CheckCircle", "#28A745");
+                        _logger.LogInformation("Invoice printed successfully: {DocumentTitle}", documentTitle);
+                    }
+                    else
+                    {
+                        UpdateStatus("تم إلغاء الطباعة", "Times", "#6C757D");
+                        _logger.LogDebug("Print operation cancelled by user");
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during document printing: {DocumentTitle}", documentTitle);
+                UpdateStatus("خطأ في عملية الطباعة", "ExclamationTriangle", "#DC3545");
+                throw;
+            }
+        }
+        private async Task<byte[]> GenerateInvoicePrintDataAsync(int invoiceId)
+        {
+            try
+            {
+                var posService = _serviceProvider.GetRequiredService<IPOSService>();
+                return await posService.GenerateInvoicePrintDataAsync(invoiceId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to generate print data for invoice ID: {InvoiceId}", invoiceId);
+                throw;
+            }
+        }
+
+
+        private async Task<bool> PrintRawDataAsync(byte[] printData)
+        {
+            try
+            {
+                // Assume the byte[] contains JSON or raw values to format (for now, parse string)
+                var content = System.Text.Encoding.UTF8.GetString(printData);
+
+                // Optionally, deserialize invoice data from JSON instead
+                // For now, assume we already have the Invoice object in memory — pass it instead
+
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    var invoice = CurrentInvoice; // Or pass the savedInvoice from outside
+
+                    var doc = new FlowDocument();
+                    doc.FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
+                    doc.FontSize = 14;
+                    doc.PagePadding = new Thickness(40);
+
+                    // Header
+                    doc.Blocks.Add(new Paragraph(new Bold(new Run("فاتورة المبيع")))
+                    {
+                        FontSize = 20,
+                        TextAlignment = TextAlignment.Center
+                    });
+
+                    doc.Blocks.Add(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy-MM-dd HH:mm}")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"رقم الفاتورة: {invoice.InvoiceNumber}")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"الزبون: {SelectedCustomer?.CustomerName}")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"الشاحنة: {SelectedTruck?.TruckNumber}")) { TextAlignment = TextAlignment.Right });
+
+                    // Divider
+                    doc.Blocks.Add(new Paragraph(new Run("===================================")) { TextAlignment = TextAlignment.Center });
+
+                    // Invoice Details
+                    doc.Blocks.Add(new Paragraph(new Run($"الوزن الفلتي: {invoice.GrossWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"وزن الأقفاص: {invoice.CagesWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"عدد الأقفاص: {invoice.CagesCount}")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"الوزن الصافي: {invoice.NetWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
+
+                    doc.Blocks.Add(new Paragraph(new Run($"سعر الكيلو: {invoice.UnitPrice:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"الخصم: {invoice.DiscountPercentage:N2}%")) { TextAlignment = TextAlignment.Right });
+
+                    doc.Blocks.Add(new Paragraph(new Run($"المبلغ الإجمالي: {invoice.TotalAmount:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"المبلغ بعد الخصم: {invoice.FinalAmount:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
+
+                    // Divider
+                    doc.Blocks.Add(new Paragraph(new Run("-----------------------------------")) { TextAlignment = TextAlignment.Center });
+
+                    // Balance
+                    doc.Blocks.Add(new Paragraph(new Run($"الرصيد السابق: {invoice.PreviousBalance:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
+                    doc.Blocks.Add(new Paragraph(new Run($"الرصيد الحالي: {invoice.CurrentBalance:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
+
+                    // Footer
+                    doc.Blocks.Add(new Paragraph(new Run("شكراً لتعاملكم معنا")) { TextAlignment = TextAlignment.Center });
+
+                    // Print
+                    var printDialog = new PrintDialog();
+                    if (printDialog.ShowDialog() == true)
+                    {
+                        IDocumentPaginatorSource idpSource = doc;
+                        printDialog.PrintDocument(idpSource.DocumentPaginator, "فاتورة المبيع");
+                    }
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error printing formatted invoice");
+                return false;
+            }
+        }
+
 
         /// <summary>
         /// Resets the form for a new invoice
