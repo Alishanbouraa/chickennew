@@ -1177,20 +1177,34 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Creates customer information section
+        /// Creates customer information section with actual selected customer data
         /// </summary>
         private void CreateCustomerSection(FlowDocument doc)
         {
-            var customerPara = new Paragraph(new Run($"المطلوب من السيد: {SelectedCustomer?.CustomerName ?? "غير محدد"}"))
+            var customerName = SelectedCustomer?.CustomerName ?? "غير محدد";
+            var customerPhone = SelectedCustomer?.PhoneNumber ?? "";
+
+            var customerPara = new Paragraph(new Run($"المطلوب من السيد: {customerName}"))
             {
                 FontSize = 10,
                 FontWeight = FontWeights.Bold,
                 TextAlignment = TextAlignment.Right,
-                Margin = new Thickness(0, 0, 0, 8)
+                Margin = new Thickness(0, 0, 0, 4)
             };
             doc.Blocks.Add(customerPara);
-        }
 
+            // Add phone number if available
+            if (!string.IsNullOrEmpty(customerPhone))
+            {
+                var phonePara = new Paragraph(new Run($"الهاتف: {customerPhone}"))
+                {
+                    FontSize = 8,
+                    TextAlignment = TextAlignment.Right,
+                    Margin = new Thickness(0, 0, 0, 8)
+                };
+                doc.Blocks.Add(phonePara);
+            }
+        }
         /// <summary>
         /// Creates the main data table matching the exact screenshot format
         /// </summary>
@@ -1201,57 +1215,183 @@ namespace PoultrySlaughterPOS.ViewModels
             table.BorderBrush = System.Windows.Media.Brushes.Black;
             table.CellSpacing = 0;
 
-            // Define columns exactly as in screenshot
+            // ✅ FIXED: Define columns matching the receipt image exactly
             table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // النتج
-            table.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // Description
-            table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // عدد الأقفاص
+            table.Columns.Add(new TableColumn() { Width = new GridLength(120, GridUnitType.Pixel) }); // Description
+            table.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // عدد الأقفاص
             table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // الوزن
 
             table.RowGroups.Add(new TableRowGroup());
 
-            // Add data rows exactly matching the screenshot values
+            // ✅ ADD: Create table headers matching the receipt image
+            CreateTableHeaders(table);
+
+            // ✅ ENHANCED: Calculate actual totals from invoice items
+            var aggregatedData = CalculateReceiptTotals();
+
+            // ✅ FIXED: Create data rows with actual calculated values from POS interface
             var dataRows = new[]
             {
-                new { Value1 = "82", Description = "الوزن التام", CageCount = "3", Weight = "82" },
-                new { Value1 = "24", Description = "وزن الأقفاص", CageCount = "", Weight = "" },
-                new { Value1 = "58", Description = "الإجمالي", CageCount = "", Weight = "" },
-                new { Value1 = "0", Description = "الخصم %", CageCount = "", Weight = "" },
-                new { Value1 = "0", Description = "الباقي بعد الخصم", CageCount = "", Weight = "" },
-                new { Value1 = "1.80", Description = "سعر الوحدة", CageCount = "", Weight = "" },
-                new { Value1 = "104.400", Description = "المجموع", CageCount = "", Weight = "USD" }
-            };
+        new {
+            Value = aggregatedData.TotalGrossWeight.ToString("F0"),
+            Description = "الوزن التام",
+            CageCount = aggregatedData.TotalCagesCount.ToString(),
+            Weight = aggregatedData.TotalGrossWeight.ToString("F0")
+        },
+        new {
+            Value = aggregatedData.TotalCagesWeight.ToString("F0"),
+            Description = "وزن الأقفاص",
+            CageCount = "",
+            Weight = ""
+        },
+        new {
+            Value = aggregatedData.TotalNetWeight.ToString("F0"),
+            Description = "الإجمالي",
+            CageCount = "",
+            Weight = ""
+        },
+        new {
+            Value = aggregatedData.AverageDiscountPercentage.ToString("F0"),
+            Description = "الخصم %",
+            CageCount = "",
+            Weight = ""
+        },
+        new {
+            Value = aggregatedData.AmountAfterDiscount.ToString("F0"),
+            Description = "الباقي بعد الخصم",
+            CageCount = "",
+            Weight = ""
+        },
+        new {
+            Value = aggregatedData.WeightedAverageUnitPrice.ToString("F2"),
+            Description = "سعر الوحدة",
+            CageCount = "",
+            Weight = ""
+        },
+        new {
+            Value = aggregatedData.FinalTotalAmount.ToString("F3"),
+            Description = "المجموع",
+            CageCount = "",
+            Weight = "USD"
+        }
+    };
 
+            // Add data rows to table
             foreach (var rowData in dataRows)
             {
                 var row = new TableRow();
-
-                row.Cells.Add(CreateDataCell(rowData.Value1));
+                row.Cells.Add(CreateDataCell(rowData.Value));
                 row.Cells.Add(CreateDataCell(rowData.Description));
                 row.Cells.Add(CreateDataCell(rowData.CageCount));
                 row.Cells.Add(CreateDataCell(rowData.Weight));
-
                 table.RowGroups[0].Rows.Add(row);
             }
 
-            // Add balance section
             doc.Blocks.Add(table);
             doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 8, 0, 4) });
 
-            // Previous and current balance
+            // Create balance section with actual customer data
+            CreateBalanceSection(doc, aggregatedData);
+        }
+        /// <summary>
+        /// Creates table headers matching the receipt image structure
+        /// </summary>
+        private void CreateTableHeaders(Table table)
+        {
+            var headerRow = new TableRow();
+
+            // Create header cells with proper Arabic text
+            var headers = new[] { "النتج", "Description", "عدد الأقفاص", "الوزن" };
+
+            foreach (var headerText in headers)
+            {
+                var headerCell = new TableCell(new Paragraph(new Run(headerText))
+                {
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(1),
+                    FontSize = 9,
+                    FontWeight = FontWeights.Bold
+                });
+
+                headerCell.BorderThickness = new Thickness(0.5);
+                headerCell.BorderBrush = System.Windows.Media.Brushes.Black;
+                headerCell.Background = System.Windows.Media.Brushes.LightGray;
+                headerCell.Padding = new Thickness(4, 6, 4, 6);
+
+                headerRow.Cells.Add(headerCell);
+            }
+
+            table.RowGroups[0].Rows.Add(headerRow);
+        }
+
+        /// <summary>
+        /// Enhanced calculation method that aggregates data from actual POS invoice items
+        /// </summary>
+        private ReceiptTotals CalculateReceiptTotals()
+        {
+            if (InvoiceItems == null || InvoiceItems.Count == 0)
+            {
+                _logger.LogWarning("No invoice items found for receipt calculation");
+                return new ReceiptTotals();
+            }
+
+            var totals = new ReceiptTotals();
+
+            // ✅ AGGREGATE: Sum all values from actual invoice items
+            foreach (var item in InvoiceItems)
+            {
+                totals.TotalGrossWeight += item.GrossWeight;
+                totals.TotalCagesCount += item.CagesCount;
+                totals.TotalCagesWeight += item.CagesWeight;
+                totals.TotalNetWeight += item.NetWeight;
+                totals.TotalAmountBeforeDiscount += item.TotalAmount;
+                totals.TotalDiscountAmount += item.DiscountAmount;
+                totals.FinalTotalAmount += item.FinalAmount;
+            }
+
+            // ✅ CALCULATE: Weighted averages for unit price and discount
+            var totalWeightForPricing = InvoiceItems.Where(item => item.NetWeight > 0).Sum(item => item.NetWeight);
+            if (totalWeightForPricing > 0)
+            {
+                totals.WeightedAverageUnitPrice = InvoiceItems
+                    .Where(item => item.NetWeight > 0)
+                    .Sum(item => item.UnitPrice * item.NetWeight) / totalWeightForPricing;
+            }
+
+            if (totals.TotalAmountBeforeDiscount > 0)
+            {
+                totals.AverageDiscountPercentage = InvoiceItems
+                    .Where(item => item.TotalAmount > 0)
+                    .Sum(item => item.DiscountPercentage * item.TotalAmount) / totals.TotalAmountBeforeDiscount;
+            }
+
+            // ✅ BALANCE: Customer balance calculations
+            totals.AmountAfterDiscount = totals.FinalTotalAmount;
+            totals.PreviousBalance = SelectedCustomer?.TotalDebt ?? 0;
+            totals.CurrentBalance = totals.PreviousBalance + totals.FinalTotalAmount;
+
+            _logger.LogInformation("Receipt totals calculated from {ItemCount} invoice items - Total Amount: {Amount}",
+                InvoiceItems.Count, totals.FinalTotalAmount);
+
+            return totals;
+        }
+
+        private void CreateBalanceSection(FlowDocument doc, ReceiptTotals totals)
+        {
             var balanceTable = new Table();
             balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) });
             balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
             balanceTable.RowGroups.Add(new TableRowGroup());
 
-            // Previous balance
+            // Previous balance row
             var prevRow = new TableRow();
-            prevRow.Cells.Add(CreateDataCell("93.83"));
+            prevRow.Cells.Add(CreateDataCell(totals.PreviousBalance.ToString("F2")));
             prevRow.Cells.Add(CreateDataCell("الرصيد الباقي"));
             balanceTable.RowGroups[0].Rows.Add(prevRow);
 
-            // Current balance (highlighted in red)
+            // Current balance row (highlighted in red)
             var currRow = new TableRow();
-            var currBalanceCell = CreateDataCell("198.23");
+            var currBalanceCell = CreateDataCell(totals.CurrentBalance.ToString("F2"));
             currBalanceCell.Background = System.Windows.Media.Brushes.Red;
             currBalanceCell.Foreground = System.Windows.Media.Brushes.White;
             currRow.Cells.Add(currBalanceCell);
@@ -1262,23 +1402,35 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Creates a data cell with proper formatting
+        /// Creates a formatted data cell with enhanced styling for receipt printing
         /// </summary>
-        private TableCell CreateDataCell(string text)
+        private TableCell CreateDataCell(string text, bool isHeader = false, bool isHighlighted = false)
         {
-            var cell = new TableCell(new Paragraph(new Run(text))
+            var paragraph = new Paragraph(new Run(text ?? ""))
             {
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(1),
-                FontSize = 9
-            });
+                FontSize = isHeader ? 9 : 8
+            };
 
+            if (isHeader)
+            {
+                paragraph.FontWeight = FontWeights.Bold;
+            }
+
+            var cell = new TableCell(paragraph);
             cell.BorderThickness = new Thickness(0.5);
             cell.BorderBrush = System.Windows.Media.Brushes.Black;
-            cell.Padding = new Thickness(2);
+            cell.Padding = new Thickness(3, 4, 3, 4);
+
+            if (isHighlighted)
+            {
+                cell.Background = System.Windows.Media.Brushes.LightYellow;
+            }
 
             return cell;
         }
+
         // ✅ ADDED: Comprehensive public API for UI layer integration
         public void RecalculateInvoiceTotals()
         {

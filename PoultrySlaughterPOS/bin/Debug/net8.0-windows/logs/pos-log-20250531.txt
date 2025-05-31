@@ -1,0 +1,430 @@
+2025-05-31 18:01:06.540 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 18:01:07.897 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 18:01:07.964 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 18:01:08.076 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 18:01:08.126 +03:00 [INF] Hosting environment: Production
+2025-05-31 18:01:08.126 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 18:01:08.127 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 18:01:08.862 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 18:01:12.137 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 18:01:12.885 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 18:01:13.122 +03:00 [INF] SQL Server connection successful.
+2025-05-31 18:01:13.340 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 18:01:14.033 +03:00 [INF] Database schema verification completed:
+2025-05-31 18:01:14.033 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 18:01:14.033 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 18:01:14.033 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 18:01:14.033 +03:00 [INF] - INVOICES: 21 records
+2025-05-31 18:01:14.033 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 18:01:14.033 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 18:01:14.034 +03:00 [INF] - AUDIT_LOGS: 45 records
+2025-05-31 18:01:14.034 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 18:01:14.034 +03:00 [INF] Database initialization completed successfully
+2025-05-31 18:01:15.112 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 18:01:15.665 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 18:01:15.878 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 18:01:15.939 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 3
+2025-05-31 18:01:15.940 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 18:01:17.690 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 18:01:17.692 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 18:01:17.704 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 18:01:17.797 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 18:01:17.935 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 18:01:18.130 +03:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:01:18.578 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 18:01:18.589 +03:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:01:18.605 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:01:18.813 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:01:19.027 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:01:19.263 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:01:19.275 +03:00 [INF] Generated optimized invoice number: 202505310004
+2025-05-31 18:01:19.390 +03:00 [INF] Real invoice number generated and set: 202505310004
+2025-05-31 18:01:19.391 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:01:19.392 +03:00 [INF] Generated optimized invoice number: 202505310004
+2025-05-31 18:01:19.398 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 18:01:19.399 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 18:01:19.400 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 18:01:19.429 +03:00 [INF] Real invoice number generated and set: 202505310004
+2025-05-31 18:01:19.430 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:01:19.432 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 18:01:19.442 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 18:01:19.455 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 18:02:37.915 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 18:02:39.032 +03:00 [INF] Successfully created invoice 202505310004 for customer 1 with amount 0
+2025-05-31 18:02:39.048 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310004, Items: 1, Amount: 0
+2025-05-31 18:02:39.050 +03:00 [INF] Starting bulk invoice printing with exact Arabic format for Invoice: 202505310004
+2025-05-31 18:02:39.070 +03:00 [INF] Receipt totals calculated - Gross Weight: 82.00, Net Weight: 58.00, Final Amount: 104.40000
+2025-05-31 18:02:55.605 +03:00 [INF] Bulk invoice printing completed successfully
+2025-05-31 18:02:55.728 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:05.288 +03:00 [INF] Navigating to page: TruckLoading
+2025-05-31 18:04:05.306 +03:00 [INF] TruckLoadingViewModel initialized with enhanced save functionality and debugging capabilities
+2025-05-31 18:04:05.394 +03:00 [INF] Initializing TruckLoadingViewModel with enhanced save capabilities
+2025-05-31 18:04:05.400 +03:00 [INF] Retrieving available trucks for loading
+2025-05-31 18:04:05.597 +03:00 [INF] TruckLoadingView loaded, initializing ViewModel with save functionality
+2025-05-31 18:04:05.597 +03:00 [INF] Initializing TruckLoadingViewModel with enhanced save capabilities
+2025-05-31 18:04:05.597 +03:00 [INF] Retrieving available trucks for loading
+2025-05-31 18:04:06.117 +03:00 [INF] Found 3 available trucks for loading
+2025-05-31 18:04:06.179 +03:00 [INF] Found 3 available trucks for loading
+2025-05-31 18:04:06.189 +03:00 [INF] Executed DbCommand (9ms) [Parameters=[@__targetDate_0='?' (DbType = DateTime2), @__nextDate_1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='60']
+SELECT [t].[LoadId], [t].[CagesCount], [t].[CreatedDate], [t].[LoadDate], [t].[Notes], [t].[Status], [t].[TotalWeight], [t].[TruckId], [t].[UpdatedDate], [t0].[TruckId], [t0].[CreatedDate], [t0].[DriverName], [t0].[IsActive], [t0].[TruckNumber], [t0].[UpdatedDate]
+FROM [TRUCK_LOADS] AS [t]
+INNER JOIN [TRUCKS] AS [t0] ON [t].[TruckId] = [t0].[TruckId]
+WHERE [t].[LoadDate] >= @__targetDate_0 AND [t].[LoadDate] < @__nextDate_1
+ORDER BY [t].[TruckId], [t].[LoadDate]
+2025-05-31 18:04:06.232 +03:00 [ERR] An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2025-05-31 18:04:06.386 +03:00 [ERR] Error retrieving truck loads for date "2025-05-31T00:00:00.0000000+03:00"
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+2025-05-31 18:04:06.619 +03:00 [ERR] Error retrieving today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+2025-05-31 18:04:06.631 +03:00 [ERR] Error 1bb89876 in GetTodaysTruckLoadsAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+2025-05-31 18:04:06.872 +03:00 [ERR] Error loading today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+2025-05-31 18:04:06.951 +03:00 [ERR] Error loading truck loading data after 1353ms
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+2025-05-31 18:04:06.954 +03:00 [ERR] Error ae850e05 in LoadDataAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+2025-05-31 18:04:06.957 +03:00 [WRN] Error message displayed: فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.
+2025-05-31 18:04:06.966 +03:00 [INF] TruckLoadingViewModel initialized successfully
+2025-05-31 18:04:06.967 +03:00 [INF] TruckLoadingView initialization completed successfully in 1370ms
+2025-05-31 18:04:06.973 +03:00 [INF] Executed DbCommand (9ms) [Parameters=[@__targetDate_0='?' (DbType = DateTime2), @__nextDate_1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='60']
+SELECT [t].[LoadId], [t].[CagesCount], [t].[CreatedDate], [t].[LoadDate], [t].[Notes], [t].[Status], [t].[TotalWeight], [t].[TruckId], [t].[UpdatedDate], [t0].[TruckId], [t0].[CreatedDate], [t0].[DriverName], [t0].[IsActive], [t0].[TruckNumber], [t0].[UpdatedDate]
+FROM [TRUCK_LOADS] AS [t]
+INNER JOIN [TRUCKS] AS [t0] ON [t].[TruckId] = [t0].[TruckId]
+WHERE [t].[LoadDate] >= @__targetDate_0 AND [t].[LoadDate] < @__nextDate_1
+ORDER BY [t].[TruckId], [t].[LoadDate]
+2025-05-31 18:04:06.976 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 18:04:06.976 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 18:04:06.977 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 18:04:06.993 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 18:04:07.000 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:07.044 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:07.105 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:07.106 +03:00 [INF] Truck loading data loaded successfully in 1353ms
+2025-05-31 18:04:07.167 +03:00 [INF] TruckLoadingViewModel initialized successfully
+2025-05-31 18:04:07.168 +03:00 [INF] Truck loading page loaded successfully
+2025-05-31 18:04:07.168 +03:00 [INF] Successfully navigated to page: TruckLoading
+2025-05-31 18:04:07.170 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:07.170 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:07.170 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:07.170 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 18:04:07.170 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 18:04:07.171 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 18:04:07.305 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 18:04:07.311 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:07.341 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:07.474 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:07.548 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:07.572 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:07.575 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:07.603 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 18:04:07.614 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 18:04:07.648 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 18:04:18.041 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 18:04:40.342 +03:00 [INF] Removing invoice item from collection
+2025-05-31 18:04:45.697 +03:00 [INF] Navigating to page: TruckLoading
+2025-05-31 18:04:45.698 +03:00 [INF] TruckLoadingViewModel initialized with enhanced save functionality and debugging capabilities
+2025-05-31 18:04:45.733 +03:00 [INF] Initializing TruckLoadingViewModel with enhanced save capabilities
+2025-05-31 18:04:45.733 +03:00 [INF] Retrieving available trucks for loading
+2025-05-31 18:04:45.836 +03:00 [INF] TruckLoadingView loaded, initializing ViewModel with save functionality
+2025-05-31 18:04:45.836 +03:00 [INF] Initializing TruckLoadingViewModel with enhanced save capabilities
+2025-05-31 18:04:45.836 +03:00 [INF] Retrieving available trucks for loading
+2025-05-31 18:04:46.357 +03:00 [INF] Found 3 available trucks for loading
+2025-05-31 18:04:46.364 +03:00 [INF] Found 3 available trucks for loading
+2025-05-31 18:04:46.366 +03:00 [ERR] An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2025-05-31 18:04:46.425 +03:00 [INF] Executed DbCommand (66ms) [Parameters=[@__targetDate_0='?' (DbType = DateTime2), @__nextDate_1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='60']
+SELECT [t].[LoadId], [t].[CagesCount], [t].[CreatedDate], [t].[LoadDate], [t].[Notes], [t].[Status], [t].[TotalWeight], [t].[TruckId], [t].[UpdatedDate], [t0].[TruckId], [t0].[CreatedDate], [t0].[DriverName], [t0].[IsActive], [t0].[TruckNumber], [t0].[UpdatedDate]
+FROM [TRUCK_LOADS] AS [t]
+INNER JOIN [TRUCKS] AS [t0] ON [t].[TruckId] = [t0].[TruckId]
+WHERE [t].[LoadDate] >= @__targetDate_0 AND [t].[LoadDate] < @__nextDate_1
+ORDER BY [t].[TruckId], [t].[LoadDate]
+2025-05-31 18:04:46.425 +03:00 [ERR] Error retrieving truck loads for date "2025-05-31T00:00:00.0000000+03:00"
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+2025-05-31 18:04:46.530 +03:00 [ERR] Error retrieving today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+2025-05-31 18:04:46.533 +03:00 [ERR] Error 5e7e7be1 in GetTodaysTruckLoadsAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+2025-05-31 18:04:46.608 +03:00 [ERR] Error loading today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+2025-05-31 18:04:46.685 +03:00 [ERR] Error loading truck loading data after 848ms
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+2025-05-31 18:04:46.688 +03:00 [ERR] Error 12e92608 in LoadDataAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+2025-05-31 18:04:46.691 +03:00 [WRN] Error message displayed: فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.
+2025-05-31 18:04:46.693 +03:00 [INF] TruckLoadingViewModel initialized successfully
+2025-05-31 18:04:46.694 +03:00 [INF] TruckLoadingView initialization completed successfully in 857ms
+2025-05-31 18:04:46.760 +03:00 [INF] Executed DbCommand (67ms) [Parameters=[@__targetDate_0='?' (DbType = DateTime2), @__nextDate_1='?' (DbType = DateTime2)], CommandType='"Text"', CommandTimeout='60']
+SELECT [t].[LoadId], [t].[CagesCount], [t].[CreatedDate], [t].[LoadDate], [t].[Notes], [t].[Status], [t].[TotalWeight], [t].[TruckId], [t].[UpdatedDate], [t0].[TruckId], [t0].[CreatedDate], [t0].[DriverName], [t0].[IsActive], [t0].[TruckNumber], [t0].[UpdatedDate]
+FROM [TRUCK_LOADS] AS [t]
+INNER JOIN [TRUCKS] AS [t0] ON [t].[TruckId] = [t0].[TruckId]
+WHERE [t].[LoadDate] >= @__targetDate_0 AND [t].[LoadDate] < @__nextDate_1
+ORDER BY [t].[TruckId], [t].[LoadDate]
+2025-05-31 18:04:46.855 +03:00 [INF] Truck loading data loaded successfully in 848ms
+2025-05-31 18:04:46.855 +03:00 [INF] TruckLoadingViewModel initialized successfully
+2025-05-31 18:04:46.855 +03:00 [INF] Truck loading page loaded successfully
+2025-05-31 18:04:46.855 +03:00 [INF] Successfully navigated to page: TruckLoading
+2025-05-31 18:04:47.431 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 18:04:47.431 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 18:04:47.433 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 18:04:47.460 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 18:04:47.563 +03:00 [INF] Executed DbCommand (99ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:47.635 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 18:04:47.667 +03:00 [INF] Executed DbCommand (32ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:47.681 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:47.749 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:47.838 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:47.899 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:47.924 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:47.984 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:47.984 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:47.988 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 18:04:47.988 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 18:04:47.988 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 18:04:48.011 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:48.029 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:48.030 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:48.030 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 18:04:48.047 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 18:04:48.083 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 18:04:48.090 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 18:04:48.090 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 18:04:48.090 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 18:04:48.113 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 18:04:48.138 +03:00 [INF] Executed DbCommand (21ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:48.255 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 18:04:48.260 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:48.270 +03:00 [INF] Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:04:48.337 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:48.390 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:48.394 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:48.394 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:48.397 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 18:04:48.397 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 18:04:48.397 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 18:04:48.490 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:04:48.592 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:04:48.695 +03:00 [INF] Generated optimized invoice number: 202505310005
+2025-05-31 18:04:48.701 +03:00 [INF] Real invoice number generated and set: 202505310005
+2025-05-31 18:04:48.704 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:04:48.704 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 18:04:48.715 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 18:04:48.768 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 18:05:24.482 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 18:05:47.099 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 18:05:47.361 +03:00 [INF] Successfully created invoice 202505310005 for customer 1 with amount 0
+2025-05-31 18:05:47.362 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310005, Items: 2, Amount: 0
+2025-05-31 18:05:47.362 +03:00 [INF] Starting bulk invoice printing with exact Arabic format for Invoice: 202505310005
+2025-05-31 18:05:47.364 +03:00 [INF] Receipt totals calculated - Gross Weight: 133.00, Net Weight: 119.00, Final Amount: 336.00
+2025-05-31 18:05:51.933 +03:00 [INF] Bulk invoice printing completed successfully
+2025-05-31 18:05:52.061 +03:00 [INF] Generated optimized invoice number: 202505310006
+2025-05-31 18:06:56.097 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 18:06:56.097 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 18:06:56.179 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 18:06:56.185 +03:00 [INF] Application is shutting down...
+2025-05-31 18:06:56.222 +03:00 [INF] Application host stopped successfully
+2025-05-31 18:06:56.222 +03:00 [INF] Poultry Slaughter POS application shutdown completed
+2025-05-31 18:27:07.753 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 18:27:09.024 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 18:27:09.116 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 18:27:09.306 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 18:27:09.321 +03:00 [INF] Hosting environment: Production
+2025-05-31 18:27:09.322 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 18:27:09.323 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 18:27:10.247 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 18:27:13.122 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 18:27:13.753 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 18:27:13.938 +03:00 [INF] SQL Server connection successful.
+2025-05-31 18:27:14.138 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 18:27:14.817 +03:00 [INF] Database schema verification completed:
+2025-05-31 18:27:14.817 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 18:27:14.817 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 18:27:14.817 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 18:27:14.817 +03:00 [INF] - INVOICES: 23 records
+2025-05-31 18:27:14.818 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 18:27:14.818 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 18:27:14.818 +03:00 [INF] - AUDIT_LOGS: 49 records
+2025-05-31 18:27:14.818 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 18:27:14.818 +03:00 [INF] Database initialization completed successfully
+2025-05-31 18:27:15.564 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 18:27:16.084 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 18:27:16.276 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 18:27:16.331 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 5
+2025-05-31 18:27:16.331 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 18:27:18.065 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 18:27:18.066 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 18:27:18.072 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 18:27:18.128 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 18:27:18.319 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 18:27:18.526 +03:00 [INF] Executed DbCommand (16ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:27:18.992 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 18:27:19.010 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 18:27:19.050 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:27:19.217 +03:00 [INF] Loaded 3 active customers
+2025-05-31 18:27:19.357 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:27:19.654 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 18:27:19.705 +03:00 [INF] Generated optimized invoice number: 202505310006
+2025-05-31 18:27:19.779 +03:00 [INF] Generated optimized invoice number: 202505310006
+2025-05-31 18:27:19.779 +03:00 [INF] Real invoice number generated and set: 202505310006
+2025-05-31 18:27:19.780 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:27:19.788 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 18:27:19.789 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 18:27:19.789 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 18:27:19.803 +03:00 [INF] Real invoice number generated and set: 202505310006
+2025-05-31 18:27:19.805 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 18:27:19.806 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 18:27:19.814 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 18:27:19.827 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 18:27:48.089 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 18:28:12.894 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 18:28:13.920 +03:00 [INF] Successfully created invoice 202505310006 for customer 1 with amount 0
+2025-05-31 18:28:13.940 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310006, Items: 2, Amount: 0
+2025-05-31 18:28:13.942 +03:00 [INF] Starting bulk invoice printing with exact Arabic format for Invoice: 202505310006
+2025-05-31 18:28:13.964 +03:00 [INF] Receipt totals calculated from 2 invoice items - Total Amount: 75.00
+2025-05-31 18:28:18.751 +03:00 [INF] Bulk invoice printing completed successfully
+2025-05-31 18:28:18.921 +03:00 [INF] Generated optimized invoice number: 202505310007
+2025-05-31 18:29:20.966 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 18:29:21.189 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 18:38:29.174 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 18:38:29.174 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 18:38:29.223 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 18:38:29.240 +03:00 [INF] Application is shutting down...
+2025-05-31 18:38:29.288 +03:00 [INF] Application host stopped successfully
+2025-05-31 18:38:29.290 +03:00 [INF] Poultry Slaughter POS application shutdown completed
