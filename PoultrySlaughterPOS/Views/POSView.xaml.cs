@@ -6,14 +6,15 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace PoultrySlaughterPOS.Views
 {
     /// <summary>
-    /// Enterprise-grade Point of Sale view implementing comprehensive MVVM patterns,
-    /// advanced user experience optimizations, and seamless integration with the POS workflow.
-    /// FIXED: Complete UI element resolution and proper XAML integration.
+    /// Enhanced Point of Sale view with modern scrollable design and improved user experience.
+    /// Implements comprehensive MVVM patterns with optimized performance and accessibility.
     /// </summary>
     public partial class POSView : UserControl
     {
@@ -22,13 +23,15 @@ namespace PoultrySlaughterPOS.Views
         private readonly ILogger<POSView> _logger;
         private POSViewModel? _viewModel;
         private bool _isInitialized = false;
+        private ScrollViewer? _mainScrollViewer;
+        private DataGrid? _invoiceDataGrid;
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Constructor for dependency injection with comprehensive ViewModel integration
+        /// Enhanced constructor with improved initialization for the new design
         /// </summary>
         /// <param name="viewModel">POS ViewModel injected via DI container</param>
         /// <param name="logger">Logger instance for diagnostic and error tracking</param>
@@ -44,20 +47,19 @@ namespace PoultrySlaughterPOS.Views
                 // Establish MVVM data binding
                 DataContext = _viewModel;
 
-                // Configure view properties for optimal user experience
-                ConfigureViewProperties();
+                // Configure enhanced view properties
+                ConfigureEnhancedViewProperties();
 
                 // Wire up comprehensive event handlers
-                WireUpEventHandlers();
+                WireUpEnhancedEventHandlers();
 
-                _logger.LogInformation("POSView initialized successfully with enterprise-grade MVVM architecture");
+                _logger.LogInformation("Enhanced POSView initialized successfully with modern scrollable design");
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Critical error during POSView initialization");
+                _logger?.LogError(ex, "Critical error during enhanced POSView initialization");
 
-                // Fallback error handling for initialization failures
-                MessageBox.Show($"خطأ حرج في تحميل نقطة البيع:\n{ex.Message}",
+                MessageBox.Show($"خطأ حرج في تحميل واجهة نقطة البيع المحدثة:\n{ex.Message}",
                                "خطأ في النظام",
                                MessageBoxButton.OK,
                                MessageBoxImage.Error);
@@ -79,36 +81,37 @@ namespace PoultrySlaughterPOS.Views
         /// </summary>
         public bool IsInitialized => _isInitialized;
 
+        /// <summary>
+        /// Reference to the main scroll viewer for programmatic scrolling
+        /// </summary>
+        public ScrollViewer? MainScrollViewer => _mainScrollViewer;
+
         #endregion
 
-        #region Public Methods
+        #region Enhanced Public Methods
 
         /// <summary>
-        /// Sets focus to the customer selection control for optimal user workflow
-        /// FIXED: Proper implementation matching actual XAML structure
+        /// Sets focus to the customer selection control with enhanced targeting
         /// </summary>
         public void FocusCustomerSelection()
         {
             try
             {
-                // Focus on the customer selection ComboBox (matching actual XAML element name)
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
                     try
                     {
-                        // Try to find and focus the customer ComboBox by name
-                        var customerControl = FindName("CustomerSelectionComboBox") as ComboBox ??
-                                            FindName("CustomersComboBox") as ComboBox ??
-                                            FindName("CustomerComboBox") as ComboBox;
+                        // Target the specific ComboBox with exact name matching
+                        var customerComboBox = CustomerSelectionComboBox;
 
-                        if (customerControl != null)
+                        if (customerComboBox != null)
                         {
-                            customerControl.Focus();
-                            _logger.LogDebug("Focus set to customer selection control");
+                            customerComboBox.Focus();
+                            _logger.LogDebug("Focus set to customer selection ComboBox");
                         }
                         else
                         {
-                            // Fallback: Focus on the first focusable element
+                            // Fallback to first focusable element
                             var firstFocusable = FindFirstFocusableElement(this);
                             firstFocusable?.Focus();
                             _logger.LogDebug("Focus set to first focusable element as fallback");
@@ -122,12 +125,68 @@ namespace PoultrySlaughterPOS.Views
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error in FocusCustomerSelection method");
+                _logger.LogWarning(ex, "Error in enhanced FocusCustomerSelection method");
             }
         }
 
         /// <summary>
-        /// Initializes the view asynchronously with data loading
+        /// Scrolls to a specific section of the page
+        /// </summary>
+        /// <param name="section">Target section to scroll to</param>
+        public void ScrollToSection(POSSection section)
+        {
+            try
+            {
+                if (_mainScrollViewer == null) return;
+
+                double targetOffset = section switch
+                {
+                    POSSection.Header => 0,
+                    POSSection.CustomerSelection => 120,
+                    POSSection.InvoiceItems => 300,
+                    POSSection.Summary => 600,
+                    POSSection.Actions => 800,
+                    _ => 0
+                };
+
+                _mainScrollViewer.ScrollToVerticalOffset(targetOffset);
+                _logger.LogDebug("Scrolled to section: {Section} at offset: {Offset}", section, targetOffset);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error scrolling to section: {Section}", section);
+            }
+        }
+
+        /// <summary>
+        /// Focuses on the invoice items data grid
+        /// </summary>
+        public void FocusInvoiceItems()
+        {
+            try
+            {
+                if (_invoiceDataGrid != null)
+                {
+                    _invoiceDataGrid.Focus();
+
+                    // Select first row if available
+                    if (_invoiceDataGrid.Items.Count > 0)
+                    {
+                        _invoiceDataGrid.SelectedIndex = 0;
+                        _invoiceDataGrid.ScrollIntoView(_invoiceDataGrid.SelectedItem);
+                    }
+
+                    _logger.LogDebug("Focus set to invoice items DataGrid");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error focusing invoice items DataGrid");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced initialization with improved performance
         /// </summary>
         public async Task InitializeViewAsync()
         {
@@ -135,11 +194,14 @@ namespace PoultrySlaughterPOS.Views
             {
                 if (_isInitialized)
                 {
-                    _logger.LogDebug("POSView already initialized, skipping re-initialization");
+                    _logger.LogDebug("Enhanced POSView already initialized, skipping re-initialization");
                     return;
                 }
 
-                _logger.LogInformation("Initializing POSView with comprehensive data loading");
+                _logger.LogInformation("Initializing enhanced POSView with comprehensive data loading");
+
+                // Cache important UI elements for performance
+                CacheUIElements();
 
                 // Initialize ViewModel data
                 if (_viewModel != null)
@@ -151,13 +213,13 @@ namespace PoultrySlaughterPOS.Views
                 ConfigureInitialUIState();
 
                 _isInitialized = true;
-                _logger.LogInformation("POSView initialization completed successfully");
+                _logger.LogInformation("Enhanced POSView initialization completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during POSView initialization");
+                _logger.LogError(ex, "Error during enhanced POSView initialization");
 
-                MessageBox.Show($"خطأ في تحميل بيانات نقطة البيع:\n{ex.Message}",
+                MessageBox.Show($"خطأ في تحميل بيانات واجهة نقطة البيع:\n{ex.Message}",
                                "خطأ في التحميل",
                                MessageBoxButton.OK,
                                MessageBoxImage.Warning);
@@ -166,85 +228,282 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// Refreshes the view data and UI state
+        /// Enhanced refresh with UI state preservation
         /// </summary>
         public async Task RefreshViewAsync()
         {
             try
             {
-                _logger.LogDebug("Refreshing POSView data and UI state");
+                _logger.LogDebug("Refreshing enhanced POSView data and UI state");
+
+                // Preserve scroll position
+                double currentScrollPosition = _mainScrollViewer?.VerticalOffset ?? 0;
 
                 if (_viewModel != null)
                 {
                     await _viewModel.InitializeAsync();
                 }
 
-                _logger.LogDebug("POSView refresh completed successfully");
+                // Restore scroll position
+                if (_mainScrollViewer != null)
+                {
+                    _mainScrollViewer.ScrollToVerticalOffset(currentScrollPosition);
+                }
+
+                _logger.LogDebug("Enhanced POSView refresh completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error refreshing POSView");
+                _logger.LogError(ex, "Error refreshing enhanced POSView");
                 throw;
             }
         }
 
         /// <summary>
-        /// Validates current invoice data and provides user feedback
+        /// Forces explicit TextBox visibility properties on DataGrid cells
+        /// Emergency fix for text visibility issues - applies runtime property enforcement
         /// </summary>
-        public bool ValidateInvoiceData()
+        public void ForceTextBoxVisibility()
         {
             try
             {
-                if (_viewModel == null)
-                {
-                    _logger.LogWarning("Cannot validate invoice data: ViewModel is null");
-                    return false;
-                }
+                if (_invoiceDataGrid == null) return;
 
-                var isValid = _viewModel.ValidateCurrentInvoice(true);
-                _logger.LogDebug("Invoice validation result: {IsValid}", isValid);
+                _logger.LogInformation("Applying emergency TextBox visibility fix");
 
-                return isValid;
+                // Method 1: Force properties on all existing TextBoxes
+                ApplyExplicitTextBoxProperties();
+
+                // Method 2: Subscribe to cell editing events for runtime enforcement
+                SubscribeToDataGridEvents();
+
+                // Method 3: Force immediate layout update
+                _invoiceDataGrid.InvalidateVisual();
+                _invoiceDataGrid.UpdateLayout();
+
+                _logger.LogInformation("Emergency TextBox visibility fix applied successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during invoice validation");
-                return false;
+                _logger.LogError(ex, "Error applying emergency TextBox visibility fix");
             }
         }
 
         /// <summary>
-        /// Cleanup method for proper resource disposal
+        /// Applies explicit properties to all TextBox controls in DataGrid
         /// </summary>
-        public void Cleanup()
+        private void ApplyExplicitTextBoxProperties()
         {
             try
             {
-                _logger.LogDebug("POSView cleanup initiated");
+                var textBoxes = FindAllVisualChildren<TextBox>(_invoiceDataGrid);
 
-                // Cleanup ViewModel if it implements IDisposable
-                if (_viewModel is IDisposable disposableViewModel)
+                foreach (var textBox in textBoxes)
                 {
-                    disposableViewModel.Dispose();
+                    // Force explicit color values that cannot be overridden
+                    textBox.SetValue(TextBox.ForegroundProperty, new SolidColorBrush(Color.FromRgb(31, 41, 55))); // #1F2937
+                    textBox.SetValue(TextBox.BackgroundProperty, new SolidColorBrush(Colors.White));
+                    textBox.SetValue(TextBox.CaretBrushProperty, new SolidColorBrush(Color.FromRgb(59, 130, 246))); // #3B82F6
+                    textBox.SetValue(TextBox.SelectionBrushProperty, new SolidColorBrush(Color.FromRgb(191, 219, 254))); // #BFDBFE
+                    textBox.SetValue(TextBox.SelectionTextBrushProperty, new SolidColorBrush(Color.FromRgb(31, 41, 55))); // #1F2937
+
+                    // Force immediate rendering update
+                    textBox.InvalidateVisual();
+                    textBox.UpdateLayout();
                 }
 
-                _viewModel?.Cleanup();
-                _isInitialized = false;
-
-                _logger.LogDebug("POSView cleanup completed successfully");
+                _logger.LogDebug("Applied explicit properties to {Count} TextBox controls", textBoxes.Count);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error during POSView cleanup");
+                _logger.LogWarning(ex, "Error applying explicit TextBox properties");
+            }
+        }
+
+        /// <summary>
+        /// Subscribes to DataGrid events for runtime TextBox property enforcement
+        /// </summary>
+        private void SubscribeToDataGridEvents()
+        {
+            try
+            {
+                if (_invoiceDataGrid == null) return;
+
+                // Event 1: Cell preparation for editing
+                _invoiceDataGrid.PreparingCellForEdit += (sender, e) =>
+                {
+                    try
+                    {
+                        if (e.EditingElement is TextBox textBox)
+                        {
+                            EnforceTextBoxProperties(textBox);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error in PreparingCellForEdit event handler");
+                    }
+                };
+
+                // Event 2: Beginning edit mode
+                _invoiceDataGrid.BeginningEdit += (sender, e) =>
+                {
+                    try
+                    {
+                        // Force properties on any TextBox in the editing cell
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            var cell = GetDataGridCell(_invoiceDataGrid, e.Row, e.Column);
+                            if (cell != null)
+                            {
+                                var textBox = FindVisualChild<TextBox>(cell);
+                                if (textBox != null)
+                                {
+                                    EnforceTextBoxProperties(textBox);
+                                }
+                            }
+                        }), System.Windows.Threading.DispatcherPriority.Render);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error in BeginningEdit event handler");
+                    }
+                };
+
+                // Event 3: Row loading
+                _invoiceDataGrid.LoadingRow += (sender, e) =>
+                {
+                    try
+                    {
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            var textBoxes = FindAllVisualChildren<TextBox>(e.Row);
+                            foreach (var textBox in textBoxes)
+                            {
+                                EnforceTextBoxProperties(textBox);
+                            }
+                        }), System.Windows.Threading.DispatcherPriority.Loaded);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error in LoadingRow event handler");
+                    }
+                };
+
+                _logger.LogDebug("DataGrid event handlers subscribed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error subscribing to DataGrid events");
+            }
+        }
+
+        /// <summary>
+        /// Enforces explicit TextBox properties that guarantee visibility
+        /// </summary>
+        /// <param name="textBox">Target TextBox control</param>
+        private void EnforceTextBoxProperties(TextBox textBox)
+        {
+            try
+            {
+                // Clear any inherited or applied styles
+                textBox.ClearValue(TextBox.StyleProperty);
+
+                // Apply explicit properties with high priority
+                textBox.SetCurrentValue(TextBox.ForegroundProperty, new SolidColorBrush(Color.FromRgb(31, 41, 55)));
+                textBox.SetCurrentValue(TextBox.BackgroundProperty, new SolidColorBrush(Colors.White));
+                textBox.SetCurrentValue(TextBox.BorderBrushProperty, new SolidColorBrush(Color.FromRgb(209, 213, 219)));
+                textBox.SetCurrentValue(TextBox.BorderThicknessProperty, new Thickness(1.0));
+                textBox.SetCurrentValue(TextBox.PaddingProperty, new Thickness(6.0, 4.0, 6.0, 4.0));
+                textBox.SetCurrentValue(TextBox.FontSizeProperty, 14.0);
+                textBox.SetCurrentValue(TextBox.FontWeightProperty, FontWeights.Medium);
+                textBox.SetCurrentValue(TextBox.TextAlignmentProperty, TextAlignment.Center);
+                textBox.SetCurrentValue(TextBox.CaretBrushProperty, new SolidColorBrush(Color.FromRgb(59, 130, 246)));
+                textBox.SetCurrentValue(TextBox.SelectionBrushProperty, new SolidColorBrush(Color.FromRgb(191, 219, 254)));
+                textBox.SetCurrentValue(TextBox.SelectionTextBrushProperty, new SolidColorBrush(Color.FromRgb(31, 41, 55)));
+
+                // Force immediate update
+                textBox.InvalidateVisual();
+                textBox.UpdateLayout();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error enforcing TextBox properties");
+            }
+        }
+
+        /// <summary>
+        /// Finds all visual children of specified type within a parent element
+        /// </summary>
+        /// <typeparam name="T">Type of children to find</typeparam>
+        /// <param name="parent">Parent element to search</param>
+        /// <returns>List of found children</returns>
+        private List<T> FindAllVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+        {
+            var children = new List<T>();
+
+            try
+            {
+                if (parent == null) return children;
+
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+
+                    if (child is T typedChild)
+                    {
+                        children.Add(typedChild);
+                    }
+
+                    children.AddRange(FindAllVisualChildren<T>(child));
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error finding visual children of type: {Type}", typeof(T).Name);
+            }
+
+            return children;
+        }
+
+        /// <summary>
+        /// Gets a specific DataGrid cell for row and column intersection
+        /// </summary>
+        /// <param name="dataGrid">Target DataGrid</param>
+        /// <param name="row">Target row</param>
+        /// <param name="column">Target column</param>
+        /// <returns>DataGrid cell or null if not found</returns>
+        private DataGridCell? GetDataGridCell(DataGrid dataGrid, DataGridRow row, DataGridColumn column)
+        {
+            try
+            {
+                if (row != null)
+                {
+                    int columnIndex = dataGrid.Columns.IndexOf(column);
+                    if (columnIndex >= 0)
+                    {
+                        var presenter = FindVisualChild<DataGridCellsPresenter>(row);
+                        if (presenter != null)
+                        {
+                            return presenter.ItemContainerGenerator.ContainerFromIndex(columnIndex) as DataGridCell;
+                        }
+                    }
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error getting DataGrid cell");
+                return null;
             }
         }
 
         #endregion
 
-        #region Event Handlers
+        #region Enhanced Event Handlers
 
         /// <summary>
-        /// Handles view loaded event with comprehensive initialization
+        /// Enhanced view loaded event with improved initialization
         /// </summary>
         private async void POSView_Loaded(object sender, RoutedEventArgs e)
         {
@@ -258,52 +517,16 @@ namespace PoultrySlaughterPOS.Views
                 // Set initial focus for optimal user experience
                 FocusCustomerSelection();
 
-                _logger.LogDebug("POSView loaded event handled successfully");
+                _logger.LogDebug("Enhanced POSView loaded event handled successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error in POSView_Loaded event handler");
+                _logger.LogError(ex, "Error in enhanced POSView_Loaded event handler");
             }
         }
 
         /// <summary>
-        /// Handles view unloaded event with cleanup
-        /// </summary>
-        private void POSView_Unloaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // Perform cleanup when view is unloaded
-                // Note: Full cleanup is handled in Cleanup() method
-                _logger.LogDebug("POSView unloaded event handled");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error in POSView_Unloaded event handler");
-            }
-        }
-
-        /// <summary>
-        /// Handles input field value changes for real-time calculations
-        /// </summary>
-        private void NumericInput_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            try
-            {
-                if (_viewModel != null && _isInitialized)
-                {
-                    // Trigger recalculation when numeric inputs change
-                    _viewModel.RecalculateInvoiceTotals();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling numeric input change");
-            }
-        }
-
-        /// <summary>
-        /// Handles keyboard shortcuts for improved user experience
+        /// Enhanced keyboard shortcuts handling
         /// </summary>
         private void POSView_KeyDown(object sender, KeyEventArgs e)
         {
@@ -316,6 +539,7 @@ namespace PoultrySlaughterPOS.Views
                     case Key.F1:
                         // Quick customer selection focus
                         FocusCustomerSelection();
+                        ScrollToSection(POSSection.CustomerSelection);
                         e.Handled = true;
                         break;
 
@@ -334,6 +558,13 @@ namespace PoultrySlaughterPOS.Views
                         {
                             _viewModel.AddNewCustomerCommand.Execute(null);
                         }
+                        e.Handled = true;
+                        break;
+
+                    case Key.F4:
+                        // Focus on invoice items
+                        FocusInvoiceItems();
+                        ScrollToSection(POSSection.InvoiceItems);
                         e.Handled = true;
                         break;
 
@@ -364,12 +595,12 @@ namespace PoultrySlaughterPOS.Views
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error handling keyboard shortcut: {Key}", e.Key);
+                _logger.LogWarning(ex, "Error handling enhanced keyboard shortcut: {Key}", e.Key);
             }
         }
 
         /// <summary>
-        /// Handles ViewModel property changes for dynamic UI updates
+        /// Enhanced property change handling with UI optimizations
         /// </summary>
         private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
@@ -388,22 +619,26 @@ namespace PoultrySlaughterPOS.Views
                     case nameof(POSViewModel.StatusMessage):
                         HandleStatusMessageChanged();
                         break;
+
+                    case nameof(POSViewModel.InvoiceItems):
+                        HandleInvoiceItemsChanged();
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error handling ViewModel property change: {PropertyName}", e.PropertyName);
+                _logger.LogWarning(ex, "Error handling enhanced ViewModel property change: {PropertyName}", e.PropertyName);
             }
         }
 
         #endregion
 
-        #region Private Methods
+        #region Enhanced Private Methods
 
         /// <summary>
-        /// Configures view-specific properties for optimal user experience
+        /// Enhanced view properties configuration
         /// </summary>
-        private void ConfigureViewProperties()
+        private void ConfigureEnhancedViewProperties()
         {
             try
             {
@@ -413,18 +648,21 @@ namespace PoultrySlaughterPOS.Views
                 // Configure keyboard handling
                 KeyDown += POSView_KeyDown;
 
-                _logger.LogDebug("POSView properties configured successfully");
+                // Enable touch scrolling
+                IsManipulationEnabled = true;
+
+                _logger.LogDebug("Enhanced POSView properties configured successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error configuring view properties");
+                _logger.LogWarning(ex, "Error configuring enhanced view properties");
             }
         }
 
         /// <summary>
-        /// Wires up comprehensive event handlers for advanced UI management
+        /// Enhanced event handlers wiring
         /// </summary>
-        private void WireUpEventHandlers()
+        private void WireUpEnhancedEventHandlers()
         {
             try
             {
@@ -438,16 +676,37 @@ namespace PoultrySlaughterPOS.Views
                     _viewModel.PropertyChanged += ViewModel_PropertyChanged;
                 }
 
-                _logger.LogDebug("Event handlers wired up successfully");
+                _logger.LogDebug("Enhanced event handlers wired up successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error wiring up event handlers");
+                _logger.LogError(ex, "Error wiring up enhanced event handlers");
             }
         }
 
         /// <summary>
-        /// Configures initial UI state for optimal user experience
+        /// Caches important UI elements for performance optimization
+        /// </summary>
+        private void CacheUIElements()
+        {
+            try
+            {
+                // Find and cache the main scroll viewer
+                _mainScrollViewer = FindVisualChild<ScrollViewer>(this);
+
+                // Cache the DataGrid
+                _invoiceDataGrid = InvoiceItemsDataGrid;
+
+                _logger.LogDebug("UI elements cached successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error caching UI elements");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced initial UI state configuration with automatic TextBox visibility fix
         /// </summary>
         private void ConfigureInitialUIState()
         {
@@ -456,17 +715,146 @@ namespace PoultrySlaughterPOS.Views
                 // Set initial focus
                 FocusCustomerSelection();
 
-                // Additional UI configuration can be added here
-                _logger.LogDebug("Initial UI state configured successfully");
+                // Configure DataGrid for optimal performance
+                if (_invoiceDataGrid != null)
+                {
+                    _invoiceDataGrid.EnableRowVirtualization = true;
+                    _invoiceDataGrid.EnableColumnVirtualization = true;
+                }
+
+                // Apply automatic TextBox visibility fix
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    ForceTextBoxVisibility();
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
+
+                _logger.LogDebug("Enhanced initial UI state configured successfully with TextBox visibility fix");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error configuring initial UI state");
+                _logger.LogWarning(ex, "Error configuring enhanced initial UI state");
             }
         }
 
         /// <summary>
-        /// Finds the first focusable element in the visual tree
+        /// Handles invoice items collection changes
+        /// </summary>
+        private void HandleInvoiceItemsChanged()
+        {
+            try
+            {
+                if (_invoiceDataGrid != null && _viewModel?.InvoiceItems != null)
+                {
+                    // Auto-scroll to show new items
+                    if (_viewModel.InvoiceItems.Count > 0)
+                    {
+                        var lastItem = _viewModel.InvoiceItems[_viewModel.InvoiceItems.Count - 1];
+                        _invoiceDataGrid.ScrollIntoView(lastItem);
+                    }
+                }
+
+                _logger.LogDebug("Invoice items changed handling completed");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling invoice items change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced loading state handling
+        /// </summary>
+        private void HandleLoadingStateChanged()
+        {
+            try
+            {
+                if (_viewModel?.IsLoading == true)
+                {
+                    Cursor = Cursors.Wait;
+                    IsEnabled = false;
+                }
+                else
+                {
+                    Cursor = Cursors.Arrow;
+                    IsEnabled = true;
+                }
+
+                _logger.LogDebug("Enhanced loading state changed: {IsLoading}", _viewModel?.IsLoading);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced loading state change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced validation state handling
+        /// </summary>
+        private void HandleValidationStateChanged()
+        {
+            try
+            {
+                // Additional validation UI feedback implementation
+                _logger.LogDebug("Enhanced validation state changed: {HasErrors}", _viewModel?.HasValidationErrors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced validation state change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced status message handling
+        /// </summary>
+        private void HandleStatusMessageChanged()
+        {
+            try
+            {
+                _logger.LogDebug("Enhanced status message changed: {StatusMessage}", _viewModel?.StatusMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced status message change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced visual child finder with performance optimization
+        /// </summary>
+        /// <typeparam name="T">Type of child to find</typeparam>
+        /// <param name="parent">Parent element</param>
+        /// <returns>Found child element or null</returns>
+        private T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            try
+            {
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+                {
+                    var child = VisualTreeHelper.GetChild(parent, i);
+
+                    if (child is T typedChild)
+                    {
+                        return typedChild;
+                    }
+
+                    var foundChild = FindVisualChild<T>(child);
+                    if (foundChild != null)
+                    {
+                        return foundChild;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error finding visual child of type: {Type}", typeof(T).Name);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Enhanced first focusable element finder
         /// </summary>
         /// <param name="parent">Parent element to search</param>
         /// <returns>First focusable element or null</returns>
@@ -474,11 +862,14 @@ namespace PoultrySlaughterPOS.Views
         {
             try
             {
-                for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
                 {
-                    var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                    var child = VisualTreeHelper.GetChild(parent, i);
 
-                    if (child is FrameworkElement element && element.Focusable && element.IsEnabled && element.Visibility == Visibility.Visible)
+                    if (child is FrameworkElement element &&
+                        element.Focusable &&
+                        element.IsEnabled &&
+                        element.Visibility == Visibility.Visible)
                     {
                         return element;
                     }
@@ -500,63 +891,47 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// Handles loading state changes for UI feedback
+        /// Enhanced unloaded event handler
         /// </summary>
-        private void HandleLoadingStateChanged()
+        private void POSView_Unloaded(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (_viewModel?.IsLoading == true)
-                {
-                    // Show loading indicator
-                    Cursor = Cursors.Wait;
-                    IsEnabled = false;
-                }
-                else
-                {
-                    // Hide loading indicator
-                    Cursor = Cursors.Arrow;
-                    IsEnabled = true;
-                }
-
-                _logger.LogDebug("Loading state changed: {IsLoading}", _viewModel?.IsLoading);
+                _logger.LogDebug("Enhanced POSView unloaded event handled");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error handling loading state change");
+                _logger.LogWarning(ex, "Error in enhanced POSView_Unloaded event handler");
             }
         }
 
         /// <summary>
-        /// Handles validation state changes for user feedback
+        /// Enhanced cleanup method
         /// </summary>
-        private void HandleValidationStateChanged()
+        public void Cleanup()
         {
             try
             {
-                // Additional validation UI feedback can be implemented here
-                _logger.LogDebug("Validation state changed: {HasErrors}", _viewModel?.HasValidationErrors);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling validation state change");
-            }
-        }
+                _logger.LogDebug("Enhanced POSView cleanup initiated");
 
-        /// <summary>
-        /// Handles status message changes for user feedback
-        /// </summary>
-        private void HandleStatusMessageChanged()
-        {
-            try
-            {
-                // Status message updates are handled via data binding
-                // Additional logic can be added here if needed
-                _logger.LogDebug("Status message changed: {StatusMessage}", _viewModel?.StatusMessage);
+                // Clear cached references
+                _mainScrollViewer = null;
+                _invoiceDataGrid = null;
+
+                // Cleanup ViewModel
+                if (_viewModel is IDisposable disposableViewModel)
+                {
+                    disposableViewModel.Dispose();
+                }
+
+                _viewModel?.Cleanup();
+                _isInitialized = false;
+
+                _logger.LogDebug("Enhanced POSView cleanup completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error handling status message change");
+                _logger.LogWarning(ex, "Error during enhanced POSView cleanup");
             }
         }
 
@@ -565,30 +940,40 @@ namespace PoultrySlaughterPOS.Views
         #region Static Factory Methods
 
         /// <summary>
-        /// Factory method for creating POSView with proper dependency injection
+        /// Enhanced factory method for creating POSView with proper dependency injection
         /// </summary>
         /// <param name="serviceProvider">Service provider for dependency resolution</param>
-        /// <returns>Configured POSView instance</returns>
+        /// <returns>Configured enhanced POSView instance</returns>
         public static POSView CreateInstance(IServiceProvider serviceProvider)
         {
             try
             {
                 var logger = serviceProvider.GetService<ILogger<POSView>>();
-                logger?.LogInformation("Creating POSView instance via factory method");
+                logger?.LogInformation("Creating enhanced POSView instance via factory method");
 
-                // Resolve view from DI container
                 var view = serviceProvider.GetRequiredService<POSView>();
-
                 return view;
             }
             catch (Exception ex)
             {
                 var logger = serviceProvider.GetService<ILogger<POSView>>();
-                logger?.LogError(ex, "Error in CreateInstance factory method");
+                logger?.LogError(ex, "Error in enhanced CreateInstance factory method");
                 throw;
             }
         }
 
         #endregion
+    }
+
+    /// <summary>
+    /// Enumeration for POSView sections for programmatic navigation
+    /// </summary>
+    public enum POSSection
+    {
+        Header,
+        CustomerSelection,
+        InvoiceItems,
+        Summary,
+        Actions
     }
 }

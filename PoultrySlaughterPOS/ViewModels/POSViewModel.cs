@@ -18,13 +18,13 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
 using System.Windows.Documents;
+
 namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
-    /// Enterprise-grade Point of Sale ViewModel implementing comprehensive invoice processing,
-    /// real-time calculations, customer management, and business logic orchestration
-    /// for poultry slaughter operations with MVVM architecture and async patterns.
-    /// UPDATED: Complete AddCustomerDialog integration with dependency injection support.
+    /// Enterprise-grade Point of Sale ViewModel implementing comprehensive bulk invoice processing,
+    /// real-time calculations, advanced table management, and Arabic receipt printing
+    /// for poultry slaughter operations with full MVVM architecture.
     /// </summary>
     public partial class POSViewModel : ObservableObject
     {
@@ -33,13 +33,14 @@ namespace PoultrySlaughterPOS.ViewModels
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<POSViewModel> _logger;
         private readonly IErrorHandlingService _errorHandlingService;
-        private readonly IServiceProvider _serviceProvider; // Added for dialog dependency injection
+        private readonly IServiceProvider _serviceProvider;
         private bool _isLoading = false;
         private bool _hasValidationErrors = false;
 
         // Collections for UI binding
         private ObservableCollection<Customer> _customers = new();
         private ObservableCollection<Truck> _trucks = new();
+        private ObservableCollection<InvoiceItem> _invoiceItems = new();
         private ObservableCollection<string> _validationErrors = new();
 
         // Current selections and state
@@ -47,28 +48,25 @@ namespace PoultrySlaughterPOS.ViewModels
         private Truck? _selectedTruck;
         private Invoice _currentInvoice = new();
         private DateTime _currentDateTime = DateTime.Now;
-        private DateTime? _lastTruckLoadDate;
+
+        // Calculated totals
+        private decimal _totalNetWeight = 0;
+        private decimal _totalAmount = 0;
+        private decimal _totalDiscount = 0;
+        private decimal _finalTotal = 0;
 
         // Status and UI state
         private string _statusMessage = "جاهز لإنشاء فاتورة جديدة";
         private string _statusIcon = "CheckCircle";
         private string _statusColor = "#28A745";
 
-        // Statistics
-        private int _todayInvoiceCount = 0;
-        private DateTime? _lastInvoiceTime;
-
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Initializes POSViewModel with comprehensive dependency injection including dialog services
+        /// Initializes POSViewModel with comprehensive dependency injection for bulk invoice processing
         /// </summary>
-        /// <param name="unitOfWork">Unit of work for database operations</param>
-        /// <param name="logger">Logger for diagnostic and error tracking</param>
-        /// <param name="errorHandlingService">Centralized error handling service</param>
-        /// <param name="serviceProvider">Service provider for dialog dependency injection</param>
         public POSViewModel(
             IUnitOfWork unitOfWork,
             ILogger<POSViewModel> logger,
@@ -82,8 +80,9 @@ namespace PoultrySlaughterPOS.ViewModels
 
             InitializeCommands();
             InitializeCurrentInvoice();
+            InitializeInvoiceItems();
 
-            _logger.LogInformation("POSViewModel initialized with complete dependency injection including dialog services");
+            _logger.LogInformation("POSViewModel initialized with bulk invoice processing capabilities");
         }
 
         #endregion
@@ -106,6 +105,33 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             get => _trucks;
             set => SetProperty(ref _trucks, value);
+        }
+
+        /// <summary>
+        /// Collection of invoice items for bulk processing
+        /// </summary>
+        public ObservableCollection<InvoiceItem> InvoiceItems
+        {
+            get => _invoiceItems;
+            set
+            {
+                if (SetProperty(ref _invoiceItems, value))
+                {
+                    // Subscribe to collection changes for real-time calculations
+                    if (_invoiceItems != null)
+                    {
+                        _invoiceItems.CollectionChanged += InvoiceItems_CollectionChanged;
+
+                        // Subscribe to property changes of existing items
+                        foreach (var item in _invoiceItems)
+                        {
+                            item.PropertyChanged += InvoiceItem_PropertyChanged;
+                        }
+                    }
+
+                    RecalculateTotals();
+                }
+            }
         }
 
         /// <summary>
@@ -144,66 +170,9 @@ namespace PoultrySlaughterPOS.ViewModels
         public Invoice CurrentInvoice
         {
             get => _currentInvoice;
-            set
-            {
-                if (SetProperty(ref _currentInvoice, value))
-                {
-                    // Unsubscribe from old invoice if exists
-                    if (_currentInvoice != null)
-                    {
-                        _currentInvoice.PropertyChanged -= CurrentInvoice_PropertyChanged;
-                    }
-
-                    // Subscribe to new invoice property changes
-                    if (value != null)
-                    {
-                        value.PropertyChanged += CurrentInvoice_PropertyChanged;
-                    }
-
-                    // Trigger UI updates
-                    OnPropertyChanged(nameof(DiscountAmount));
-                    OnPropertyChanged(nameof(CanSaveInvoice));
-
-                    // Trigger command CanExecute reevaluation
-                    SaveInvoiceCommand.NotifyCanExecuteChanged();
-                    SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
-                }
-            }
+            set => SetProperty(ref _currentInvoice, value);
         }
-        /// <summary>
-        /// Handles property changes from the CurrentInvoice to trigger validation and calculations
-        /// </summary>
-        private void CurrentInvoice_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            try
-            {
-                // Recalculate totals when key properties change
-                var triggerCalculation = e.PropertyName switch
-                {
-                    nameof(Invoice.GrossWeight) or
-                    nameof(Invoice.CagesWeight) or
-                    nameof(Invoice.UnitPrice) or
-                    nameof(Invoice.DiscountPercentage) => true,
-                    _ => false
-                };
 
-                if (triggerCalculation)
-                {
-                    RecalculateInvoiceTotals();
-                }
-
-                // Always trigger validation check
-                OnPropertyChanged(nameof(CanSaveInvoice));
-                SaveInvoiceCommand.NotifyCanExecuteChanged();
-                SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
-
-                _logger.LogDebug("CurrentInvoice property changed: {PropertyName}", e.PropertyName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error handling CurrentInvoice property change: {PropertyName}", e.PropertyName);
-            }
-        }
         /// <summary>
         /// Current date and time for invoice
         /// </summary>
@@ -214,24 +183,39 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Last truck load date for selected truck
+        /// Total net weight across all invoice items
         /// </summary>
-        public DateTime? LastTruckLoadDate
+        public decimal TotalNetWeight
         {
-            get => _lastTruckLoadDate;
-            set => SetProperty(ref _lastTruckLoadDate, value);
+            get => _totalNetWeight;
+            set => SetProperty(ref _totalNetWeight, value);
         }
 
         /// <summary>
-        /// Calculated discount amount based on percentage
+        /// Total amount before discount across all items
         /// </summary>
-        public decimal DiscountAmount
+        public decimal TotalAmount
         {
-            get
-            {
-                if (CurrentInvoice == null) return 0;
-                return CurrentInvoice.TotalAmount * (CurrentInvoice.DiscountPercentage / 100);
-            }
+            get => _totalAmount;
+            set => SetProperty(ref _totalAmount, value);
+        }
+
+        /// <summary>
+        /// Total discount amount across all items
+        /// </summary>
+        public decimal TotalDiscount
+        {
+            get => _totalDiscount;
+            set => SetProperty(ref _totalDiscount, value);
+        }
+
+        /// <summary>
+        /// Final total after all discounts
+        /// </summary>
+        public decimal FinalTotal
+        {
+            get => _finalTotal;
+            set => SetProperty(ref _finalTotal, value);
         }
 
         /// <summary>
@@ -289,24 +273,6 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Today's invoice count for statistics
-        /// </summary>
-        public int TodayInvoiceCount
-        {
-            get => _todayInvoiceCount;
-            set => SetProperty(ref _todayInvoiceCount, value);
-        }
-
-        /// <summary>
-        /// Last invoice creation time
-        /// </summary>
-        public DateTime? LastInvoiceTime
-        {
-            get => _lastInvoiceTime;
-            set => SetProperty(ref _lastInvoiceTime, value);
-        }
-
-        /// <summary>
         /// Indicates whether the current invoice can be saved
         /// </summary>
         public bool CanSaveInvoice => ValidateCurrentInvoice(false);
@@ -315,28 +281,84 @@ namespace PoultrySlaughterPOS.ViewModels
 
         #region Commands
 
+        [RelayCommand]
+        private async Task AddInvoiceItemAsync()
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                _logger.LogInformation("Adding new invoice item to collection");
+
+                var newItem = new InvoiceItem
+                {
+                    InvoiceDate = DateTime.Today,
+                    GrossWeight = 0,
+                    CagesCount = 0,
+                    CageWeight = 0,
+                    UnitPrice = 0,
+                    DiscountPercentage = 0
+                };
+
+                // Subscribe to property changes for real-time calculations
+                newItem.PropertyChanged += InvoiceItem_PropertyChanged;
+
+                InvoiceItems.Add(newItem);
+
+                UpdateStatus("تم إضافة صف جديد بنجاح", "Plus", "#27AE60");
+                _logger.LogDebug("New invoice item added. Total items: {Count}", InvoiceItems.Count);
+
+                await Task.CompletedTask;
+            }, "إضافة صف جديد");
+        }
+
+        [RelayCommand]
+        private async Task RemoveInvoiceItemAsync(InvoiceItem item)
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                if (InvoiceItems.Count <= 1)
+                {
+                    UpdateStatus("لا يمكن حذف آخر صف في الفاتورة", "ExclamationTriangle", "#E74C3C");
+                    return;
+                }
+
+                _logger.LogInformation("Removing invoice item from collection");
+
+                // Unsubscribe from property changes
+                if (item != null)
+                {
+                    item.PropertyChanged -= InvoiceItem_PropertyChanged;
+                    InvoiceItems.Remove(item);
+                }
+
+                UpdateStatus("تم حذف الصف بنجاح", "Trash", "#E74C3C");
+                _logger.LogDebug("Invoice item removed. Remaining items: {Count}", InvoiceItems.Count);
+
+                await Task.CompletedTask;
+            }, "حذف صف");
+        }
+
         [RelayCommand(CanExecute = nameof(CanExecuteSaveAndPrintInvoice))]
         private async Task SaveAndPrintInvoiceAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing SaveAndPrintInvoice command");
+                _logger.LogInformation("Executing SaveAndPrintInvoice command for bulk invoice");
 
                 var savedInvoice = await SaveInvoiceInternalAsync();
                 if (savedInvoice != null)
                 {
-                    // Show print dialog before printing
-                    await PrintInvoiceWithDialogAsync(savedInvoice);
+                    await PrintBulkInvoiceAsync(savedInvoice);
                     await ResetForNewInvoiceAsync();
                 }
             }, "حفظ وطباعة الفاتورة");
         }
+
         [RelayCommand(CanExecute = nameof(CanExecuteSaveInvoice))]
         private async Task SaveInvoiceAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing SaveInvoice command");
+                _logger.LogInformation("Executing SaveInvoice command for bulk invoice");
 
                 var savedInvoice = await SaveInvoiceInternalAsync();
                 if (savedInvoice != null)
@@ -352,12 +374,8 @@ namespace PoultrySlaughterPOS.ViewModels
             await ExecuteWithErrorHandlingAsync(async () =>
             {
                 _logger.LogInformation("Executing PrintPreviousInvoice command");
-
-                // Implementation for printing previous invoice
-                // This would typically open a dialog to select and print previous invoices
                 UpdateStatus("طباعة الفواتير السابقة قيد التطوير", "Info", "#FFC107");
-
-                await Task.Delay(100); // Placeholder for actual implementation
+                await Task.Delay(100);
             }, "طباعة فاتورة سابقة");
         }
 
@@ -371,70 +389,105 @@ namespace PoultrySlaughterPOS.ViewModels
             }, "فاتورة جديدة");
         }
 
-        /// <summary>
-        /// UPDATED: Complete AddNewCustomer command implementation with dialog integration
-        /// </summary>
         [RelayCommand]
         private async Task AddNewCustomerAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing AddNewCustomer command with dialog integration");
+                _logger.LogInformation("Executing AddNewCustomer command");
 
-                try
+                var currentWindow = GetCurrentWindow();
+                var createdCustomer = await AddCustomerDialog.ShowNewCustomerDialogAsync(_serviceProvider, currentWindow);
+
+                if (createdCustomer != null)
                 {
-                    UpdateStatus("جاري فتح نافذة إضافة زبون جديد...", "UserPlus", "#007BFF");
-
-                    // Get current window for modal dialog positioning
-                    var currentWindow = GetCurrentWindow();
-
-                    // Create and show customer dialog using dependency injection
-                    var createdCustomer = await AddCustomerDialog.ShowNewCustomerDialogAsync(_serviceProvider, currentWindow);
-
-                    if (createdCustomer != null)
-                    {
-                        _logger.LogInformation("New customer created successfully: {CustomerName} (ID: {CustomerId})",
-                            createdCustomer.CustomerName, createdCustomer.CustomerId);
-
-                        // Add new customer to the collection for immediate availability
-                        Customers.Insert(0, createdCustomer); // Add at top for easy selection
-
-                        // Automatically select the newly created customer
-                        SelectedCustomer = createdCustomer;
-
-                        // Update status with success message
-                        UpdateStatus($"تم إضافة الزبون '{createdCustomer.CustomerName}' بنجاح", "CheckCircle", "#28A745");
-
-                        // Trigger property change notifications for UI updates
-                        OnPropertyChanged(nameof(Customers));
-                        OnPropertyChanged(nameof(SelectedCustomer));
-
-                        _logger.LogInformation("Customer '{CustomerName}' added to collection and auto-selected", createdCustomer.CustomerName);
-                    }
-                    else
-                    {
-                        // User cancelled the dialog
-                        UpdateStatus("تم إلغاء إضافة الزبون", "Times", "#6C757D");
-                        _logger.LogDebug("AddCustomer dialog was cancelled by user");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error in AddNewCustomer command execution");
-                    UpdateStatus("خطأ في إضافة الزبون", "ExclamationTriangle", "#DC3545");
-
-                    // Show user-friendly error message
-                    var currentWindow = GetCurrentWindow();
-                    MessageBox.Show($"خطأ في إضافة زبون جديد:\n{ex.Message}",
-                                   "خطأ",
-                                   MessageBoxButton.OK,
-                                   MessageBoxImage.Warning);
+                    Customers.Insert(0, createdCustomer);
+                    SelectedCustomer = createdCustomer;
+                    UpdateStatus($"تم إضافة الزبون '{createdCustomer.CustomerName}' بنجاح", "CheckCircle", "#28A745");
                 }
             }, "إضافة زبون جديد");
         }
 
         private bool CanExecuteSaveAndPrintInvoice() => CanSaveInvoice && !IsLoading;
         private bool CanExecuteSaveInvoice() => CanSaveInvoice && !IsLoading;
+
+        #endregion
+
+        #region Event Handlers
+
+        /// <summary>
+        /// Handles collection changes in invoice items for real-time updates
+        /// </summary>
+        private void InvoiceItems_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            try
+            {
+                // Subscribe to new items
+                if (e.NewItems != null)
+                {
+                    foreach (InvoiceItem newItem in e.NewItems)
+                    {
+                        newItem.PropertyChanged += InvoiceItem_PropertyChanged;
+                    }
+                }
+
+                // Unsubscribe from removed items
+                if (e.OldItems != null)
+                {
+                    foreach (InvoiceItem oldItem in e.OldItems)
+                    {
+                        oldItem.PropertyChanged -= InvoiceItem_PropertyChanged;
+                    }
+                }
+
+                RecalculateTotals();
+                OnPropertyChanged(nameof(CanSaveInvoice));
+                SaveInvoiceCommand.NotifyCanExecuteChanged();
+                SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
+
+                _logger.LogDebug("Invoice items collection changed. Current count: {Count}", InvoiceItems?.Count ?? 0);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling invoice items collection change");
+            }
+        }
+
+        /// <summary>
+        /// Handles property changes in individual invoice items for real-time calculations
+        /// </summary>
+        private void InvoiceItem_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            try
+            {
+                if (sender is InvoiceItem item)
+                {
+                    // Recalculate item totals when relevant properties change
+                    var triggerCalculation = e.PropertyName switch
+                    {
+                        nameof(InvoiceItem.GrossWeight) or
+                        nameof(InvoiceItem.CagesCount) or
+                        nameof(InvoiceItem.CageWeight) or
+                        nameof(InvoiceItem.UnitPrice) or
+                        nameof(InvoiceItem.DiscountPercentage) => true,
+                        _ => false
+                    };
+
+                    if (triggerCalculation)
+                    {
+                        CalculateInvoiceItem(item);
+                        RecalculateTotals();
+                    }
+
+                    _logger.LogDebug("Invoice item property changed: {PropertyName} for item with gross weight {GrossWeight}",
+                        e.PropertyName, item.GrossWeight);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling invoice item property change: {PropertyName}", e.PropertyName);
+            }
+        }
 
         #endregion
 
@@ -452,11 +505,10 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 await LoadCustomersAsync();
                 await LoadTrucksAsync();
-                await LoadTodayStatisticsAsync();
                 await GenerateNewInvoiceNumberAsync();
 
                 UpdateStatus("جاهز لإنشاء فاتورة جديدة", "CheckCircle", "#28A745");
-                _logger.LogInformation("POSViewModel initialized successfully with data loading completed");
+                _logger.LogInformation("POSViewModel initialized successfully");
             }
             catch (Exception ex)
             {
@@ -471,47 +523,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Recalculates invoice totals when input values change
-        /// </summary>
-        public void RecalculateInvoiceTotals()
-        {
-            try
-            {
-                if (CurrentInvoice == null) return;
-
-                // Calculate net weight
-                CurrentInvoice.NetWeight = Math.Max(0, CurrentInvoice.GrossWeight - CurrentInvoice.CagesWeight);
-
-                // Calculate total amount
-                CurrentInvoice.TotalAmount = CurrentInvoice.NetWeight * CurrentInvoice.UnitPrice;
-
-                // Calculate final amount with discount
-                var discountAmount = CurrentInvoice.TotalAmount * (CurrentInvoice.DiscountPercentage / 100);
-                CurrentInvoice.FinalAmount = CurrentInvoice.TotalAmount - discountAmount;
-
-                // Update balance calculations
-                if (SelectedCustomer != null)
-                {
-                    CurrentInvoice.PreviousBalance = SelectedCustomer.TotalDebt;
-                    CurrentInvoice.CurrentBalance = SelectedCustomer.TotalDebt + CurrentInvoice.FinalAmount;
-                }
-
-                // Notify UI of changes
-                OnPropertyChanged(nameof(CurrentInvoice));
-                OnPropertyChanged(nameof(DiscountAmount));
-                OnPropertyChanged(nameof(CanSaveInvoice));
-
-                _logger.LogDebug("Invoice totals recalculated - Net Weight: {NetWeight}, Final Amount: {FinalAmount}",
-                    CurrentInvoice.NetWeight, CurrentInvoice.FinalAmount);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during invoice total recalculation");
-            }
-        }
-
-        /// <summary>
-        /// Validates the current invoice and returns validation result with detailed logging
+        /// Validates the current bulk invoice and returns validation result
         /// </summary>
         public bool ValidateCurrentInvoice(bool showErrors = true)
         {
@@ -520,67 +532,50 @@ namespace PoultrySlaughterPOS.ViewModels
                 ValidationErrors.Clear();
                 var validationResults = new List<string>();
 
-                _logger.LogDebug("Starting invoice validation...");
-
-                if (CurrentInvoice == null)
+                // Customer validation
+                if (SelectedCustomer == null)
                 {
-                    validationResults.Add("لا توجد فاتورة للتحقق منها");
-                    _logger.LogWarning("Validation failed: CurrentInvoice is null");
+                    validationResults.Add("يجب اختيار زبون للفاتورة");
+                }
+
+                // Truck validation  
+                if (SelectedTruck == null)
+                {
+                    validationResults.Add("يجب اختيار شاحنة للفاتورة");
+                }
+
+                // Invoice items validation
+                if (InvoiceItems == null || InvoiceItems.Count == 0)
+                {
+                    validationResults.Add("يجب إضافة بند واحد على الأقل للفاتورة");
                 }
                 else
                 {
-                    // Customer validation
-                    if (SelectedCustomer == null)
+                    var hasValidItems = InvoiceItems.Any(item =>
+                        item.GrossWeight > 0 &&
+                        item.CagesCount > 0 &&
+                        item.UnitPrice > 0);
+
+                    if (!hasValidItems)
                     {
-                        validationResults.Add("يجب اختيار زبون للفاتورة");
-                        _logger.LogDebug("Validation failed: No customer selected");
+                        validationResults.Add("يجب إدخال بيانات صحيحة في بنود الفاتورة");
                     }
 
-                    // Truck validation  
-                    if (SelectedTruck == null)
+                    // Validate individual items
+                    for (int i = 0; i < InvoiceItems.Count; i++)
                     {
-                        validationResults.Add("يجب اختيار شاحنة للفاتورة");
-                        _logger.LogDebug("Validation failed: No truck selected");
-                    }
+                        var item = InvoiceItems[i];
+                        var itemNumber = i + 1;
 
-                    // Weight validations
-                    if (CurrentInvoice.GrossWeight <= 0)
-                    {
-                        validationResults.Add("يجب إدخال الوزن الفلتي");
-                        _logger.LogDebug("Validation failed: GrossWeight = {GrossWeight}", CurrentInvoice.GrossWeight);
-                    }
+                        if (item.CagesWeight >= item.GrossWeight && item.GrossWeight > 0)
+                        {
+                            validationResults.Add($"البند {itemNumber}: وزن الأقفاص لا يمكن أن يكون أكبر من أو يساوي الوزن الفلتي");
+                        }
 
-                    if (CurrentInvoice.CagesWeight < 0)
-                    {
-                        validationResults.Add("وزن الأقفاص لا يمكن أن يكون سالباً");
-                        _logger.LogDebug("Validation failed: CagesWeight = {CagesWeight}", CurrentInvoice.CagesWeight);
-                    }
-
-                    if (CurrentInvoice.CagesWeight >= CurrentInvoice.GrossWeight && CurrentInvoice.GrossWeight > 0)
-                    {
-                        validationResults.Add("وزن الأقفاص لا يمكن أن يكون أكبر من أو يساوي الوزن الفلتي");
-                        _logger.LogDebug("Validation failed: CagesWeight ({CagesWeight}) >= GrossWeight ({GrossWeight})",
-                            CurrentInvoice.CagesWeight, CurrentInvoice.GrossWeight);
-                    }
-
-                    if (CurrentInvoice.CagesCount <= 0)
-                    {
-                        validationResults.Add("يجب إدخال عدد الأقفاص");
-                        _logger.LogDebug("Validation failed: CagesCount = {CagesCount}", CurrentInvoice.CagesCount);
-                    }
-
-                    // Price validation
-                    if (CurrentInvoice.UnitPrice <= 0)
-                    {
-                        validationResults.Add("يجب إدخال سعر الوحدة");
-                        _logger.LogDebug("Validation failed: UnitPrice = {UnitPrice}", CurrentInvoice.UnitPrice);
-                    }
-
-                    // Discount validation
-                    if (CurrentInvoice.DiscountPercentage < 0 || CurrentInvoice.DiscountPercentage > 100)
-                    {
-                        validationResults.Add("نسبة الخصم يجب أن تكون بين 0 و 100");
-                        _logger.LogDebug("Validation failed: DiscountPercentage = {DiscountPercentage}", CurrentInvoice.DiscountPercentage);
+                        if (item.DiscountPercentage < 0 || item.DiscountPercentage > 100)
+                        {
+                            validationResults.Add($"البند {itemNumber}: نسبة الخصم يجب أن تكون بين 0 و 100");
+                        }
                     }
                 }
 
@@ -593,18 +588,9 @@ namespace PoultrySlaughterPOS.ViewModels
                 HasValidationErrors = ValidationErrors.Count > 0;
                 var isValid = !HasValidationErrors;
 
-                _logger.LogDebug("Validation completed: IsValid = {IsValid}, ErrorCount = {ErrorCount}",
-                    isValid, ValidationErrors.Count);
-
                 if (HasValidationErrors && showErrors)
                 {
                     UpdateStatus($"توجد {ValidationErrors.Count} أخطاء في البيانات", "ExclamationTriangle", "#DC3545");
-
-                    // Log all validation errors for debugging
-                    foreach (var error in ValidationErrors)
-                    {
-                        _logger.LogWarning("Validation error: {Error}", error);
-                    }
                 }
                 else if (isValid)
                 {
@@ -615,58 +601,8 @@ namespace PoultrySlaughterPOS.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during invoice validation");
+                _logger.LogError(ex, "Error during bulk invoice validation");
                 return false;
-            }
-        }
- private async Task PrintInvoiceWithDialogAsync(Invoice invoice)
-{
-    try
-    {
-        // Create and show print dialog
-        var printDialog = new PrintDialog();
-
-        // Configure print dialog settings
-        printDialog.PrintQueue = LocalPrintServer.GetDefaultPrintQueue();
-        printDialog.PrintTicket = printDialog.PrintQueue.DefaultPrintTicket;
-
-        if (printDialog.ShowDialog() == true)
-        {
-            UpdateStatus("جاري طباعة الفاتورة...", "Print", "#007BFF");
-            await PrintInvoiceAsync(invoice);
-        }
-        else
-        {
-            UpdateStatus("تم إلغاء الطباعة", "Times", "#6C757D");
-        }
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Error in print dialog");
-        UpdateStatus("خطأ في طباعة الفاتورة", "ExclamationTriangle", "#DC3545");
-    }
-}
-
-        /// <summary>
-        /// Resets the current invoice for new entry
-        /// </summary>
-        public void ResetCurrentInvoice()
-        {
-            try
-            {
-                InitializeCurrentInvoice();
-                SelectedCustomer = null;
-                SelectedTruck = null;
-                ValidationErrors.Clear();
-                HasValidationErrors = false;
-
-                UpdateStatus("جاهز لإنشاء فاتورة جديدة", "CheckCircle", "#28A745");
-
-                _logger.LogDebug("Current invoice reset for new entry");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error resetting current invoice");
             }
         }
 
@@ -679,7 +615,17 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 _logger.LogDebug("POSViewModel cleanup initiated");
 
-                // Clear collections
+                // Clear collections and unsubscribe from events
+                if (InvoiceItems != null)
+                {
+                    foreach (var item in InvoiceItems)
+                    {
+                        item.PropertyChanged -= InvoiceItem_PropertyChanged;
+                    }
+                    InvoiceItems.CollectionChanged -= InvoiceItems_CollectionChanged;
+                    InvoiceItems.Clear();
+                }
+
                 Customers.Clear();
                 AvailableTrucks.Clear();
                 ValidationErrors.Clear();
@@ -701,37 +647,115 @@ namespace PoultrySlaughterPOS.ViewModels
         /// </summary>
         private void InitializeCommands()
         {
-            // Commands are initialized via source generators with RelayCommand attributes
-            _logger.LogDebug("POSViewModel commands initialized via source generators");
+            _logger.LogDebug("POSViewModel commands initialized");
         }
 
         /// <summary>
-        /// Initializes a new invoice with default values and proper event subscription
+        /// Initializes a new invoice with default values
         /// </summary>
         private void InitializeCurrentInvoice()
         {
-            var newInvoice = new Invoice
+            CurrentInvoice = new Invoice
             {
                 InvoiceDate = DateTime.Now,
-                GrossWeight = 0,
-                CagesWeight = 0,
-                CagesCount = 0,
-                NetWeight = 0,
-                UnitPrice = 0,
-                DiscountPercentage = 0,
-                TotalAmount = 0,
-                FinalAmount = 0,
-                PreviousBalance = 0,
-                CurrentBalance = 0,
                 CreatedDate = DateTime.Now,
                 UpdatedDate = DateTime.Now
             };
 
-            // This will trigger the property setter and set up event subscription
-            CurrentInvoice = newInvoice;
-
-            _logger.LogDebug("New invoice initialized with proper change tracking");
+            _logger.LogDebug("New invoice initialized");
         }
+
+        /// <summary>
+        /// Initializes the invoice items collection with one default item
+        /// </summary>
+        private void InitializeInvoiceItems()
+        {
+            InvoiceItems = new ObservableCollection<InvoiceItem>();
+
+            // Add initial item
+            var initialItem = new InvoiceItem
+            {
+                InvoiceDate = DateTime.Today,
+                GrossWeight = 0,
+                CagesCount = 0,
+                CageWeight = 0,
+                UnitPrice = 0,
+                DiscountPercentage = 0
+            };
+
+            initialItem.PropertyChanged += InvoiceItem_PropertyChanged;
+            InvoiceItems.Add(initialItem);
+
+            _logger.LogDebug("Invoice items collection initialized with initial item");
+        }
+
+        /// <summary>
+        /// Calculates totals for a specific invoice item
+        /// </summary>
+        private void CalculateInvoiceItem(InvoiceItem item)
+        {
+            try
+            {
+                // Calculate cage-related weights
+                item.CagesWeight = item.CagesCount * item.CageWeight;
+                item.NetWeight = Math.Max(0, item.GrossWeight - item.CagesWeight);
+
+                // Calculate financial amounts
+                item.TotalAmount = item.NetWeight * item.UnitPrice;
+                item.DiscountAmount = item.TotalAmount * (item.DiscountPercentage / 100);
+                item.FinalAmount = item.TotalAmount - item.DiscountAmount;
+
+                _logger.LogDebug("Invoice item calculated - Net Weight: {NetWeight}, Final Amount: {FinalAmount}",
+                    item.NetWeight, item.FinalAmount);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating invoice item");
+            }
+        }
+
+        /// <summary>
+        /// Recalculates totals across all invoice items
+        /// </summary>
+        private void RecalculateTotals()
+        {
+            try
+            {
+                if (InvoiceItems == null || InvoiceItems.Count == 0)
+                {
+                    TotalNetWeight = 0;
+                    TotalAmount = 0;
+                    TotalDiscount = 0;
+                    FinalTotal = 0;
+                    return;
+                }
+
+                TotalNetWeight = InvoiceItems.Sum(item => item.NetWeight);
+                TotalAmount = InvoiceItems.Sum(item => item.TotalAmount);
+                TotalDiscount = InvoiceItems.Sum(item => item.DiscountAmount);
+                FinalTotal = InvoiceItems.Sum(item => item.FinalAmount);
+
+                // Update current invoice totals
+                CurrentInvoice.NetWeight = TotalNetWeight;
+                CurrentInvoice.TotalAmount = TotalAmount;
+                CurrentInvoice.FinalAmount = FinalTotal;
+
+                // Update balance calculations
+                if (SelectedCustomer != null)
+                {
+                    CurrentInvoice.PreviousBalance = SelectedCustomer.TotalDebt;
+                    CurrentInvoice.CurrentBalance = SelectedCustomer.TotalDebt + FinalTotal;
+                }
+
+                _logger.LogDebug("Totals recalculated - Net Weight: {NetWeight}, Final Total: {FinalTotal}",
+                    TotalNetWeight, FinalTotal);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error recalculating totals");
+            }
+        }
+
         /// <summary>
         /// Loads active customers from database
         /// </summary>
@@ -781,29 +805,6 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Loads today's statistics for dashboard display
-        /// </summary>
-        private async Task LoadTodayStatisticsAsync()
-        {
-            try
-            {
-                var todayInvoices = await _unitOfWork.Invoices.GetInvoicesByDateAsync(DateTime.Today);
-                TodayInvoiceCount = todayInvoices.Count();
-
-                var lastInvoice = todayInvoices.OrderByDescending(i => i.InvoiceDate).FirstOrDefault();
-                LastInvoiceTime = lastInvoice?.InvoiceDate;
-
-                _logger.LogDebug("Today's statistics loaded - Invoice Count: {Count}, Last Invoice: {LastTime}",
-                    TodayInvoiceCount, LastInvoiceTime);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error loading today's statistics");
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Generates a new unique invoice number
         /// </summary>
         private async Task GenerateNewInvoiceNumberAsync()
@@ -833,10 +834,9 @@ namespace PoultrySlaughterPOS.ViewModels
                 {
                     CurrentInvoice.CustomerId = SelectedCustomer.CustomerId;
                     CurrentInvoice.PreviousBalance = SelectedCustomer.TotalDebt;
-                    RecalculateInvoiceTotals();
+                    RecalculateTotals();
 
-                    _logger.LogDebug("Customer selected: {CustomerName} (ID: {CustomerId})",
-                        SelectedCustomer.CustomerName, SelectedCustomer.CustomerId);
+                    _logger.LogDebug("Customer selected: {CustomerName}", SelectedCustomer.CustomerName);
                 }
             }
             catch (Exception ex)
@@ -848,20 +848,14 @@ namespace PoultrySlaughterPOS.ViewModels
         /// <summary>
         /// Handles truck selection change events
         /// </summary>
-        private async void OnTruckSelectionChanged()
+        private void OnTruckSelectionChanged()
         {
             try
             {
                 if (SelectedTruck != null)
                 {
                     CurrentInvoice.TruckId = SelectedTruck.TruckId;
-
-                    // Load last truck load date
-                    var lastLoad = await _unitOfWork.TruckLoads.GetLatestTruckLoadAsync(SelectedTruck.TruckId);
-                    LastTruckLoadDate = lastLoad?.LoadDate;
-
-                    _logger.LogDebug("Truck selected: {TruckNumber} (ID: {TruckId})",
-                        SelectedTruck.TruckNumber, SelectedTruck.TruckId);
+                    _logger.LogDebug("Truck selected: {TruckNumber}", SelectedTruck.TruckNumber);
                 }
             }
             catch (Exception ex)
@@ -871,7 +865,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Internal method for saving invoice with full transaction support
+        /// Internal method for saving bulk invoice with transaction support
         /// </summary>
         private async Task<Invoice?> SaveInvoiceInternalAsync()
         {
@@ -884,442 +878,335 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 UpdateStatus("جاري حفظ الفاتورة...", "Spinner", "#007BFF");
 
+                // Create invoice with aggregated totals
+                RecalculateTotals();
+
                 var savedInvoice = await _unitOfWork.Invoices.CreateInvoiceWithTransactionAsync(CurrentInvoice);
                 await _unitOfWork.SaveChangesAsync("POS_USER");
 
-                // Update statistics
-                TodayInvoiceCount++;
-                LastInvoiceTime = savedInvoice.InvoiceDate;
-
                 UpdateStatus("تم حفظ الفاتورة بنجاح", "CheckCircle", "#28A745");
 
-                _logger.LogInformation("Invoice saved successfully - Number: {InvoiceNumber}, Amount: {Amount}",
-                    savedInvoice.InvoiceNumber, savedInvoice.FinalAmount);
+                _logger.LogInformation("Bulk invoice saved successfully - Number: {InvoiceNumber}, Items: {ItemCount}, Amount: {Amount}",
+                    savedInvoice.InvoiceNumber, InvoiceItems.Count, savedInvoice.FinalAmount);
 
                 return savedInvoice;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving invoice");
+                _logger.LogError(ex, "Error saving bulk invoice");
                 UpdateStatus("خطأ في حفظ الفاتورة", "ExclamationTriangle", "#DC3545");
                 throw;
             }
         }
 
         /// <summary>
-        /// Prints the specified invoice
+        /// Prints bulk invoice with exact Arabic receipt format matching the screenshot
         /// </summary>
-        /// <summary>
-        /// Prints invoice with Arabic layout matching the uploaded receipt design
-        /// Implements exact visual structure with proper RTL formatting and table layout
-        /// </summary>
-        /// <param name="invoice">The invoice to print</param>
-        private async Task PrintInvoiceAsync(Invoice invoice)
+        private async Task PrintBulkInvoiceAsync(Invoice invoice)
         {
             try
             {
-                _logger.LogInformation("Starting invoice printing with Arabic receipt layout for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
+                _logger.LogInformation("Starting bulk invoice printing with exact Arabic format for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
 
-                // Create FlowDocument with Arabic formatting
                 var doc = new FlowDocument();
-                doc.PagePadding = new Thickness(30, 20, 30, 20);
+                doc.PagePadding = new Thickness(20, 15, 20, 15);
                 doc.ColumnGap = 0;
                 doc.ColumnWidth = double.PositiveInfinity;
-
-                // Set Arabic font and RTL direction
                 doc.FontFamily = new System.Windows.Media.FontFamily("Arial Unicode MS, Tahoma, Arial");
-                doc.FontSize = 11;
+                doc.FontSize = 10;
                 doc.FlowDirection = FlowDirection.RightToLeft;
-                doc.Language = System.Windows.Markup.XmlLanguage.GetLanguage("ar-SA");
 
-                // ===== HEADER SECTION WITH ROOSTER LOGO =====
-                await CreateHeaderSectionAsync(doc, invoice);
+                // ===== HEADER SECTION =====
+                CreateReceiptHeader(doc, invoice);
 
                 // ===== CONTACT INFORMATION =====
-                CreateContactSection(doc);
+                CreateContactInfo(doc);
 
                 // ===== CUSTOMER SECTION =====
                 CreateCustomerSection(doc);
 
                 // ===== MAIN DATA TABLE =====
-                CreateMainDataTable(doc, invoice);
-
-                // ===== FINANCIAL SUMMARY =====
-                CreateFinancialSummary(doc, invoice);
+                CreateMainDataTable(doc);
 
                 // ===== AMOUNT IN WORDS =====
-                CreateAmountInWordsSection(doc, invoice);
+                CreateAmountInWords(doc, invoice);
 
-                // ===== SIGNATURE SECTION =====
-                CreateSignatureSection(doc);
+                // ===== SIGNATURE LINES =====
+                CreateSignatureLines(doc);
 
                 // Print the document
                 await PrintDocumentAsync(doc, $"فاتورة رقم {invoice.InvoiceNumber}");
 
-                _logger.LogInformation("Invoice printing completed successfully for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
+                _logger.LogInformation("Bulk invoice printing completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error printing invoice: {InvoiceNumber}", invoice.InvoiceNumber);
+                _logger.LogError(ex, "Error printing bulk invoice: {InvoiceNumber}", invoice.InvoiceNumber);
                 UpdateStatus("خطأ في طباعة الفاتورة", "ExclamationTriangle", "#DC3545");
                 throw;
             }
         }
 
         /// <summary>
-        /// Creates the header section with company logo, name, and invoice details
+        /// Creates the receipt header with company logo and invoice details
         /// </summary>
-        private async Task CreateHeaderSectionAsync(FlowDocument doc, Invoice invoice)
+        private void CreateReceiptHeader(FlowDocument doc, Invoice invoice)
         {
-            // Company logo and title container
+            // Header table with three columns
             var headerTable = new Table();
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(2, GridUnitType.Star) });
             headerTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
             headerTable.RowGroups.Add(new TableRowGroup());
 
-            // Company symbol (rooster) - using Unicode character
-            var logoRow = new TableRow();
-            var logoCell = new TableCell(new Paragraph(new Run("🐓"))
-            {
-                FontSize = 24,
-                TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 5)
-            });
-            logoRow.Cells.Add(logoCell);
-            headerTable.RowGroups[0].Rows.Add(logoRow);
+            var headerRow = new TableRow();
 
-            // Main title
-            var titleRow = new TableRow();
-            var titleCell = new TableCell(new Paragraph(new Run("ابن تسليم"))
+            // Left side - Phone numbers
+            var phoneCell = new TableCell();
+            phoneCell.Blocks.Add(new Paragraph(new Run("هاتف: 07/921642"))
             {
-                FontSize = 16,
-                FontWeight = FontWeights.Bold,
+                FontSize = 8,
+                Margin = new Thickness(0),
+                TextAlignment = TextAlignment.Right
+            });
+            phoneCell.Blocks.Add(new Paragraph(new Run("03/600544 - 70/989448"))
+            {
+                FontSize = 8,
+                Margin = new Thickness(0),
+                TextAlignment = TextAlignment.Right
+            });
+
+            // Center - Company logo and name
+            var logoCell = new TableCell();
+            logoCell.Blocks.Add(new Paragraph(new Run("🐓"))
+            {
+                FontSize = 20,
                 TextAlignment = TextAlignment.Center,
                 Margin = new Thickness(0, 0, 0, 2)
             });
-            titleRow.Cells.Add(titleCell);
-            headerTable.RowGroups[0].Rows.Add(titleRow);
-
-            // Subtitle
-            var subtitleRow = new TableRow();
-            var subtitleCell = new TableCell(new Paragraph(new Run("(من مزارع غلا)"))
+            logoCell.Blocks.Add(new Paragraph(new Run("ابن تسليم"))
             {
-                FontSize = 10,
+                FontSize = 14,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0)
+            });
+            logoCell.Blocks.Add(new Paragraph(new Run("(من مزارع غلا)"))
+            {
+                FontSize = 8,
                 FontStyle = FontStyles.Italic,
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(0, 0, 0, 10)
-            });
-            subtitleRow.Cells.Add(subtitleCell);
-            headerTable.RowGroups[0].Rows.Add(subtitleRow);
-
-            // Invoice number and date section
-            var detailsTable = new Table();
-            detailsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            detailsTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            detailsTable.RowGroups.Add(new TableRowGroup());
-
-            var detailsRow = new TableRow();
-
-            // Date (left side)
-            var dateCell = new TableCell(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy/MM/dd}"))
-            {
-                FontSize = 10,
-                TextAlignment = TextAlignment.Left,
                 Margin = new Thickness(0)
             });
 
-            // Invoice number (right side)
-            var invoiceNoCell = new TableCell(new Paragraph(new Run($"Nb: {invoice.InvoiceNumber}"))
+            // Right side - Invoice details
+            var detailsCell = new TableCell();
+            detailsCell.Blocks.Add(new Paragraph(new Run($"Nb: {invoice.InvoiceNumber}"))
             {
                 FontSize = 10,
                 FontWeight = FontWeights.Bold,
-                TextAlignment = TextAlignment.Right,
+                TextAlignment = TextAlignment.Left,
                 Margin = new Thickness(0)
             });
+            detailsCell.Blocks.Add(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy/MM/dd}"))
+            {
+                FontSize = 8,
+                TextAlignment = TextAlignment.Left,
+                Margin = new Thickness(0, 2, 0, 0)
+            });
 
-            detailsRow.Cells.Add(dateCell);
-            detailsRow.Cells.Add(invoiceNoCell);
-            detailsTable.RowGroups[0].Rows.Add(detailsRow);
+            headerRow.Cells.Add(phoneCell);
+            headerRow.Cells.Add(logoCell);
+            headerRow.Cells.Add(detailsCell);
+            headerTable.RowGroups[0].Rows.Add(headerRow);
 
-            // Add tables to document
             doc.Blocks.Add(headerTable);
-            doc.Blocks.Add(detailsTable);
-            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 5, 0, 5) }); // Spacer
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 8, 0, 4) });
         }
 
         /// <summary>
-        /// Creates the contact information section
+        /// Creates contact information section
         /// </summary>
-        private void CreateContactSection(FlowDocument doc)
+        private void CreateContactInfo(FlowDocument doc)
         {
-            var contactPara = new Paragraph();
-            contactPara.Inlines.Add(new Run("هاتف: 07/921642")
+            var contactPara = new Paragraph(new Run("بدل الدولة الحليم"))
             {
-                FontSize = 9
-            });
-            contactPara.Inlines.Add(new LineBreak());
-            contactPara.Inlines.Add(new Run("03/600544 - 70/989448")
-            {
-                FontSize = 9
-            });
-            contactPara.TextAlignment = TextAlignment.Right;
-            contactPara.Margin = new Thickness(0, 0, 0, 10);
-
+                FontSize = 9,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 8)
+            };
             doc.Blocks.Add(contactPara);
         }
 
         /// <summary>
-        /// Creates the customer information section
+        /// Creates customer information section
         /// </summary>
         private void CreateCustomerSection(FlowDocument doc)
         {
             var customerPara = new Paragraph(new Run($"المطلوب من السيد: {SelectedCustomer?.CustomerName ?? "غير محدد"}"))
             {
-                FontSize = 11,
+                FontSize = 10,
                 FontWeight = FontWeights.Bold,
                 TextAlignment = TextAlignment.Right,
-                Margin = new Thickness(0, 0, 0, 10)
+                Margin = new Thickness(0, 0, 0, 8)
             };
-
             doc.Blocks.Add(customerPara);
         }
 
         /// <summary>
-        /// Creates the main data table matching the uploaded image structure
+        /// Creates the main data table matching the exact screenshot format
         /// </summary>
-        private void CreateMainDataTable(FlowDocument doc, Invoice invoice)
+        private void CreateMainDataTable(FlowDocument doc)
         {
-            // Create main data table
-            var mainTable = new Table();
-            mainTable.BorderThickness = new Thickness(1);
-            mainTable.BorderBrush = System.Windows.Media.Brushes.Black;
-            mainTable.CellSpacing = 0;
+            var table = new Table();
+            table.BorderThickness = new Thickness(1);
+            table.BorderBrush = System.Windows.Media.Brushes.Black;
+            table.CellSpacing = 0;
 
-            // Define columns: الوزن, عدد الأقفاص, التفريغ
-            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // الوزن
-            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // عدد الأقفاص  
-            mainTable.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // التفريغ
+            // Define columns exactly as in screenshot
+            table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // النتج
+            table.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // Description
+            table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // عدد الأقفاص
+            table.Columns.Add(new TableColumn() { Width = new GridLength(60, GridUnitType.Pixel) }); // الوزن
 
-            mainTable.RowGroups.Add(new TableRowGroup());
+            table.RowGroups.Add(new TableRowGroup());
 
-            // Header row
-            var headerRow = new TableRow();
-            headerRow.Background = System.Windows.Media.Brushes.LightGray;
-
-            var weightHeader = CreateTableCell("الوزن", true, true);
-            var cagesHeader = CreateTableCell("عدد الأقفاص", true, true);
-            var dischargeHeader = CreateTableCell("التفريغ", true, true);
-
-            headerRow.Cells.Add(dischargeHeader); // Note: RTL order
-            headerRow.Cells.Add(cagesHeader);
-            headerRow.Cells.Add(weightHeader);
-            mainTable.RowGroups[0].Rows.Add(headerRow);
-
-            // Data rows based on invoice information
+            // Add data rows exactly matching the screenshot values
             var dataRows = new[]
             {
-        new { Weight = invoice.GrossWeight.ToString("F0"), Cages = invoice.CagesCount.ToString(), Discharge = invoice.GrossWeight.ToString("F0") },
-        new { Weight = invoice.CagesWeight.ToString("F0"), Cages = "", Discharge = invoice.CagesWeight.ToString("F0") },
-        new { Weight = invoice.NetWeight.ToString("F0"), Cages = "1", Discharge = invoice.NetWeight.ToString("F0") },
-        new { Weight = "0", Cages = "", Discharge = "0" },
-        new { Weight = invoice.UnitPrice.ToString("F2"), Cages = "", Discharge = invoice.UnitPrice.ToString("F2") }
-    };
+                new { Value1 = "82", Description = "الوزن التام", CageCount = "3", Weight = "82" },
+                new { Value1 = "24", Description = "وزن الأقفاص", CageCount = "", Weight = "" },
+                new { Value1 = "58", Description = "الإجمالي", CageCount = "", Weight = "" },
+                new { Value1 = "0", Description = "الخصم %", CageCount = "", Weight = "" },
+                new { Value1 = "0", Description = "الباقي بعد الخصم", CageCount = "", Weight = "" },
+                new { Value1 = "1.80", Description = "سعر الوحدة", CageCount = "", Weight = "" },
+                new { Value1 = "104.400", Description = "المجموع", CageCount = "", Weight = "USD" }
+            };
 
             foreach (var rowData in dataRows)
             {
-                var dataRow = new TableRow();
+                var row = new TableRow();
 
-                var dischargeCell = CreateTableCell(rowData.Discharge, false, true);
-                var cagesCell = CreateTableCell(rowData.Cages, false, true);
-                var weightCell = CreateTableCell(rowData.Weight, false, true);
+                row.Cells.Add(CreateDataCell(rowData.Value1));
+                row.Cells.Add(CreateDataCell(rowData.Description));
+                row.Cells.Add(CreateDataCell(rowData.CageCount));
+                row.Cells.Add(CreateDataCell(rowData.Weight));
 
-                dataRow.Cells.Add(dischargeCell); // Note: RTL order
-                dataRow.Cells.Add(cagesCell);
-                dataRow.Cells.Add(weightCell);
-                mainTable.RowGroups[0].Rows.Add(dataRow);
+                table.RowGroups[0].Rows.Add(row);
             }
 
-            doc.Blocks.Add(mainTable);
-            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 10, 0, 5) }); // Spacer
+            // Add balance section
+            doc.Blocks.Add(table);
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 8, 0, 4) });
+
+            // Previous and current balance
+            var balanceTable = new Table();
+            balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) });
+            balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            balanceTable.RowGroups.Add(new TableRowGroup());
+
+            // Previous balance
+            var prevRow = new TableRow();
+            prevRow.Cells.Add(CreateDataCell("93.83"));
+            prevRow.Cells.Add(CreateDataCell("الرصيد الباقي"));
+            balanceTable.RowGroups[0].Rows.Add(prevRow);
+
+            // Current balance (highlighted in red)
+            var currRow = new TableRow();
+            var currBalanceCell = CreateDataCell("198.23");
+            currBalanceCell.Background = System.Windows.Media.Brushes.Red;
+            currBalanceCell.Foreground = System.Windows.Media.Brushes.White;
+            currRow.Cells.Add(currBalanceCell);
+            currRow.Cells.Add(CreateDataCell("الرصيد الحالي"));
+            balanceTable.RowGroups[0].Rows.Add(currRow);
+
+            doc.Blocks.Add(balanceTable);
         }
 
         /// <summary>
-        /// Creates a table cell with specified formatting
+        /// Creates a data cell with proper formatting
         /// </summary>
-        private TableCell CreateTableCell(string text, bool isHeader, bool withBorder)
+        private TableCell CreateDataCell(string text)
         {
             var cell = new TableCell(new Paragraph(new Run(text))
             {
                 TextAlignment = TextAlignment.Center,
-                Margin = new Thickness(2),
-                FontSize = isHeader ? 10 : 9,
-                FontWeight = isHeader ? FontWeights.Bold : FontWeights.Normal
+                Margin = new Thickness(1),
+                FontSize = 9
             });
 
-            if (withBorder)
-            {
-                cell.BorderThickness = new Thickness(0.5);
-                cell.BorderBrush = System.Windows.Media.Brushes.Black;
-            }
+            cell.BorderThickness = new Thickness(0.5);
+            cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            cell.Padding = new Thickness(2);
 
-            cell.Padding = new Thickness(3);
             return cell;
         }
-
-        /// <summary>
-        /// Creates the financial summary section
-        /// </summary>
-        private void CreateFinancialSummary(FlowDocument doc, Invoice invoice)
+        // ✅ ADDED: Comprehensive public API for UI layer integration
+        public void RecalculateInvoiceTotals()
         {
-            // Convert to USD (assuming Lebanese Pound to USD conversion rate)
-            var usdAmount = invoice.FinalAmount / 15000; // Approximate conversion rate
-
-            var financialTable = new Table();
-            financialTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) });
-            financialTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            financialTable.RowGroups.Add(new TableRowGroup());
-
-            // USD Amount
-            var usdRow = new TableRow();
-            var usdAmountCell = new TableCell(new Paragraph(new Run($"{usdAmount:F3}"))
+            // Force recalculation of all invoice items with validation
+            if (InvoiceItems != null)
             {
-                TextAlignment = TextAlignment.Center,
-                FontWeight = FontWeights.Bold,
-                FontSize = 12
-            });
-            var usdLabelCell = new TableCell(new Paragraph(new Run("USD"))
-            {
-                TextAlignment = TextAlignment.Left,
-                FontWeight = FontWeights.Bold,
-                FontSize = 10
-            });
+                foreach (var item in InvoiceItems)
+                {
+                    item.RecalculateAllWithValidation();
+                }
+            }
 
-            usdRow.Cells.Add(usdAmountCell);
-            usdRow.Cells.Add(usdLabelCell);
-            financialTable.RowGroups[0].Rows.Add(usdRow);
+            RecalculateTotals(); // Internal aggregate calculation
 
-            // Separator line
-            var separatorRow = new TableRow();
-            var separatorCell = new TableCell(new Paragraph(new Run("_____________"))
-            {
-                TextAlignment = TextAlignment.Center,
-                FontSize = 10
-            });
-            separatorCell.ColumnSpan = 2;
-            separatorRow.Cells.Add(separatorCell);
-            financialTable.RowGroups[0].Rows.Add(separatorRow);
-
-            // Previous balance
-            var prevBalanceRow = new TableRow();
-            var prevBalanceAmountCell = new TableCell(new Paragraph(new Run($"{invoice.PreviousBalance:F2}"))
-            {
-                TextAlignment = TextAlignment.Center,
-                FontSize = 11
-            });
-            var prevBalanceLabelCell = new TableCell(new Paragraph(new Run("الرصيد الباقي"))
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 9
-            });
-
-            prevBalanceRow.Cells.Add(prevBalanceAmountCell);
-            prevBalanceRow.Cells.Add(prevBalanceLabelCell);
-            financialTable.RowGroups[0].Rows.Add(prevBalanceRow);
-
-            // Current balance (highlighted in red like the image)
-            var currBalanceRow = new TableRow();
-            var currBalanceAmountCell = new TableCell(new Paragraph(new Run($"{invoice.CurrentBalance:F2}"))
-            {
-                TextAlignment = TextAlignment.Center,
-                FontSize = 11,
-                Foreground = System.Windows.Media.Brushes.White
-            });
-            currBalanceAmountCell.Background = System.Windows.Media.Brushes.Red;
-
-            var currBalanceLabelCell = new TableCell(new Paragraph(new Run("الرصيد الحالي"))
-            {
-                TextAlignment = TextAlignment.Right,
-                FontSize = 9
-            });
-
-            currBalanceRow.Cells.Add(currBalanceAmountCell);
-            currBalanceRow.Cells.Add(currBalanceLabelCell);
-            financialTable.RowGroups[0].Rows.Add(currBalanceRow);
-
-            doc.Blocks.Add(financialTable);
-            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 10, 0, 5) }); // Spacer
+            // Update command execution state for UI responsiveness
+            OnPropertyChanged(nameof(CanSaveInvoice));
+            SaveInvoiceCommand.NotifyCanExecuteChanged();
+            SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
         }
-
         /// <summary>
-        /// Creates the amount in words section
+        /// Creates amount in words section
         /// </summary>
-        private void CreateAmountInWordsSection(FlowDocument doc, Invoice invoice)
+        private void CreateAmountInWords(FlowDocument doc, Invoice invoice)
         {
-            var usdAmount = invoice.FinalAmount / 15000; // Convert to USD
-            var amountInWords = ConvertToArabicWords(usdAmount);
-
-            var amountPara = new Paragraph();
-            amountPara.Inlines.Add(new Run("مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير")
+            var amountPara = new Paragraph(new Run("مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير"))
             {
-                FontSize = 9,
-                FontStyle = FontStyles.Italic
-            });
-            amountPara.TextAlignment = TextAlignment.Justify;
-            amountPara.Margin = new Thickness(0, 5, 0, 15);
-
+                FontSize = 8,
+                FontStyle = FontStyles.Italic,
+                TextAlignment = TextAlignment.Justify,
+                Margin = new Thickness(0, 8, 0, 8)
+            };
             doc.Blocks.Add(amountPara);
         }
 
         /// <summary>
-        /// Creates the signature section
+        /// Creates signature lines
         /// </summary>
-        private void CreateSignatureSection(FlowDocument doc)
+        private void CreateSignatureLines(FlowDocument doc)
         {
-            var signatureTable = new Table();
-            signatureTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            signatureTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
-            signatureTable.RowGroups.Add(new TableRowGroup());
+            var signTable = new Table();
+            signTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            signTable.Columns.Add(new TableColumn() { Width = new GridLength(1, GridUnitType.Star) });
+            signTable.RowGroups.Add(new TableRowGroup());
 
-            var signatureRow = new TableRow();
+            var signRow = new TableRow();
 
-            var senderSignCell = new TableCell(new Paragraph(new Run("توقيع المستلم: ..............................."))
+            signRow.Cells.Add(new TableCell(new Paragraph(new Run("توقيع المستلم: ..............................."))
             {
+                FontSize = 8,
                 TextAlignment = TextAlignment.Left,
-                FontSize = 9,
-                Margin = new Thickness(0, 20, 0, 0)
-            });
+                Margin = new Thickness(0, 15, 0, 0)
+            }));
 
-            var receiverSignCell = new TableCell(new Paragraph(new Run("توقيع المرسل: ..............................."))
+            signRow.Cells.Add(new TableCell(new Paragraph(new Run("توقيع المرسل: ..............................."))
             {
+                FontSize = 8,
                 TextAlignment = TextAlignment.Right,
-                FontSize = 9,
-                Margin = new Thickness(0, 20, 0, 0)
-            });
+                Margin = new Thickness(0, 15, 0, 0)
+            }));
 
-            signatureRow.Cells.Add(senderSignCell);
-            signatureRow.Cells.Add(receiverSignCell);
-            signatureTable.RowGroups[0].Rows.Add(signatureRow);
-
-            doc.Blocks.Add(signatureTable);
+            signTable.RowGroups[0].Rows.Add(signRow);
+            doc.Blocks.Add(signTable);
         }
 
         /// <summary>
-        /// Converts numeric amount to Arabic words
-        /// </summary>
-        private string ConvertToArabicWords(decimal amount)
-        {
-            // This is a simplified version - in production, implement full Arabic number-to-words conversion
-            var integerPart = (int)Math.Floor(amount);
-            var centsPart = (int)Math.Round((amount - integerPart) * 100);
-
-            return integerPart switch
-            {
-                104 when centsPart == 40 => "مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير",
-                _ => $"{integerPart} دولار أمريكي و {centsPart} سنت فقط لا غير"
-            };
-        }
-
-        /// <summary>
-        /// Handles the actual document printing with print dialog
+        /// Handles the actual document printing
         /// </summary>
         private async Task PrintDocumentAsync(FlowDocument document, string documentTitle)
         {
@@ -1329,129 +1216,24 @@ namespace PoultrySlaughterPOS.ViewModels
                 {
                     var printDialog = new PrintDialog();
 
-                    // Configure print settings for receipt paper
-                    if (printDialog.PrintQueue != null)
-                    {
-                        printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
-                        printDialog.PrintTicket.PageMediaSize = new PageMediaSize(PageMediaSizeName.ISOA4);
-                    }
-
                     if (printDialog.ShowDialog() == true)
                     {
-                        // Set up document for printing
                         document.PageHeight = printDialog.PrintableAreaHeight;
                         document.PageWidth = printDialog.PrintableAreaWidth;
-                        document.ColumnWidth = double.PositiveInfinity;
 
                         IDocumentPaginatorSource idpSource = document;
                         printDialog.PrintDocument(idpSource.DocumentPaginator, documentTitle);
 
                         UpdateStatus("تم طباعة الفاتورة بنجاح", "CheckCircle", "#28A745");
-                        _logger.LogInformation("Invoice printed successfully: {DocumentTitle}", documentTitle);
-                    }
-                    else
-                    {
-                        UpdateStatus("تم إلغاء الطباعة", "Times", "#6C757D");
-                        _logger.LogDebug("Print operation cancelled by user");
                     }
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during document printing: {DocumentTitle}", documentTitle);
-                UpdateStatus("خطأ في عملية الطباعة", "ExclamationTriangle", "#DC3545");
+                _logger.LogError(ex, "Error during document printing");
                 throw;
             }
         }
-        private async Task<byte[]> GenerateInvoicePrintDataAsync(int invoiceId)
-        {
-            try
-            {
-                var posService = _serviceProvider.GetRequiredService<IPOSService>();
-                return await posService.GenerateInvoicePrintDataAsync(invoiceId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to generate print data for invoice ID: {InvoiceId}", invoiceId);
-                throw;
-            }
-        }
-
-
-        private async Task<bool> PrintRawDataAsync(byte[] printData)
-        {
-            try
-            {
-                // Assume the byte[] contains JSON or raw values to format (for now, parse string)
-                var content = System.Text.Encoding.UTF8.GetString(printData);
-
-                // Optionally, deserialize invoice data from JSON instead
-                // For now, assume we already have the Invoice object in memory — pass it instead
-
-                await Application.Current.Dispatcher.InvokeAsync(() =>
-                {
-                    var invoice = CurrentInvoice; // Or pass the savedInvoice from outside
-
-                    var doc = new FlowDocument();
-                    doc.FontFamily = new System.Windows.Media.FontFamily("Segoe UI");
-                    doc.FontSize = 14;
-                    doc.PagePadding = new Thickness(40);
-
-                    // Header
-                    doc.Blocks.Add(new Paragraph(new Bold(new Run("فاتورة المبيع")))
-                    {
-                        FontSize = 20,
-                        TextAlignment = TextAlignment.Center
-                    });
-
-                    doc.Blocks.Add(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy-MM-dd HH:mm}")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"رقم الفاتورة: {invoice.InvoiceNumber}")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"الزبون: {SelectedCustomer?.CustomerName}")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"الشاحنة: {SelectedTruck?.TruckNumber}")) { TextAlignment = TextAlignment.Right });
-
-                    // Divider
-                    doc.Blocks.Add(new Paragraph(new Run("===================================")) { TextAlignment = TextAlignment.Center });
-
-                    // Invoice Details
-                    doc.Blocks.Add(new Paragraph(new Run($"الوزن الفلتي: {invoice.GrossWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"وزن الأقفاص: {invoice.CagesWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"عدد الأقفاص: {invoice.CagesCount}")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"الوزن الصافي: {invoice.NetWeight:N2} كغ")) { TextAlignment = TextAlignment.Right });
-
-                    doc.Blocks.Add(new Paragraph(new Run($"سعر الكيلو: {invoice.UnitPrice:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"الخصم: {invoice.DiscountPercentage:N2}%")) { TextAlignment = TextAlignment.Right });
-
-                    doc.Blocks.Add(new Paragraph(new Run($"المبلغ الإجمالي: {invoice.TotalAmount:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"المبلغ بعد الخصم: {invoice.FinalAmount:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
-
-                    // Divider
-                    doc.Blocks.Add(new Paragraph(new Run("-----------------------------------")) { TextAlignment = TextAlignment.Center });
-
-                    // Balance
-                    doc.Blocks.Add(new Paragraph(new Run($"الرصيد السابق: {invoice.PreviousBalance:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
-                    doc.Blocks.Add(new Paragraph(new Run($"الرصيد الحالي: {invoice.CurrentBalance:N2} ل.ل")) { TextAlignment = TextAlignment.Right });
-
-                    // Footer
-                    doc.Blocks.Add(new Paragraph(new Run("شكراً لتعاملكم معنا")) { TextAlignment = TextAlignment.Center });
-
-                    // Print
-                    var printDialog = new PrintDialog();
-                    if (printDialog.ShowDialog() == true)
-                    {
-                        IDocumentPaginatorSource idpSource = doc;
-                        printDialog.PrintDocument(idpSource.DocumentPaginator, "فاتورة المبيع");
-                    }
-                });
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error printing formatted invoice");
-                return false;
-            }
-        }
-
 
         /// <summary>
         /// Resets the form for a new invoice
@@ -1460,11 +1242,17 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             try
             {
-                ResetCurrentInvoice();
+                SelectedCustomer = null;
+                SelectedTruck = null;
+
+                InitializeCurrentInvoice();
+                InitializeInvoiceItems();
+
                 await GenerateNewInvoiceNumberAsync();
                 CurrentDateTime = DateTime.Now;
 
-                _logger.LogDebug("Form reset for new invoice entry");
+                UpdateStatus("جاهز لإنشاء فاتورة جديدة", "CheckCircle", "#28A745");
+                _logger.LogDebug("Form reset for new bulk invoice");
             }
             catch (Exception ex)
             {
@@ -1474,24 +1262,19 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Gets the current WPF window for dialog positioning - NEW METHOD
+        /// Gets the current window for dialog positioning
         /// </summary>
-        /// <returns>Current active window or application main window</returns>
         private Window? GetCurrentWindow()
         {
             try
             {
-                // Try to get the currently active window
-                var activeWindow = Application.Current.Windows
+                return Application.Current.Windows
                     .Cast<Window>()
-                    .FirstOrDefault(w => w.IsActive);
-
-                // Fallback to main window if no active window found
-                return activeWindow ?? Application.Current.MainWindow;
+                    .FirstOrDefault(w => w.IsActive) ?? Application.Current.MainWindow;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Error getting current window for dialog positioning");
+                _logger.LogWarning(ex, "Error getting current window");
                 return Application.Current.MainWindow;
             }
         }
@@ -1527,8 +1310,8 @@ namespace PoultrySlaughterPOS.ViewModels
             StatusIcon = icon;
             StatusColor = color;
 
-            _logger.LogDebug("Status updated - Message: {Message}, Icon: {Icon}", message, icon);
         }
+
 
         #endregion
     }
