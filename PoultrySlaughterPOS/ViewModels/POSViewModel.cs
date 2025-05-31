@@ -1038,13 +1038,13 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Prints bulk invoice with exact Arabic receipt format matching the screenshot
+        /// Enhanced receipt printing with individual cage entries matching uploaded image design
         /// </summary>
         private async Task PrintBulkInvoiceAsync(Invoice invoice)
         {
             try
             {
-                _logger.LogInformation("Starting bulk invoice printing with exact Arabic format for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
+                _logger.LogInformation("Starting enhanced bulk invoice printing with individual cage entries for Invoice: {InvoiceNumber}", invoice.InvoiceNumber);
 
                 var doc = new FlowDocument();
                 doc.PagePadding = new Thickness(20, 15, 20, 15);
@@ -1054,8 +1054,8 @@ namespace PoultrySlaughterPOS.ViewModels
                 doc.FontSize = 10;
                 doc.FlowDirection = FlowDirection.RightToLeft;
 
-                // ===== HEADER SECTION =====
-                CreateReceiptHeader(doc, invoice);
+                // ===== EXACT HEADER SECTION =====
+                CreateExactReceiptHeader(doc, invoice);
 
                 // ===== CONTACT INFORMATION =====
                 CreateContactInfo(doc);
@@ -1063,8 +1063,8 @@ namespace PoultrySlaughterPOS.ViewModels
                 // ===== CUSTOMER SECTION =====
                 CreateCustomerSection(doc);
 
-                // ===== MAIN DATA TABLE =====
-                CreateMainDataTable(doc);
+                // ===== INDIVIDUAL CAGE DATA TABLE =====
+                CreateIndividualCageDataTable(doc);
 
                 // ===== AMOUNT IN WORDS =====
                 CreateAmountInWords(doc, invoice);
@@ -1075,16 +1075,422 @@ namespace PoultrySlaughterPOS.ViewModels
                 // Print the document
                 await PrintDocumentAsync(doc, $"فاتورة رقم {invoice.InvoiceNumber}");
 
-                _logger.LogInformation("Bulk invoice printing completed successfully");
+                _logger.LogInformation("Enhanced individual cage receipt printing completed successfully");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error printing bulk invoice: {InvoiceNumber}", invoice.InvoiceNumber);
+                _logger.LogError(ex, "Error printing enhanced bulk invoice: {InvoiceNumber}", invoice.InvoiceNumber);
                 UpdateStatus("خطأ في طباعة الفاتورة", "ExclamationTriangle", "#DC3545");
                 throw;
             }
         }
+        /// <summary>
+        /// Creates exact receipt header matching the uploaded image format
+        /// </summary>
+        private void CreateExactReceiptHeader(FlowDocument doc, Invoice invoice)
+        {
+            // Header table with exact three-column layout
+            var headerTable = new Table();
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) }); // Phone numbers
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(200, GridUnitType.Pixel) }); // Company logo
+            headerTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) }); // Receipt details
+            headerTable.RowGroups.Add(new TableRowGroup());
 
+            var headerRow = new TableRow();
+
+            // ✅ LEFT COLUMN: Phone numbers (exact format from image)
+            var phoneCell = new TableCell();
+            phoneCell.Blocks.Add(new Paragraph(new Run("هاتف: 07/921642"))
+            {
+                FontSize = 9,
+                Margin = new Thickness(0),
+                TextAlignment = TextAlignment.Right
+            });
+            phoneCell.Blocks.Add(new Paragraph(new Run("03/600544 - 70/989448"))
+            {
+                FontSize = 9,
+                Margin = new Thickness(0, 2, 0, 0),
+                TextAlignment = TextAlignment.Right
+            });
+
+            // ✅ CENTER COLUMN: Company logo and name (exact format from image)
+            var logoCell = new TableCell();
+            logoCell.Blocks.Add(new Paragraph(new Run("🐓"))
+            {
+                FontSize = 24,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 3)
+            });
+            logoCell.Blocks.Add(new Paragraph(new Run("ابن تسليم"))
+            {
+                FontSize = 16,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0)
+            });
+            logoCell.Blocks.Add(new Paragraph(new Run("(من مزارع غلا)"))
+            {
+                FontSize = 9,
+                FontStyle = FontStyles.Italic,
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(0, 2, 0, 0)
+            });
+
+            // ✅ RIGHT COLUMN: Receipt details (exact format from image)
+            var detailsCell = new TableCell();
+            detailsCell.Blocks.Add(new Paragraph(new Run($"Nb: {invoice.InvoiceNumber}"))
+            {
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                TextAlignment = TextAlignment.Left,
+                Margin = new Thickness(0)
+            });
+            detailsCell.Blocks.Add(new Paragraph(new Run($"التاريخ: {invoice.InvoiceDate:yyyy/MM/dd}"))
+            {
+                FontSize = 9,
+                TextAlignment = TextAlignment.Left,
+                Margin = new Thickness(0, 3, 0, 0)
+            });
+
+            headerRow.Cells.Add(phoneCell);
+            headerRow.Cells.Add(logoCell);
+            headerRow.Cells.Add(detailsCell);
+            headerTable.RowGroups[0].Rows.Add(headerRow);
+
+            doc.Blocks.Add(headerTable);
+
+            // Add border line after header
+            var borderPara = new Paragraph()
+            {
+                BorderBrush = System.Windows.Media.Brushes.Black,
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Margin = new Thickness(0, 8, 0, 12)
+            };
+            doc.Blocks.Add(borderPara);
+        }
+
+        /// <summary>
+        /// Creates the individual cage data table matching exact uploaded image structure
+        /// </summary>
+        private void CreateIndividualCageDataTable(FlowDocument doc)
+        {
+            var table = new Table();
+            table.BorderThickness = new Thickness(1);
+            table.BorderBrush = System.Windows.Media.Brushes.Black;
+            table.CellSpacing = 0;
+
+            // ✅ EXACT COLUMN STRUCTURE from uploaded image
+            table.Columns.Add(new TableColumn() { Width = new GridLength(70, GridUnitType.Pixel) }); // النتج
+            table.Columns.Add(new TableColumn() { Width = new GridLength(140, GridUnitType.Pixel) }); // Description
+            table.Columns.Add(new TableColumn() { Width = new GridLength(80, GridUnitType.Pixel) }); // عدد الأقفاص
+            table.Columns.Add(new TableColumn() { Width = new GridLength(70, GridUnitType.Pixel) }); // الوزن
+
+            table.RowGroups.Add(new TableRowGroup());
+
+            // ✅ CREATE TABLE HEADERS (exact Arabic text from image)
+            CreateExactTableHeaders(table);
+
+            // ✅ INDIVIDUAL CAGE ENTRIES (separate row for each cage/invoice item)
+            CreateIndividualCageRows(table);
+
+            // ✅ SEPARATOR ROW FOR TOTALS
+            CreateTotalsSeparatorRow(table);
+
+            // ✅ CALCULATION ROWS (exact format from image)
+            CreateCalculationRows(table);
+
+            doc.Blocks.Add(table);
+            doc.Blocks.Add(new Paragraph() { Margin = new Thickness(0, 10, 0, 8) });
+
+            // ✅ BALANCE SECTION with exact formatting
+            CreateExactBalanceSection(doc);
+        }
+
+        /// <summary>
+        /// Creates exact table headers matching the uploaded image
+        /// </summary>
+        private void CreateExactTableHeaders(Table table)
+        {
+            var headerRow = new TableRow();
+
+            // Headers exactly as shown in the uploaded image
+            var headers = new[] { "النتج", "Description", "عدد الأقفاص", "الوزن" };
+
+            foreach (var headerText in headers)
+            {
+                var headerCell = new TableCell(new Paragraph(new Run(headerText))
+                {
+                    TextAlignment = TextAlignment.Center,
+                    Margin = new Thickness(2),
+                    FontSize = 10,
+                    FontWeight = FontWeights.Bold
+                });
+
+                headerCell.BorderThickness = new Thickness(1);
+                headerCell.BorderBrush = System.Windows.Media.Brushes.Black;
+                headerCell.Background = System.Windows.Media.Brushes.LightGray;
+                headerCell.Padding = new Thickness(4, 8, 4, 8);
+
+                headerRow.Cells.Add(headerCell);
+            }
+
+            table.RowGroups[0].Rows.Add(headerRow);
+        }
+        private void CreateIndividualCageRows(Table table)
+        {
+            if (InvoiceItems == null || InvoiceItems.Count == 0)
+            {
+                _logger.LogWarning("No invoice items found for individual cage rows");
+                return;
+            }
+
+            int cageNumber = 1;
+            foreach (var item in InvoiceItems)
+            {
+                // Skip items with no meaningful data
+                if (item.GrossWeight <= 0 && item.CagesCount <= 0)
+                    continue;
+
+                var cageRow = new TableRow();
+
+                // ✅ COLUMN 1: Individual gross weight for this cage entry
+                cageRow.Cells.Add(CreateIndividualDataCell(item.GrossWeight.ToString("F0")));
+
+                // ✅ COLUMN 2: Description with cage number
+                var description = $"قفص رقم {cageNumber}";
+                if (item.CagesCount > 1)
+                {
+                    description = $"أقفاص {cageNumber}-{cageNumber + item.CagesCount - 1}";
+                }
+                cageRow.Cells.Add(CreateIndividualDataCell(description));
+
+                // ✅ COLUMN 3: Individual cage count for this entry
+                cageRow.Cells.Add(CreateIndividualDataCell(item.CagesCount.ToString()));
+
+                // ✅ COLUMN 4: Individual weight for this entry
+                cageRow.Cells.Add(CreateIndividualDataCell(item.GrossWeight.ToString("F0")));
+
+                // Apply cage row styling (light background)
+                foreach (var cell in cageRow.Cells)
+                {
+                    cell.Background = System.Windows.Media.Brushes.WhiteSmoke;
+                }
+
+                table.RowGroups[0].Rows.Add(cageRow);
+                cageNumber += item.CagesCount;
+            }
+        }
+        /// <summary>
+        /// Creates the totals separator row with bold formatting
+        /// </summary>
+        private void CreateTotalsSeparatorRow(Table table)
+        {
+            var separatorRow = new TableRow();
+
+            // Calculate actual totals from invoice items
+            var totalGrossWeight = InvoiceItems?.Sum(i => i.GrossWeight) ?? 0;
+            var totalCagesCount = InvoiceItems?.Sum(i => i.CagesCount) ?? 0;
+
+            // ✅ BOLD TOTALS ROW (matching image format)
+            separatorRow.Cells.Add(CreateBoldDataCell(totalGrossWeight.ToString("F0")));
+            separatorRow.Cells.Add(CreateBoldDataCell("الوزن التام"));
+            separatorRow.Cells.Add(CreateBoldDataCell(totalCagesCount.ToString()));
+            separatorRow.Cells.Add(CreateBoldDataCell(totalGrossWeight.ToString("F0")));
+
+            // Apply special styling for totals separator
+            foreach (var cell in separatorRow.Cells)
+            {
+                cell.BorderThickness = new Thickness(1, 2, 1, 1); // Thicker top border
+                cell.Background = System.Windows.Media.Brushes.LightBlue;
+            }
+
+            table.RowGroups[0].Rows.Add(separatorRow);
+        }
+
+        /// <summary>
+        /// Creates calculation rows exactly matching the uploaded image format
+        /// </summary>
+        private void CreateCalculationRows(Table table)
+        {
+            // Calculate actual values from invoice items
+            var aggregatedData = CalculateReceiptTotals();
+
+            // ✅ CALCULATION ROWS exactly as shown in uploaded image
+            var calculationRows = new[]
+            {
+        new { Value = aggregatedData.TotalCagesWeight.ToString("F0"), Description = "وزن الأقفاص", Col3 = "", Col4 = "" },
+        new { Value = aggregatedData.TotalNetWeight.ToString("F0"), Description = "الإجمالي", Col3 = "", Col4 = "" },
+        new { Value = aggregatedData.AverageDiscountPercentage.ToString("F0"), Description = "الخصم %", Col3 = "", Col4 = "" },
+        new { Value = aggregatedData.AmountAfterDiscount.ToString("F0"), Description = "الباقي بعد الخصم", Col3 = "", Col4 = "" },
+        new { Value = aggregatedData.WeightedAverageUnitPrice.ToString("F2"), Description = "سعر الوحدة", Col3 = "", Col4 = "" },
+        new { Value = aggregatedData.FinalTotalAmount.ToString("F3"), Description = "المجموع", Col3 = "", Col4 = "USD" }
+    };
+
+            foreach (var rowData in calculationRows)
+            {
+                var row = new TableRow();
+
+                row.Cells.Add(CreateCalculationDataCell(rowData.Value, rowData.Description == "المجموع"));
+                row.Cells.Add(CreateCalculationDataCell(rowData.Description, rowData.Description == "المجموع"));
+                row.Cells.Add(CreateCalculationDataCell(rowData.Col3, false));
+                row.Cells.Add(CreateCalculationDataCell(rowData.Col4, rowData.Description == "المجموع"));
+
+                // Special highlighting for final total row
+                if (rowData.Description == "المجموع")
+                {
+                    foreach (var cell in row.Cells)
+                    {
+                        cell.Background = System.Windows.Media.Brushes.LightYellow;
+                    }
+                }
+
+                table.RowGroups[0].Rows.Add(row);
+            }
+        }
+
+        /// <summary>
+        /// Creates exact balance section matching uploaded image format
+        /// </summary>
+        private void CreateExactBalanceSection(FlowDocument doc)
+        {
+            var balanceTable = new Table();
+            balanceTable.BorderThickness = new Thickness(1);
+            balanceTable.BorderBrush = System.Windows.Media.Brushes.Black;
+            balanceTable.CellSpacing = 0;
+
+            balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(100, GridUnitType.Pixel) });
+            balanceTable.Columns.Add(new TableColumn() { Width = new GridLength(200, GridUnitType.Pixel) });
+            balanceTable.RowGroups.Add(new TableRowGroup());
+
+            // Calculate balance values
+            var aggregatedData = CalculateReceiptTotals();
+
+            // ✅ PREVIOUS BALANCE ROW
+            var prevRow = new TableRow();
+            prevRow.Cells.Add(CreateBalanceCell(aggregatedData.PreviousBalance.ToString("F2"), false));
+            prevRow.Cells.Add(CreateBalanceCell("الرصيد الباقي", false));
+            balanceTable.RowGroups[0].Rows.Add(prevRow);
+
+            // ✅ CURRENT BALANCE ROW (red background as shown in image)
+            var currRow = new TableRow();
+            prevRow.Cells.Add(CreateBalanceCell(aggregatedData.CurrentBalance.ToString("F2"), true));
+            currRow.Cells.Add(CreateBalanceCell("الرصيد الحالي", true));
+            balanceTable.RowGroups[0].Rows.Add(currRow);
+
+            doc.Blocks.Add(balanceTable);
+        }
+
+        /// <summary>
+        /// Enhanced amount in words with proper Arabic number conversion
+        /// </summary>
+        private void CreateAmountInWords(FlowDocument doc, Invoice invoice)
+        {
+            var totalAmount = InvoiceItems?.Sum(i => i.FinalAmount) ?? 0;
+            var amountInWords = ConvertAmountToArabicWords(totalAmount);
+
+            var amountPara = new Paragraph(new Run(amountInWords))
+            {
+                FontSize = 9,
+                FontStyle = FontStyles.Italic,
+                TextAlignment = TextAlignment.Justify,
+                Margin = new Thickness(0, 10, 0, 10),
+                Padding = new Thickness(8),
+                Background = System.Windows.Media.Brushes.WhiteSmoke,
+                BorderBrush = System.Windows.Media.Brushes.Gray,
+                BorderThickness = new Thickness(1)
+            };
+            doc.Blocks.Add(amountPara);
+        }
+
+        /// <summary>
+        /// Helper method to create individual cage data cells
+        /// </summary>
+        private TableCell CreateIndividualDataCell(string text)
+        {
+            var paragraph = new Paragraph(new Run(text ?? ""))
+            {
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(1),
+                FontSize = 9
+            };
+
+            var cell = new TableCell(paragraph);
+            cell.BorderThickness = new Thickness(1);
+            cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            cell.Padding = new Thickness(3, 6, 3, 6);
+
+            return cell;
+        }
+
+        /// <summary>
+        /// Helper method to create bold data cells for totals
+        /// </summary>
+        private TableCell CreateBoldDataCell(string text)
+        {
+            var paragraph = new Paragraph(new Run(text ?? ""))
+            {
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(1),
+                FontSize = 9,
+                FontWeight = FontWeights.Bold
+            };
+
+            var cell = new TableCell(paragraph);
+            cell.BorderThickness = new Thickness(1);
+            cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            cell.Padding = new Thickness(3, 6, 3, 6);
+
+            return cell;
+        }
+
+        /// <summary>
+        /// Helper method to create calculation data cells
+        /// </summary>
+        private TableCell CreateCalculationDataCell(string text, bool isTotal = false)
+        {
+            var paragraph = new Paragraph(new Run(text ?? ""))
+            {
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(1),
+                FontSize = 9,
+                FontWeight = isTotal ? FontWeights.Bold : FontWeights.Normal
+            };
+
+            var cell = new TableCell(paragraph);
+            cell.BorderThickness = new Thickness(1);
+            cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            cell.Padding = new Thickness(3, 6, 3, 6);
+
+            return cell;
+        }
+
+        /// <summary>
+        /// Helper method to create balance section cells
+        /// </summary>
+        private TableCell CreateBalanceCell(string text, bool isCurrentBalance)
+        {
+            var paragraph = new Paragraph(new Run(text ?? ""))
+            {
+                TextAlignment = TextAlignment.Center,
+                Margin = new Thickness(1),
+                FontSize = 10,
+                FontWeight = FontWeights.Bold
+            };
+
+            var cell = new TableCell(paragraph);
+            cell.BorderThickness = new Thickness(1);
+            cell.BorderBrush = System.Windows.Media.Brushes.Black;
+            cell.Padding = new Thickness(6, 8, 6, 8);
+
+            // ✅ RED BACKGROUND for current balance (matching uploaded image)
+            if (isCurrentBalance)
+            {
+                cell.Background = System.Windows.Media.Brushes.Red;
+                cell.Foreground = System.Windows.Media.Brushes.White;
+            }
+
+            return cell;
+        }
         /// <summary>
         /// Creates the receipt header with company logo and invoice details
         /// </summary>
@@ -1325,7 +1731,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Enhanced calculation method that aggregates data from actual POS invoice items
+        /// Enhanced calculation method supporting individual cage display
         /// </summary>
         private ReceiptTotals CalculateReceiptTotals()
         {
@@ -1337,7 +1743,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
             var totals = new ReceiptTotals();
 
-            // ✅ AGGREGATE: Sum all values from actual invoice items
+            // ✅ AGGREGATE all values from individual cage entries
             foreach (var item in InvoiceItems)
             {
                 totals.TotalGrossWeight += item.GrossWeight;
@@ -1349,7 +1755,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 totals.FinalTotalAmount += item.FinalAmount;
             }
 
-            // ✅ CALCULATE: Weighted averages for unit price and discount
+            // ✅ CALCULATE weighted averages for accurate receipt display
             var totalWeightForPricing = InvoiceItems.Where(item => item.NetWeight > 0).Sum(item => item.NetWeight);
             if (totalWeightForPricing > 0)
             {
@@ -1365,17 +1771,85 @@ namespace PoultrySlaughterPOS.ViewModels
                     .Sum(item => item.DiscountPercentage * item.TotalAmount) / totals.TotalAmountBeforeDiscount;
             }
 
-            // ✅ BALANCE: Customer balance calculations
+            // ✅ BALANCE calculations with customer data
             totals.AmountAfterDiscount = totals.FinalTotalAmount;
             totals.PreviousBalance = SelectedCustomer?.TotalDebt ?? 0;
             totals.CurrentBalance = totals.PreviousBalance + totals.FinalTotalAmount;
 
-            _logger.LogInformation("Receipt totals calculated from {ItemCount} invoice items - Total Amount: {Amount}",
+            _logger.LogInformation("Enhanced receipt totals calculated for {ItemCount} individual cage entries - Total: ${Amount}",
                 InvoiceItems.Count, totals.FinalTotalAmount);
 
             return totals;
         }
 
+        private string ConvertAmountToArabicWords(decimal amount)
+        {
+            try
+            {
+                // ✅ ENHANCED Arabic number-to-words conversion
+                int dollars = (int)Math.Floor(amount);
+                int cents = (int)Math.Round((amount - dollars) * 100);
+
+                var dollarsInWords = ConvertIntegerToArabicWords(dollars);
+                var centsInWords = ConvertIntegerToArabicWords(cents);
+
+                return $"{dollarsInWords} دولار أمريكي و{centsInWords} سنت فقط لا غير";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error converting amount to Arabic words: {Amount}", amount);
+                return $"{amount:F2} دولار أمريكي فقط لا غير";
+            }
+        }
+
+        /// <summary>
+        /// Converts integer to Arabic words (simplified implementation)
+        /// </summary>
+        private string ConvertIntegerToArabicWords(int number)
+        {
+            if (number == 0) return "صفر";
+
+            var ones = new[] { "", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة" };
+            var tens = new[] { "", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون" };
+            var hundreds = new[] { "", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة" };
+
+            if (number >= 1000)
+            {
+                return $"{ConvertIntegerToArabicWords(number / 1000)} ألف {ConvertIntegerToArabicWords(number % 1000)}".Trim();
+            }
+
+            var result = "";
+
+            if (number >= 100)
+            {
+                result += hundreds[number / 100] + " ";
+                number %= 100;
+            }
+
+            if (number >= 20)
+            {
+                result += tens[number / 10] + " ";
+                number %= 10;
+            }
+            else if (number >= 11)
+            {
+                var teens = new[] { "", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر" };
+                result += teens[number - 10] + " ";
+                number = 0;
+            }
+            else if (number == 10)
+            {
+                result += "عشرة ";
+                number = 0;
+            }
+
+            if (number > 0)
+            {
+                result += ones[number] + " ";
+            }
+
+            return result.Trim();
+        }
         private void CreateBalanceSection(FlowDocument doc, ReceiptTotals totals)
         {
             var balanceTable = new Table();
@@ -1502,20 +1976,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Error logging current state");
             }
         }
-        /// <summary>
-        /// Creates amount in words section
-        /// </summary>
-        private void CreateAmountInWords(FlowDocument doc, Invoice invoice)
-        {
-            var amountPara = new Paragraph(new Run("مائة وأربعة دولار أمريكي وأربعة مئة سنت فقط لا غير"))
-            {
-                FontSize = 8,
-                FontStyle = FontStyles.Italic,
-                TextAlignment = TextAlignment.Justify,
-                Margin = new Thickness(0, 8, 0, 8)
-            };
-            doc.Blocks.Add(amountPara);
-        }
+       
 
         /// <summary>
         /// Creates signature lines
@@ -1576,6 +2037,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 throw;
             }
         }
+
 
         /// <summary>
         /// Resets the form for a new invoice
