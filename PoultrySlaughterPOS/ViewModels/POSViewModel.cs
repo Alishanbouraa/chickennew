@@ -68,10 +68,10 @@ namespace PoultrySlaughterPOS.ViewModels
         /// Initializes POSViewModel with comprehensive dependency injection for bulk invoice processing
         /// </summary>
         public POSViewModel(
-            IUnitOfWork unitOfWork,
-            ILogger<POSViewModel> logger,
-            IErrorHandlingService errorHandlingService,
-            IServiceProvider serviceProvider)
+         IUnitOfWork unitOfWork,
+         ILogger<POSViewModel> logger,
+         IErrorHandlingService errorHandlingService,
+         IServiceProvider serviceProvider)
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -79,12 +79,14 @@ namespace PoultrySlaughterPOS.ViewModels
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             InitializeCommands();
-            InitializeCurrentInvoice();
+
+            // ✅ FIXED: Initialize with temporary invoice number immediately
+            InitializeCurrentInvoiceWithTempNumber();
+
             InitializeInvoiceItems();
 
-            _logger.LogInformation("POSViewModel initialized with bulk invoice processing capabilities");
+            _logger.LogInformation("POSViewModel initialized with immediate invoice number display");
         }
-
         #endregion
 
         #region Observable Properties
@@ -441,9 +443,9 @@ namespace PoultrySlaughterPOS.ViewModels
                 }
 
                 RecalculateTotals();
-                OnPropertyChanged(nameof(CanSaveInvoice));
-                SaveInvoiceCommand.NotifyCanExecuteChanged();
-                SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
+
+                // ✅ FIXED: Notify command state changes
+                NotifyValidationStateChanged();
 
                 _logger.LogDebug("Invoice items collection changed. Current count: {Count}", InvoiceItems?.Count ?? 0);
             }
@@ -452,6 +454,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Error handling invoice items collection change");
             }
         }
+
 
         /// <summary>
         /// Handles property changes in individual invoice items for real-time calculations
@@ -477,6 +480,9 @@ namespace PoultrySlaughterPOS.ViewModels
                     {
                         CalculateInvoiceItem(item);
                         RecalculateTotals();
+
+                        // ✅ FIXED: Notify command state changes
+                        NotifyValidationStateChanged();
                     }
 
                     _logger.LogDebug("Invoice item property changed: {PropertyName} for item with gross weight {GrossWeight}",
@@ -488,13 +494,12 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Error handling invoice item property change: {PropertyName}", e.PropertyName);
             }
         }
-
         #endregion
 
         #region Public Methods
 
         /// <summary>
-        /// Initializes the ViewModel with data loading and setup
+        /// Enhanced initialization with proper invoice number generation
         /// </summary>
         public async Task InitializeAsync()
         {
@@ -503,12 +508,15 @@ namespace PoultrySlaughterPOS.ViewModels
                 IsLoading = true;
                 UpdateStatus("جاري تحميل البيانات...", "Spinner", "#007BFF");
 
+                // Load reference data first
                 await LoadCustomersAsync();
                 await LoadTrucksAsync();
-                await GenerateNewInvoiceNumberAsync();
+
+                // ✅ FIXED: Generate real invoice number and update UI
+                await GenerateAndSetRealInvoiceNumberAsync();
 
                 UpdateStatus("جاهز لإنشاء فاتورة جديدة", "CheckCircle", "#28A745");
-                _logger.LogInformation("POSViewModel initialized successfully");
+                _logger.LogInformation("POSViewModel initialized successfully with real invoice number");
             }
             catch (Exception ex)
             {
@@ -523,6 +531,33 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
+        /// Generates real invoice number and updates CurrentInvoice property
+        /// </summary>
+        private async Task GenerateAndSetRealInvoiceNumberAsync()
+        {
+            try
+            {
+                var realInvoiceNumber = await _unitOfWork.Invoices.GenerateInvoiceNumberAsync();
+
+                // ✅ Update the CurrentInvoice with real number - triggers UI binding update
+                CurrentInvoice.InvoiceNumber = realInvoiceNumber;
+
+                // ✅ Explicitly notify UI of property change
+                OnPropertyChanged(nameof(CurrentInvoice));
+
+                _logger.LogInformation("Real invoice number generated and set: {InvoiceNumber}", realInvoiceNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating real invoice number");
+
+                // Fallback to enhanced temporary number
+                var fallbackNumber = $"INV-{DateTime.Now:yyyyMMddHHmmss}";
+                CurrentInvoice.InvoiceNumber = fallbackNumber;
+                OnPropertyChanged(nameof(CurrentInvoice));
+            }
+        }
+        /// <summary>
         /// Validates the current bulk invoice and returns validation result
         /// </summary>
         public bool ValidateCurrentInvoice(bool showErrors = true)
@@ -532,22 +567,30 @@ namespace PoultrySlaughterPOS.ViewModels
                 ValidationErrors.Clear();
                 var validationResults = new List<string>();
 
+                _logger.LogDebug("Starting invoice validation - Customer: {Customer}, Truck: {Truck}, Items: {ItemCount}",
+                    SelectedCustomer?.CustomerName ?? "None",
+                    SelectedTruck?.TruckNumber ?? "None",
+                    InvoiceItems?.Count ?? 0);
+
                 // Customer validation
                 if (SelectedCustomer == null)
                 {
                     validationResults.Add("يجب اختيار زبون للفاتورة");
+                    _logger.LogDebug("Validation failed: No customer selected");
                 }
 
                 // Truck validation  
                 if (SelectedTruck == null)
                 {
                     validationResults.Add("يجب اختيار شاحنة للفاتورة");
+                    _logger.LogDebug("Validation failed: No truck selected");
                 }
 
                 // Invoice items validation
                 if (InvoiceItems == null || InvoiceItems.Count == 0)
                 {
                     validationResults.Add("يجب إضافة بند واحد على الأقل للفاتورة");
+                    _logger.LogDebug("Validation failed: No invoice items");
                 }
                 else
                 {
@@ -556,9 +599,20 @@ namespace PoultrySlaughterPOS.ViewModels
                         item.CagesCount > 0 &&
                         item.UnitPrice > 0);
 
+                    _logger.LogDebug("Invoice items validation - Valid items found: {HasValid}", hasValidItems);
+
                     if (!hasValidItems)
                     {
                         validationResults.Add("يجب إدخال بيانات صحيحة في بنود الفاتورة");
+                        _logger.LogDebug("Validation failed: No valid items with required data");
+
+                        // ✅ Log individual item states for debugging
+                        for (int i = 0; i < InvoiceItems.Count; i++)
+                        {
+                            var item = InvoiceItems[i];
+                            _logger.LogDebug("Item {Index}: GrossWeight={GrossWeight}, CagesCount={CagesCount}, UnitPrice={UnitPrice}",
+                                i + 1, item.GrossWeight, item.CagesCount, item.UnitPrice);
+                        }
                     }
 
                     // Validate individual items
@@ -570,11 +624,15 @@ namespace PoultrySlaughterPOS.ViewModels
                         if (item.CagesWeight >= item.GrossWeight && item.GrossWeight > 0)
                         {
                             validationResults.Add($"البند {itemNumber}: وزن الأقفاص لا يمكن أن يكون أكبر من أو يساوي الوزن الفلتي");
+                            _logger.LogDebug("Validation failed: Item {ItemNumber} - CagesWeight ({CagesWeight}) >= GrossWeight ({GrossWeight})",
+                                itemNumber, item.CagesWeight, item.GrossWeight);
                         }
 
                         if (item.DiscountPercentage < 0 || item.DiscountPercentage > 100)
                         {
                             validationResults.Add($"البند {itemNumber}: نسبة الخصم يجب أن تكون بين 0 و 100");
+                            _logger.LogDebug("Validation failed: Item {ItemNumber} - Invalid discount percentage: {DiscountPercentage}",
+                                itemNumber, item.DiscountPercentage);
                         }
                     }
                 }
@@ -591,10 +649,13 @@ namespace PoultrySlaughterPOS.ViewModels
                 if (HasValidationErrors && showErrors)
                 {
                     UpdateStatus($"توجد {ValidationErrors.Count} أخطاء في البيانات", "ExclamationTriangle", "#DC3545");
+                    _logger.LogWarning("Validation failed with {ErrorCount} errors: {Errors}",
+                        ValidationErrors.Count, string.Join("; ", ValidationErrors));
                 }
                 else if (isValid)
                 {
                     UpdateStatus("البيانات صحيحة وجاهزة للحفظ", "CheckCircle", "#28A745");
+                    _logger.LogDebug("Validation passed successfully");
                 }
 
                 return isValid;
@@ -605,6 +666,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 return false;
             }
         }
+
 
         /// <summary>
         /// Cleanup method for resource disposal
@@ -663,6 +725,35 @@ namespace PoultrySlaughterPOS.ViewModels
             };
 
             _logger.LogDebug("New invoice initialized");
+
+        }
+
+        /// <summary>
+        /// Initializes invoice with temporary number for immediate UI display
+        /// </summary>
+        private void InitializeCurrentInvoiceWithTempNumber()
+        {
+            // Generate temporary invoice number for immediate display
+            var tempInvoiceNumber = GenerateTemporaryInvoiceNumber();
+
+            CurrentInvoice = new Invoice
+            {
+                InvoiceNumber = tempInvoiceNumber, // ✅ Immediate non-empty display
+                InvoiceDate = DateTime.Now,
+                CreatedDate = DateTime.Now,
+                UpdatedDate = DateTime.Now
+            };
+
+            _logger.LogDebug("Invoice initialized with temporary number: {TempNumber}", tempInvoiceNumber);
+        }
+        /// <summary>
+        /// Generates temporary invoice number for immediate UI feedback
+        /// </summary>
+        private string GenerateTemporaryInvoiceNumber()
+        {
+            var datePrefix = DateTime.Today.ToString("yyyyMMdd");
+            var timeComponent = DateTime.Now.ToString("HHmm");
+            return $"{datePrefix}-TEMP-{timeComponent}";
         }
 
         /// <summary>
@@ -836,7 +927,15 @@ namespace PoultrySlaughterPOS.ViewModels
                     CurrentInvoice.PreviousBalance = SelectedCustomer.TotalDebt;
                     RecalculateTotals();
 
+                    // ✅ FIXED: Notify command state changes
+                    NotifyValidationStateChanged();
+
                     _logger.LogDebug("Customer selected: {CustomerName}", SelectedCustomer.CustomerName);
+                }
+                else
+                {
+                    // ✅ Customer deselected - notify command state
+                    NotifyValidationStateChanged();
                 }
             }
             catch (Exception ex)
@@ -855,7 +954,16 @@ namespace PoultrySlaughterPOS.ViewModels
                 if (SelectedTruck != null)
                 {
                     CurrentInvoice.TruckId = SelectedTruck.TruckId;
+
+                    // ✅ FIXED: Notify command state changes
+                    NotifyValidationStateChanged();
+
                     _logger.LogDebug("Truck selected: {TruckNumber}", SelectedTruck.TruckNumber);
+                }
+                else
+                {
+                    // ✅ Truck deselected - notify command state
+                    NotifyValidationStateChanged();
                 }
             }
             catch (Exception ex)
@@ -863,6 +971,36 @@ namespace PoultrySlaughterPOS.ViewModels
                 _logger.LogError(ex, "Error handling truck selection change");
             }
         }
+
+        /// <summary>
+        /// Centralized method to notify validation state changes and update command execution
+        /// </summary>
+        private void NotifyValidationStateChanged()
+        {
+            try
+            {
+                // ✅ Notify UI that CanSaveInvoice property may have changed
+                OnPropertyChanged(nameof(CanSaveInvoice));
+
+                // ✅ Notify RelayCommands that their CanExecute state may have changed
+                SaveInvoiceCommand.NotifyCanExecuteChanged();
+                SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
+
+                // ✅ Optional: Update status message based on current validation state
+                var isValid = ValidateCurrentInvoice(false);
+                if (isValid)
+                {
+                    UpdateStatus("البيانات صحيحة وجاهزة للحفظ", "CheckCircle", "#28A745");
+                }
+
+                _logger.LogDebug("Validation state notified. CanSaveInvoice: {CanSave}", isValid);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error notifying validation state changes");
+            }
+        }
+
 
         /// <summary>
         /// Internal method for saving bulk invoice with transaction support
@@ -1144,21 +1282,73 @@ namespace PoultrySlaughterPOS.ViewModels
         // ✅ ADDED: Comprehensive public API for UI layer integration
         public void RecalculateInvoiceTotals()
         {
-            // Force recalculation of all invoice items with validation
-            if (InvoiceItems != null)
+            try
             {
-                foreach (var item in InvoiceItems)
+                // Force recalculation of all invoice items with validation
+                if (InvoiceItems != null)
                 {
-                    item.RecalculateAllWithValidation();
+                    foreach (var item in InvoiceItems)
+                    {
+                        CalculateInvoiceItem(item);
+                    }
                 }
+
+                RecalculateTotals(); // Internal aggregate calculation
+
+                // ✅ Update command execution state for UI responsiveness
+                NotifyValidationStateChanged();
+
+                _logger.LogDebug("Invoice totals recalculated and command state updated");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during invoice totals recalculation");
+            }
+        }
 
-            RecalculateTotals(); // Internal aggregate calculation
+        public void TriggerValidationCheck()
+        {
+            try
+            {
+                _logger.LogInformation("Manual validation check triggered");
+                var isValid = ValidateCurrentInvoice(true);
+                NotifyValidationStateChanged();
 
-            // Update command execution state for UI responsiveness
-            OnPropertyChanged(nameof(CanSaveInvoice));
-            SaveInvoiceCommand.NotifyCanExecuteChanged();
-            SaveAndPrintInvoiceCommand.NotifyCanExecuteChanged();
+                _logger.LogInformation("Manual validation result: {IsValid}", isValid);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during manual validation check");
+            }
+        }
+        public void LogCurrentState()
+        {
+            try
+            {
+                _logger.LogInformation("=== CURRENT POS STATE DEBUG ===");
+                _logger.LogInformation("Customer Selected: {Customer}", SelectedCustomer?.CustomerName ?? "NONE");
+                _logger.LogInformation("Truck Selected: {Truck}", SelectedTruck?.TruckNumber ?? "NONE");
+                _logger.LogInformation("Invoice Items Count: {Count}", InvoiceItems?.Count ?? 0);
+                _logger.LogInformation("CanSaveInvoice: {CanSave}", CanSaveInvoice);
+                _logger.LogInformation("IsLoading: {IsLoading}", IsLoading);
+                _logger.LogInformation("HasValidationErrors: {HasErrors}", HasValidationErrors);
+
+                if (InvoiceItems != null)
+                {
+                    for (int i = 0; i < InvoiceItems.Count; i++)
+                    {
+                        var item = InvoiceItems[i];
+                        _logger.LogInformation("Item {Index}: GW={GrossWeight}, CC={CagesCount}, CW={CageWeight}, UP={UnitPrice}, NW={NetWeight}",
+                            i + 1, item.GrossWeight, item.CagesCount, item.CageWeight, item.UnitPrice, item.NetWeight);
+                    }
+                }
+
+                _logger.LogInformation("=== END DEBUG STATE ===");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error logging current state");
+            }
         }
         /// <summary>
         /// Creates amount in words section

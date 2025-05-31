@@ -358,13 +358,46 @@
                                    Margin="0,4,0,0"/>
                     </StackPanel>
 
+                    <!-- Enhanced invoice number display with loading state -->
                     <StackPanel Grid.Column="1" HorizontalAlignment="Left">
-                        <TextBlock Text="{Binding CurrentInvoice.InvoiceNumber, StringFormat='فاتورة رقم: {0}'}" 
-                                   FontSize="16" FontWeight="SemiBold" 
-                                   Foreground="#60A5FA"/>
+                        <!-- Invoice Number with Loading Indicator -->
+                        <Grid>
+                            <TextBlock Text="{Binding CurrentInvoice.InvoiceNumber, StringFormat='فاتورة رقم: {0}'}" 
+                   FontSize="16" FontWeight="SemiBold" 
+                   Foreground="#60A5FA"
+                   Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanToVisibilityConverter}}"/>
+
+                            <!-- Loading State for Invoice Number -->
+                            <StackPanel Orientation="Horizontal"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <TextBlock Text="جاري توليد رقم الفاتورة..." 
+                       FontSize="14" FontStyle="Italic"
+                       Foreground="#6B7280"/>
+                                <Border Width="16" Height="16" Margin="8,0,0,0">
+                                    <!-- Spinning loader animation -->
+                                    <Ellipse Fill="#60A5FA" Opacity="0.6">
+                                        <Ellipse.RenderTransform>
+                                            <RotateTransform/>
+                                        </Ellipse.RenderTransform>
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                     From="0" To="360" Duration="0:0:1"
+                                                     RepeatBehavior="Forever"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
                         <TextBlock Text="{Binding CurrentDateTime, StringFormat='{}{0:yyyy/MM/dd - HH:mm:ss}'}" 
-                                   FontSize="13" Foreground="#CBD5E1" 
-                                   Margin="0,4,0,0"/>
+               FontSize="13" Foreground="#CBD5E1" 
+               Margin="0,4,0,0"/>
                     </StackPanel>
                 </Grid>
             </Border>
