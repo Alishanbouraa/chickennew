@@ -1,0 +1,986 @@
+2025-05-31 22:12:02.915 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:12:03.420 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:12:03.481 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:12:03.554 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:12:03.560 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:12:03.560 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:12:03.560 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:12:03.757 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:12:06.665 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:12:07.837 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:12:08.084 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:12:08.305 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:12:09.138 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:12:09.138 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:12:09.138 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:12:09.139 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:12:09.139 +03:00 [INF] - INVOICES: 27 records
+2025-05-31 22:12:09.139 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:12:09.139 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:12:09.139 +03:00 [INF] - AUDIT_LOGS: 57 records
+2025-05-31 22:12:09.139 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:12:09.139 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:12:10.323 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:12:10.746 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:12:11.016 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:12:11.100 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 9
+2025-05-31 22:12:11.101 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:12:17.386 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:12:17.388 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:12:17.396 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:12:17.467 +03:00 [INF] POSViewModel initialized with immediate invoice number display and thermal printing support
+2025-05-31 22:12:17.646 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:12:17.870 +03:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:12:18.315 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:12:18.325 +03:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:12:18.339 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:12:18.621 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:12:18.833 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:12:19.043 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:12:19.047 +03:00 [INF] Generated optimized invoice number: 202505310010
+2025-05-31 22:12:19.194 +03:00 [INF] Real invoice number generated and set: 202505310010
+2025-05-31 22:12:19.194 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:12:19.197 +03:00 [INF] Generated optimized invoice number: 202505310010
+2025-05-31 22:12:19.208 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:12:19.208 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:12:19.208 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:12:19.268 +03:00 [INF] Real invoice number generated and set: 202505310010
+2025-05-31 22:12:19.270 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:12:19.271 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:12:19.272 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:12:19.282 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:12:43.051 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 22:12:56.394 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:12:57.221 +03:00 [INF] Successfully created invoice 202505310010 for customer 1 with amount 0
+2025-05-31 22:12:57.234 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310010, Items: 2, Amount: 0
+2025-05-31 22:12:57.236 +03:00 [INF] Starting optimized 80mm thermal printer receipt for Invoice: 202505310010
+2025-05-31 22:12:57.409 +03:00 [ERR] Error printing 80mm thermal receipt: 202505310010
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+2025-05-31 22:12:57.706 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 345
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:12:57.710 +03:00 [ERR] Error 23a53735 in حفظ وطباعة الفاتورة: ArgumentException - '∞' is not a valid value for property 'PageHeight'.
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 345
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:04.996 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:13:05.339 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:13:05.438 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+2025-05-31 22:13:05.641 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:05.645 +03:00 [ERR] Error 7a7dd3fb in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:11.523 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:13:11.907 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:13:12.068 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+2025-05-31 22:13:12.264 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:12.266 +03:00 [ERR] Error 6b4f8fc5 in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:14.090 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:13:14.356 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:13:14.494 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+2025-05-31 22:13:14.684 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:14.690 +03:00 [ERR] Error 534917de in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:23.193 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:13:23.474 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:13:23.572 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+2025-05-31 22:13:23.706 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:23.710 +03:00 [ERR] Error d3d48897 in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1461
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1651
+2025-05-31 22:13:33.948 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 22:13:33.948 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 22:13:34.003 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 22:13:34.009 +03:00 [INF] Application is shutting down...
+2025-05-31 22:13:34.031 +03:00 [INF] Application host stopped successfully
+2025-05-31 22:13:34.031 +03:00 [INF] Poultry Slaughter POS application shutdown completed
+2025-05-31 22:18:39.214 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:18:39.929 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:18:40.030 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:18:40.117 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:18:40.123 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:18:40.123 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:18:40.123 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:18:40.264 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:18:41.545 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:18:42.144 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:18:42.437 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:18:42.646 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:18:43.311 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:18:43.311 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:18:43.311 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:18:43.311 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:18:43.311 +03:00 [INF] - INVOICES: 28 records
+2025-05-31 22:18:43.311 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:18:43.311 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:18:43.311 +03:00 [INF] - AUDIT_LOGS: 59 records
+2025-05-31 22:18:43.312 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:18:43.312 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:18:43.953 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:18:44.471 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:18:44.733 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:18:45.299 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 10
+2025-05-31 22:18:45.300 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:18:51.828 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:18:51.829 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:18:51.835 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:18:51.888 +03:00 [INF] POSViewModel initialized with immediate invoice number display and thermal printing support
+2025-05-31 22:18:52.054 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:18:52.296 +03:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:18:52.738 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:18:52.750 +03:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:18:52.766 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:18:52.997 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:18:53.292 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:18:53.298 +03:00 [INF] Generated optimized invoice number: 202505310011
+2025-05-31 22:18:53.394 +03:00 [INF] Real invoice number generated and set: 202505310011
+2025-05-31 22:18:53.394 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:18:53.401 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:18:53.402 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:18:53.403 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:18:53.453 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:18:53.654 +03:00 [INF] Generated optimized invoice number: 202505310011
+2025-05-31 22:18:53.664 +03:00 [INF] Real invoice number generated and set: 202505310011
+2025-05-31 22:18:53.666 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:18:53.667 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:18:53.669 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:18:53.685 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:20:33.082 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:20:34.061 +03:00 [INF] Successfully created invoice 202505310011 for customer 1 with amount 0
+2025-05-31 22:20:34.081 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310011, Items: 1, Amount: 0
+2025-05-31 22:20:34.082 +03:00 [INF] Starting optimized 80mm thermal printer receipt for Invoice: 202505310011
+2025-05-31 22:20:34.188 +03:00 [ERR] Error printing 80mm thermal receipt: 202505310011
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+2025-05-31 22:20:34.556 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 345
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:20:34.564 +03:00 [ERR] Error 2cea4190 in حفظ وطباعة الفاتورة: ArgumentException - '∞' is not a valid value for property 'PageHeight'.
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.PrintOptimizedThermalInvoiceAsync(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 677
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 345
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:20:40.632 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:20:40.942 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:20:41.049 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+2025-05-31 22:20:41.166 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:20:41.171 +03:00 [ERR] Error 0769150a in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:20:52.523 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:20:52.810 +03:00 [ERR] Error creating invoice with transaction for customer 1
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+2025-05-31 22:20:52.889 +03:00 [ERR] Error saving bulk invoice
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+2025-05-31 22:20:53.027 +03:00 [ERR] Error executing operation: حفظ وطباعة الفاتورة
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:20:53.030 +03:00 [ERR] Error e8025008 in حفظ وطباعة الفاتورة: InvalidOperationException - The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+System.InvalidOperationException: The instance of entity type 'Customer' cannot be tracked because another instance with the same key value for {'CustomerId'} is already being tracked. When attaching existing entities, ensure that only one entity instance with a given key value is attached. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting key values.
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.ThrowIdentityConflict(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry, Boolean updateDuplicate)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(TKey key, InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IdentityMap`1.Add(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.StartTracking(InternalEntityEntry entry)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityState(EntityState oldState, EntityState newState, Boolean acceptChanges, Boolean modifyProperties)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry.SetEntityStateAsync(EntityState entityState, Boolean acceptChanges, Boolean modifyProperties, Nullable`1 forceStateWhenUnknownKey, Nullable`1 fallbackState, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.PaintActionAsync(EntityEntryGraphNode`1 node, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityEntryGraphIterator.TraverseGraphAsync[TState](EntityEntryGraphNode`1 node, Func`3 handleNode, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.EntityGraphAttacher.AttachGraphAsync(InternalEntityEntry rootEntry, EntityState targetState, EntityState storeGeneratedWithKeySetTargetState, Boolean forceStateWhenUnknownKey, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.AddAsync(TEntity entity, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 230
+   at PoultrySlaughterPOS.Repositories.InvoiceRepository.CreateInvoiceWithTransactionAsync(Invoice invoice, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\InvoiceRepository.cs:line 248
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.SaveInvoiceInternalAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1586
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<SaveAndPrintInvoiceAsync>b__77_0() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 342
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecuteWithErrorHandlingAsync(Func`1 operation, String operationName) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 1776
+2025-05-31 22:21:39.289 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 22:21:39.289 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 22:21:39.344 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 22:21:39.350 +03:00 [INF] Application is shutting down...
+2025-05-31 22:21:39.380 +03:00 [INF] Application host stopped successfully
+2025-05-31 22:21:39.381 +03:00 [INF] Poultry Slaughter POS application shutdown completed
+2025-05-31 22:23:09.842 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:23:10.566 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:23:10.670 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:23:10.814 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:23:10.831 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:23:10.832 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:23:10.832 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:23:11.029 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:23:13.123 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:23:13.787 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:23:14.010 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:23:14.271 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:23:15.293 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:23:15.294 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:23:15.294 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:23:15.294 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:23:15.294 +03:00 [INF] - INVOICES: 29 records
+2025-05-31 22:23:15.294 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:23:15.294 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:23:15.294 +03:00 [INF] - AUDIT_LOGS: 61 records
+2025-05-31 22:23:15.294 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:23:15.295 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:23:16.026 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:23:16.458 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:23:16.677 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:23:16.876 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 11
+2025-05-31 22:23:16.877 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:23:18.238 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:23:18.240 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:23:18.251 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:23:18.317 +03:00 [INF] POSViewModel initialized with immediate invoice number display and thermal printing support
+2025-05-31 22:23:18.508 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:23:18.756 +03:00 [INF] Executed DbCommand (23ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:23:19.423 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:23:19.438 +03:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:23:19.449 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:23:19.704 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:23:20.056 +03:00 [INF] Generated optimized invoice number: 202505310012
+2025-05-31 22:23:20.059 +03:00 [INF] Real invoice number generated and set: 202505310012
+2025-05-31 22:23:20.059 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:23:20.070 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:23:20.071 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:23:20.072 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:23:20.108 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:23:20.311 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:23:20.494 +03:00 [INF] Generated optimized invoice number: 202505310012
+2025-05-31 22:23:20.511 +03:00 [INF] Real invoice number generated and set: 202505310012
+2025-05-31 22:23:20.544 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:23:20.546 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:23:20.550 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:23:20.566 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:23:40.911 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:23:41.973 +03:00 [INF] Successfully created invoice 202505310012 for customer 1 with amount 0
+2025-05-31 22:23:42.001 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310012, Items: 1, Amount: 0
+2025-05-31 22:23:42.003 +03:00 [INF] Initiating thread-safe thermal printing for Invoice: 202505310012
+2025-05-31 22:23:42.129 +03:00 [ERR] Error creating thermal document on UI thread
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.CreateThermalDocumentOnUIThread(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 728
+2025-05-31 22:23:42.210 +03:00 [ERR] Error in thermal printing UI thread operation: 202505310012
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.CreateThermalDocumentOnUIThread(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 728
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.<>c__DisplayClass89_0.<<PrintOptimizedThermalInvoiceAsync>b__0>d.MoveNext() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 673
+2025-05-31 22:23:42.411 +03:00 [INF] Generated optimized invoice number: 202505310013
+2025-05-31 22:26:37.391 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:26:38.154 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:26:38.232 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:26:38.340 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:26:38.347 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:26:38.347 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:26:38.348 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:26:53.454 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:26:54.247 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:26:54.344 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:26:54.419 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:26:54.426 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:26:54.427 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:26:54.427 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:26:54.546 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:26:55.660 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:26:56.084 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:26:56.199 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:26:56.359 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:26:56.822 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:26:56.822 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:26:56.822 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:26:56.822 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:26:56.822 +03:00 [INF] - INVOICES: 30 records
+2025-05-31 22:26:56.822 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:26:56.822 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:26:56.822 +03:00 [INF] - AUDIT_LOGS: 63 records
+2025-05-31 22:26:56.822 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:26:56.822 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:26:57.281 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:26:57.623 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:26:57.827 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:26:57.905 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 12
+2025-05-31 22:26:57.905 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:27:58.299 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:27:58.300 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:27:58.306 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:27:58.334 +03:00 [INF] POSViewModel initialized with immediate invoice number display and thermal printing support
+2025-05-31 22:27:58.432 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:27:58.613 +03:00 [INF] Executed DbCommand (19ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:27:58.844 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:27:58.849 +03:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:27:58.859 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:27:59.013 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:27:59.152 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:27:59.328 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:27:59.340 +03:00 [INF] Generated optimized invoice number: 202505310013
+2025-05-31 22:27:59.406 +03:00 [INF] Generated optimized invoice number: 202505310013
+2025-05-31 22:27:59.407 +03:00 [INF] Real invoice number generated and set: 202505310013
+2025-05-31 22:27:59.407 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:27:59.413 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:27:59.413 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:27:59.413 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:27:59.420 +03:00 [INF] Real invoice number generated and set: 202505310013
+2025-05-31 22:27:59.422 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:27:59.423 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:27:59.429 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:27:59.436 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:28:17.014 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:28:17.965 +03:00 [INF] Successfully created invoice 202505310013 for customer 1 with amount 0
+2025-05-31 22:28:17.983 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310013, Items: 1, Amount: 0
+2025-05-31 22:28:17.984 +03:00 [INF] Initiating enterprise thermal printing pipeline for Invoice: 202505310013
+2025-05-31 22:28:20.623 +03:00 [INF] Print dialog displayed - User selection: true
+2025-05-31 22:28:20.698 +03:00 [ERR] Error applying validated thermal settings
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ApplyValidatedThermalSettings(FlowDocument document) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 854
+2025-05-31 22:28:20.775 +03:00 [ERR] Error creating validated thermal document
+System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ApplyValidatedThermalSettings(FlowDocument document) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 854
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.CreateValidatedThermalDocument(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 802
+2025-05-31 22:28:20.814 +03:00 [ERR] Error in print dialog execution pipeline
+System.InvalidOperationException: Failed to create thermal document
+ ---> System.ArgumentException: '∞' is not a valid value for property 'PageHeight'.
+   at System.Windows.DependencyObject.SetValueCommon(DependencyProperty dp, Object value, PropertyMetadata metadata, Boolean coerceWithDeferredReference, Boolean coerceWithCurrentValue, OperationType operationType, Boolean isInternal)
+   at System.Windows.DependencyObject.SetValue(DependencyProperty dp, Object value)
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ApplyValidatedThermalSettings(FlowDocument document) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 854
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.CreateValidatedThermalDocument(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 802
+   --- End of inner exception stack trace ---
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.CreateValidatedThermalDocument(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 816
+   at PoultrySlaughterPOS.ViewModels.POSViewModel.ExecutePrintDialogWithDiagnostics(Invoice invoice) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\POSViewModel.cs:line 729
+2025-05-31 22:30:27.193 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:30:28.138 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:30:28.194 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:30:28.246 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:30:28.251 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:30:28.251 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:30:28.252 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:30:28.341 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:30:29.327 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:30:29.962 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:30:30.164 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:30:30.396 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:30:31.158 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:30:31.158 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:30:31.159 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:30:31.159 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:30:31.159 +03:00 [INF] - INVOICES: 31 records
+2025-05-31 22:30:31.159 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:30:31.159 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:30:31.159 +03:00 [INF] - AUDIT_LOGS: 65 records
+2025-05-31 22:30:31.159 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:30:31.159 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:30:31.832 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:30:32.271 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:30:32.483 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:30:32.601 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 13
+2025-05-31 22:30:32.602 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:30:33.648 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:30:33.649 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:30:33.655 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:30:33.707 +03:00 [INF] POSViewModel initialized with immediate invoice number display and thermal printing support
+2025-05-31 22:30:33.849 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:30:34.055 +03:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:30:34.459 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:30:34.481 +03:00 [INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:30:34.485 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:30:34.671 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:30:34.804 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:30:34.987 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:30:35.011 +03:00 [INF] Generated optimized invoice number: 202505310014
+2025-05-31 22:30:35.131 +03:00 [INF] Real invoice number generated and set: 202505310014
+2025-05-31 22:30:35.132 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:30:35.133 +03:00 [INF] Generated optimized invoice number: 202505310014
+2025-05-31 22:30:35.137 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:30:35.137 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:30:35.137 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:30:35.148 +03:00 [INF] Real invoice number generated and set: 202505310014
+2025-05-31 22:30:35.150 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:30:35.151 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:30:35.160 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:30:35.169 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:30:51.954 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:30:52.867 +03:00 [INF] Successfully created invoice 202505310014 for customer 1 with amount 0
+2025-05-31 22:30:52.892 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310014, Items: 1, Amount: 0
+2025-05-31 22:30:52.895 +03:00 [INF] Initiating enterprise thermal printing pipeline for Invoice: 202505310014
+2025-05-31 22:30:55.555 +03:00 [INF] Print dialog displayed - User selection: true
+2025-05-31 22:30:55.621 +03:00 [INF] Enhanced receipt totals calculated for 1 individual cage entries - Total: $40.00
+2025-05-31 22:30:55.628 +03:00 [INF] Enhanced receipt totals calculated for 1 individual cage entries - Total: $40.00
+2025-05-31 22:30:57.565 +03:00 [INF] Document printing executed successfully: فاتورة 202505310014
+2025-05-31 22:30:57.566 +03:00 [INF] Printing completed successfully for Invoice: 202505310014
+2025-05-31 22:30:57.571 +03:00 [INF] Enterprise thermal printing completed successfully for Invoice: 202505310014
+2025-05-31 22:30:57.696 +03:00 [INF] Generated optimized invoice number: 202505310015
+2025-05-31 22:31:22.886 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 22:31:22.886 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 22:31:22.927 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 22:31:22.933 +03:00 [INF] Application is shutting down...
+2025-05-31 22:31:22.954 +03:00 [INF] Application host stopped successfully
+2025-05-31 22:31:22.955 +03:00 [INF] Poultry Slaughter POS application shutdown completed
+2025-05-31 22:33:58.501 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:33:58.918 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:33:58.994 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:33:59.120 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:33:59.131 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:33:59.131 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:33:59.132 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:33:59.398 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:34:02.282 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:34:02.796 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:34:02.912 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:34:03.085 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:34:03.530 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:34:03.530 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:34:03.530 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:34:03.530 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:34:03.530 +03:00 [INF] - INVOICES: 32 records
+2025-05-31 22:34:03.530 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:34:03.530 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:34:03.530 +03:00 [INF] - AUDIT_LOGS: 67 records
+2025-05-31 22:34:03.530 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:34:03.530 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:34:03.950 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:34:04.368 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:34:04.549 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:34:04.609 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 14
+2025-05-31 22:34:04.610 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:34:11.615 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:34:11.617 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:34:11.623 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:34:11.653 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 22:34:11.747 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:34:11.918 +03:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:34:12.239 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:34:12.244 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:34:12.258 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:34:12.432 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:34:12.558 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:34:12.725 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:34:12.736 +03:00 [INF] Generated optimized invoice number: 202505310015
+2025-05-31 22:34:12.806 +03:00 [INF] Generated optimized invoice number: 202505310015
+2025-05-31 22:34:12.807 +03:00 [INF] Real invoice number generated and set: 202505310015
+2025-05-31 22:34:12.807 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:34:12.811 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:34:12.811 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:34:12.812 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:34:12.821 +03:00 [INF] Real invoice number generated and set: 202505310015
+2025-05-31 22:34:12.823 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:34:12.824 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:34:12.831 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:34:12.839 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:34:31.772 +03:00 [INF] Adding new invoice item to collection
+2025-05-31 22:34:44.014 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:34:44.720 +03:00 [INF] Successfully created invoice 202505310015 for customer 1 with amount 0
+2025-05-31 22:34:44.735 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310015, Items: 2, Amount: 0
+2025-05-31 22:34:44.736 +03:00 [INF] Starting enhanced bulk invoice printing with individual cage entries for Invoice: 202505310015
+2025-05-31 22:34:44.764 +03:00 [INF] Enhanced receipt totals calculated for 2 individual cage entries - Total: $268.00
+2025-05-31 22:34:44.769 +03:00 [INF] Enhanced receipt totals calculated for 2 individual cage entries - Total: $268.00
+2025-05-31 22:34:54.575 +03:00 [INF] Enhanced individual cage receipt printing completed successfully
+2025-05-31 22:34:54.679 +03:00 [INF] Generated optimized invoice number: 202505310016
+2025-05-31 22:37:52.044 +03:00 [INF] Executing SaveAndPrintInvoice command for bulk invoice
+2025-05-31 22:37:52.295 +03:00 [INF] Successfully created invoice 202505310016 for customer 3 with amount 0
+2025-05-31 22:37:52.296 +03:00 [INF] Bulk invoice saved successfully - Number: 202505310016, Items: 1, Amount: 0
+2025-05-31 22:37:52.296 +03:00 [INF] Starting enhanced bulk invoice printing with individual cage entries for Invoice: 202505310016
+2025-05-31 22:37:52.298 +03:00 [INF] Enhanced receipt totals calculated for 1 individual cage entries - Total: $90.0000
+2025-05-31 22:37:52.303 +03:00 [INF] Enhanced receipt totals calculated for 1 individual cage entries - Total: $90.0000
+2025-05-31 22:38:01.408 +03:00 [INF] Enhanced individual cage receipt printing completed successfully
+2025-05-31 22:38:01.587 +03:00 [INF] Generated optimized invoice number: 202505310017
+2025-05-31 22:39:39.494 +03:00 [INF] Starting Poultry Slaughter POS application with complete dialog integration...
+2025-05-31 22:39:40.047 +03:00 [INF] Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+2025-05-31 22:39:40.101 +03:00 [INF] Service configuration completed successfully with 103 services registered (complete dialog integration)
+2025-05-31 22:39:40.182 +03:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-05-31 22:39:40.192 +03:00 [INF] Hosting environment: Production
+2025-05-31 22:39:40.193 +03:00 [INF] Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+2025-05-31 22:39:40.194 +03:00 [INF] Application host started successfully with complete dialog integration
+2025-05-31 22:39:40.294 +03:00 [INF] Starting database initialization for SQL Server...
+2025-05-31 22:39:41.389 +03:00 [INF] Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+2025-05-31 22:39:41.800 +03:00 [INF] Testing SQL Server connection...
+2025-05-31 22:39:41.912 +03:00 [INF] SQL Server connection successful.
+2025-05-31 22:39:42.110 +03:00 [INF] Database 'chicken' created/verified successfully.
+2025-05-31 22:39:42.653 +03:00 [INF] Database schema verification completed:
+2025-05-31 22:39:42.653 +03:00 [INF] - TRUCKS: 3 records
+2025-05-31 22:39:42.653 +03:00 [INF] - CUSTOMERS: 3 records
+2025-05-31 22:39:42.653 +03:00 [INF] - TRUCK_LOADS: 3 records
+2025-05-31 22:39:42.653 +03:00 [INF] - INVOICES: 34 records
+2025-05-31 22:39:42.653 +03:00 [INF] - PAYMENTS: 0 records
+2025-05-31 22:39:42.653 +03:00 [INF] - DAILY_RECONCILIATION: 0 records
+2025-05-31 22:39:42.653 +03:00 [INF] - AUDIT_LOGS: 71 records
+2025-05-31 22:39:42.653 +03:00 [INF] Database initialization completed successfully.
+2025-05-31 22:39:42.653 +03:00 [INF] Database initialization completed successfully
+2025-05-31 22:39:43.053 +03:00 [INF] MainWindow initialized successfully with complete POS navigation integration
+2025-05-31 22:39:43.390 +03:00 [INF] MainWindow loaded, starting initialization with POS module support
+2025-05-31 22:39:43.596 +03:00 [INF] Poultry Slaughter POS application started successfully with complete integration
+2025-05-31 22:39:43.690 +03:00 [INF] Dashboard initialized - Trucks: 3, Customers: 3, Today's Invoices: 16
+2025-05-31 22:39:43.691 +03:00 [INF] MainWindow initialization completed successfully with POS integration
+2025-05-31 22:39:52.079 +03:00 [INF] Navigating to page: POSSales
+2025-05-31 22:39:52.080 +03:00 [INF] Loading POS Sales page with full dependency injection
+2025-05-31 22:39:52.085 +03:00 [INF] SQL Server retry strategy disabled to support explicit transactions
+2025-05-31 22:39:52.155 +03:00 [INF] POSViewModel initialized with immediate invoice number display
+2025-05-31 22:39:52.253 +03:00 [INF] Enhanced POSView initialized successfully with modern scrollable design
+2025-05-31 22:39:52.420 +03:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:39:52.709 +03:00 [INF] Initializing enhanced POSView with comprehensive data loading
+2025-05-31 22:39:52.714 +03:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='60']
+SELECT [c].[CustomerId], [c].[Address], [c].[CreatedDate], [c].[CustomerName], [c].[IsActive], [c].[PhoneNumber], [c].[TotalDebt], [c].[UpdatedDate]
+FROM [CUSTOMERS] AS [c]
+WHERE [c].[IsActive] = CAST(1 AS bit)
+ORDER BY [c].[CustomerName]
+2025-05-31 22:39:52.726 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:39:52.883 +03:00 [INF] Loaded 3 active customers
+2025-05-31 22:39:53.029 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:39:53.192 +03:00 [INF] Loaded 3 active trucks
+2025-05-31 22:39:53.214 +03:00 [INF] Generated optimized invoice number: 202505310017
+2025-05-31 22:39:53.364 +03:00 [INF] Generated optimized invoice number: 202505310017
+2025-05-31 22:39:53.365 +03:00 [INF] Real invoice number generated and set: 202505310017
+2025-05-31 22:39:53.366 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:39:53.369 +03:00 [INF] POS ViewModel initialized with customer and truck data
+2025-05-31 22:39:53.369 +03:00 [INF] POS Sales page loaded successfully with full functionality
+2025-05-31 22:39:53.370 +03:00 [INF] Successfully navigated to page: POSSales
+2025-05-31 22:39:53.379 +03:00 [INF] Real invoice number generated and set: 202505310017
+2025-05-31 22:39:53.381 +03:00 [INF] POSViewModel initialized successfully with real invoice number
+2025-05-31 22:39:53.382 +03:00 [INF] Enhanced POSView initialization completed successfully
+2025-05-31 22:39:53.394 +03:00 [INF] Applying emergency TextBox visibility fix
+2025-05-31 22:39:53.407 +03:00 [INF] Emergency TextBox visibility fix applied successfully
+2025-05-31 22:43:49.457 +03:00 [INF] Executing PrintPreviousInvoice command
+2025-05-31 22:43:50.828 +03:00 [INF] MainWindow closing, performing cleanup
+2025-05-31 22:43:50.828 +03:00 [INF] MainWindow cleanup completed
+2025-05-31 22:43:50.888 +03:00 [INF] Shutting down Poultry Slaughter POS application...
+2025-05-31 22:43:50.895 +03:00 [INF] Application is shutting down...
+2025-05-31 22:43:50.916 +03:00 [INF] Application host stopped successfully
+2025-05-31 22:43:50.917 +03:00 [INF] Poultry Slaughter POS application shutdown completed
