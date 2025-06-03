@@ -1,4 +1,7 @@
-﻿<UserControl x:Class="PoultrySlaughterPOS.Views.CustomerAccountsView"
+﻿<!-- PoultrySlaughterPOS/Views/CustomerAccountsView.xaml -->
+<!-- Enterprise-grade Customer Accounts View with complete debt settlement integration -->
+<!-- ENHANCED: Eliminates all converter chaining issues with specialized composite converters -->
+<UserControl x:Class="PoultrySlaughterPOS.Views.CustomerAccountsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:PoultrySlaughterPOS.Converters"
@@ -9,14 +12,41 @@
              Background="#F8FAFC">
 
     <UserControl.Resources>
-        <!-- Enhanced Value Converters -->
+        <!-- Complete Value Converter Collection - No Chaining Required -->
+
+        <!-- Core System Converters -->
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <converters:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
-        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
-        <converters:DebtColorConverter x:Key="DebtColorConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
+
+        <!-- Financial and Currency Converters -->
+        <converters:CurrencyConverter x:Key="CurrencyConverter"/>
+        <converters:DebtColorConverter x:Key="DebtColorConverter"/>
+        <converters:WeightConverter x:Key="WeightConverter"/>
+        <converters:PercentageConverter x:Key="PercentageConverter"/>
+        <converters:NumberFormatConverter x:Key="NumberFormatConverter"/>
+
+        <!-- Customer Management Converters -->
+        <converters:StatusIndicatorConverter x:Key="StatusIndicatorConverter"/>
+        <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
+        <converters:TruckAvailabilityConverter x:Key="TruckAvailabilityConverter"/>
+        <converters:RelativeDateConverter x:Key="RelativeDateConverter"/>
+
+        <!-- Payment and Transaction Converters -->
+        <converters:PaymentMethodToBrushConverter x:Key="PaymentMethodToBrushConverter"/>
+        <converters:PaymentSumConverter x:Key="PaymentSumConverter"/>
+        <converters:InvoiceSumConverter x:Key="InvoiceSumConverter"/>
+        <converters:PaymentCountConverter x:Key="PaymentCountConverter"/>
+
+        <!-- COMPOSITE CONVERTERS - Eliminates Converter Chaining -->
+        <converters:PaymentSumCurrencyConverter x:Key="PaymentSumCurrencyConverter"/>
+        <converters:InvoiceSumCurrencyConverter x:Key="InvoiceSumCurrencyConverter"/>
+        <converters:WeightUnitConverter x:Key="WeightUnitConverter"/>
+        <converters:DebtCurrencyConverter x:Key="DebtCurrencyConverter"/>
+
+        <!-- Enterprise-Grade UI Styles -->
 
         <!-- Modern Card Style -->
         <Style x:Key="ModernCardStyle" TargetType="Border">
@@ -42,6 +72,32 @@
                 </Setter.Value>
             </Setter>
             <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <!-- Payment Highlight Card Style -->
+        <Style x:Key="PaymentHighlightCardStyle" TargetType="Border" BasedOn="{StaticResource ModernCardStyle}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#10B981" Offset="0"/>
+                        <GradientStop Color="#059669" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <!-- Financial Card Style -->
+        <Style x:Key="FinancialCardStyle" TargetType="Border" BasedOn="{StaticResource ModernCardStyle}">
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#F0FDF4" Offset="0"/>
+                        <GradientStop Color="#DCFCE7" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#BBF7D0"/>
         </Style>
 
         <!-- Section Header Style -->
@@ -81,6 +137,9 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Opacity" Value="0.8"/>
                             </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -90,6 +149,18 @@
         <Style x:Key="PrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
             <Setter Property="Background" Value="#3B82F6"/>
             <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="PaymentButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#10B981"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+
+        <Style x:Key="QuickPaymentButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
+            <Setter Property="Background" Value="#059669"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="36"/>
         </Style>
 
         <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
@@ -168,6 +239,18 @@
                     <Setter Property="Background" Value="#3B82F6"/>
                     <Setter Property="Foreground" Value="White"/>
                 </DataTrigger>
+                <DataTrigger Binding="{Binding IsPaymentHistoryVisible}" Value="True">
+                    <Setter Property="Background" Value="#10B981"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsTransactionHistoryVisible}" Value="True">
+                    <Setter Property="Background" Value="#F59E0B"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsDebtAnalysisVisible}" Value="True">
+                    <Setter Property="Background" Value="#8B5CF6"/>
+                    <Setter Property="Foreground" Value="White"/>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -185,6 +268,15 @@
             <Setter Property="Margin" Value="8"/>
             <Setter Property="MinWidth" Value="160"/>
         </Style>
+
+        <!-- Collection Statistics Card Style -->
+        <Style x:Key="CollectionStatsCardStyle" TargetType="Border" BasedOn="{StaticResource ModernCardStyle}">
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Background" Value="#F0FDF4"/>
+            <Setter Property="BorderBrush" Value="#BBF7D0"/>
+        </Style>
     </UserControl.Resources>
 
     <!-- Main Scrollable Container -->
@@ -196,7 +288,9 @@
                 <RowDefinition Height="Auto"/>
                 <!-- Header -->
                 <RowDefinition Height="Auto"/>
-                <!-- Statistics -->
+                <!-- Collection Statistics -->
+                <RowDefinition Height="Auto"/>
+                <!-- Customer Statistics -->
                 <RowDefinition Height="Auto"/>
                 <!-- Search & Filters -->
                 <RowDefinition Height="*"/>
@@ -215,11 +309,11 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="إدارة حسابات الزبائن"
+                        <TextBlock Text="إدارة حسابات الزبائن وتسديد الديون"
                                    FontSize="24" 
                                    FontWeight="Bold" 
                                    Foreground="White"/>
-                        <TextBlock Text="إدارة شاملة لمعلومات الزبائن والحسابات المالية"
+                        <TextBlock Text="إدارة شاملة لمعلومات الزبائن والحسابات المالية مع نظام تسديد متقدم"
                                    FontSize="14" 
                                    Foreground="#CBD5E1" 
                                    Margin="0,4,0,0"/>
@@ -236,8 +330,99 @@
                 </Grid>
             </Border>
 
-            <!-- Statistics Cards -->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
+            <!-- ENHANCED: Collection Statistics Cards -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                <!-- Today's Collections -->
+                <Border Style="{StaticResource CollectionStatsCardStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="💰" Style="{StaticResource IconStyle}" 
+                                   Foreground="#059669" FontSize="28" Margin="0,0,0,6"/>
+                        <TextBlock Text="تحصيل اليوم" FontSize="11" Foreground="#065F46" 
+                                   HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                        <!-- FIXED: Single converter usage -->
+                        <TextBlock Text="{Binding TotalCollectionsToday, Converter={StaticResource CurrencyConverter}, ConverterParameter=USD}" 
+                                   FontSize="16" FontWeight="Bold" 
+                                   Foreground="#047857" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Payments Count Today -->
+                <Border Style="{StaticResource CollectionStatsCardStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="📊" Style="{StaticResource IconStyle}" 
+                                   Foreground="#059669" FontSize="28" Margin="0,0,0,6"/>
+                        <TextBlock Text="دفعات اليوم" FontSize="11" Foreground="#065F46" 
+                                   HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding PaymentsProcessedToday}" FontSize="16" FontWeight="Bold" 
+                                   Foreground="#047857" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Average Payment -->
+                <Border Style="{StaticResource CollectionStatsCardStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="📈" Style="{StaticResource IconStyle}" 
+                                   Foreground="#059669" FontSize="28" Margin="0,0,0,6"/>
+                        <TextBlock Text="متوسط الدفعة" FontSize="11" Foreground="#065F46" 
+                                   HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                        <!-- FIXED: Single converter usage -->
+                        <TextBlock Text="{Binding AveragePaymentAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=USD}" 
+                                   FontSize="16" FontWeight="Bold" 
+                                   Foreground="#047857" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Collection Efficiency -->
+                <Border Style="{StaticResource CollectionStatsCardStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="⚡" Style="{StaticResource IconStyle}" 
+                                   Foreground="#059669" FontSize="28" Margin="0,0,0,6"/>
+                        <TextBlock Text="كفاءة التحصيل" FontSize="11" Foreground="#065F46" 
+                                   HorizontalAlignment="Center" Margin="0,0,0,2"/>
+                        <TextBlock Text="{Binding CollectionEfficiencyRate, Converter={StaticResource PercentageConverter}}" 
+                                   FontSize="16" FontWeight="Bold" 
+                                   Foreground="#047857" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Quick Actions -->
+                <Border Style="{StaticResource ModernCardStyle}" Padding="16,12" Margin="16,4,4,4">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource PaymentButtonStyle}" 
+                                Width="100" Height="36"
+                                Command="{Binding RefreshCollectionStatisticsCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🔄" Style="{StaticResource IconStyle}" 
+                                           Margin="0,0,4,0" FontSize="12"/>
+                                <TextBlock Text="تحديث" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource WarningButtonStyle}" 
+                                Width="120" Height="36"
+                                Command="{Binding SettleAllDebtsCommand}"
+                                Visibility="{Binding CustomersWithDebtCount, Converter={StaticResource CountToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💸" Style="{StaticResource IconStyle}" 
+                                           Margin="0,0,4,0" FontSize="12"/>
+                                <TextBlock Text="تسوية شاملة" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource SecondaryButtonStyle}" 
+                                Width="120" Height="36"
+                                Command="{Binding ProcessBulkPaymentsCommand}"
+                                Visibility="{Binding CustomersWithDebtCount, Converter={StaticResource CountToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💳" Style="{StaticResource IconStyle}" 
+                                           Margin="0,0,4,0" FontSize="12"/>
+                                <TextBlock Text="دفعات جماعية" FontSize="12"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- Customer Statistics Cards -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,24">
                 <!-- Total Customers -->
                 <Border Style="{StaticResource StatisticsCardStyle}" Background="#EFF6FF">
                     <StackPanel HorizontalAlignment="Center">
@@ -245,7 +430,8 @@
                                    Foreground="#3B82F6" FontSize="32" Margin="0,0,0,8"/>
                         <TextBlock Text="إجمالي الزبائن" FontSize="12" Foreground="#6B7280" 
                                    HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding TotalCustomersCount}" FontSize="24" FontWeight="Bold" 
+                        <TextBlock Text="{Binding TotalCustomersCount, Converter={StaticResource NumberFormatConverter}}" 
+                                   FontSize="24" FontWeight="Bold" 
                                    Foreground="#1E40AF" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -257,7 +443,8 @@
                                    Foreground="#10B981" FontSize="32" Margin="0,0,0,8"/>
                         <TextBlock Text="الزبائن النشطين" FontSize="12" Foreground="#6B7280" 
                                    HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding ActiveCustomersCount}" FontSize="24" FontWeight="Bold" 
+                        <TextBlock Text="{Binding ActiveCustomersCount, Converter={StaticResource NumberFormatConverter}}" 
+                                   FontSize="24" FontWeight="Bold" 
                                    Foreground="#059669" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -269,7 +456,9 @@
                                    Foreground="#EF4444" FontSize="32" Margin="0,0,0,8"/>
                         <TextBlock Text="إجمالي الديون" FontSize="12" Foreground="#6B7280" 
                                    HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="{Binding TotalDebtAmount, StringFormat='{}{0:N0} USD'}" FontSize="20" FontWeight="Bold" 
+                        <!-- FIXED: Single converter usage -->
+                        <TextBlock Text="{Binding TotalDebtAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=USD}" 
+                                   FontSize="20" FontWeight="Bold" 
                                    Foreground="#DC2626" HorizontalAlignment="Center"/>
                     </StackPanel>
                 </Border>
@@ -288,7 +477,7 @@
             </StackPanel>
 
             <!-- Search and Filters Section -->
-            <Border Grid.Row="2" 
+            <Border Grid.Row="3" 
                     Style="{StaticResource ModernCardStyle}" 
                     Padding="24,20" 
                     Margin="0,0,0,24">
@@ -375,7 +564,7 @@
             </Border>
 
             <!-- Main Content Area -->
-            <Grid Grid.Row="3">
+            <Grid Grid.Row="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="24"/>
@@ -449,6 +638,26 @@
                                   Margin="12">
 
                             <DataGrid.Columns>
+                                <!-- Status Indicator -->
+                                <DataGridTemplateColumn Header="●" Width="40">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Border Width="16" Height="16" CornerRadius="8">
+                                                <Border.Background>
+                                                    <SolidColorBrush>
+                                                        <SolidColorBrush.Color>
+                                                            <MultiBinding Converter="{x:Static converters:StatusIndicatorConverter.Instance}">
+                                                                <Binding Path="IsActive"/>
+                                                                <Binding Path="TotalDebt"/>
+                                                            </MultiBinding>
+                                                        </SolidColorBrush.Color>
+                                                    </SolidColorBrush>
+                                                </Border.Background>
+                                            </Border>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+
                                 <!-- Customer Name -->
                                 <DataGridTextColumn Header="اسم الزبون" 
                                                     Width="*"
@@ -462,7 +671,7 @@
                                 <!-- Total Debt -->
                                 <DataGridTextColumn Header="الرصيد (USD)" 
                                                     Width="100"
-                                                    Binding="{Binding TotalDebt, StringFormat=N2}">
+                                                    Binding="{Binding TotalDebt, Converter={StaticResource DebtCurrencyConverter}, ConverterParameter=USD}">
                                     <DataGridTextColumn.ElementStyle>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" 
@@ -473,55 +682,80 @@
                                     </DataGridTextColumn.ElementStyle>
                                 </DataGridTextColumn>
 
-                                <!-- Status -->
-                                <DataGridTextColumn Header="الحالة" 
-                                                    Width="80"
-                                                    Binding="{Binding IsActive, Converter={x:Static converters:TruckAvailabilityConverter.Instance}}"/>
+                                <!-- ENHANCED: Quick Payment Actions -->
+                                <DataGridTemplateColumn Header="تسديد سريع" Width="120">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                                                        Visibility="{Binding TotalDebt, Converter={StaticResource CountToVisibilityConverter}}">
+                                                <Button Content="25%" 
+                                                        Style="{StaticResource QuickPaymentButtonStyle}"
+                                                        Width="28" Margin="1"
+                                                        Command="{Binding DataContext.QuickPaymentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="0.25"
+                                                        ToolTip="دفع 25% من الدين"/>
+                                                <Button Content="50%" 
+                                                        Style="{StaticResource QuickPaymentButtonStyle}"
+                                                        Width="28" Margin="1"
+                                                        Command="{Binding DataContext.QuickPaymentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="0.50"
+                                                        ToolTip="دفع 50% من الدين"/>
+                                                <Button Content="كامل" 
+                                                        Style="{StaticResource QuickPaymentButtonStyle}"
+                                                        Width="32" Margin="1"
+                                                        Command="{Binding DataContext.QuickPaymentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="1.0"
+                                                        ToolTip="دفع كامل الدين"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
                             </DataGrid.Columns>
                         </DataGrid>
 
-                        <!-- Pagination Controls -->
+                        <!-- ENHANCED: Payment Actions Bar -->
                         <Border Grid.Row="2" 
-                                Background="#F8FAFC" 
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="0,1,0,0"
+                                Style="{StaticResource PaymentHighlightCardStyle}"
                                 Padding="16,12"
-                                Visibility="{Binding IsPaginationVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                Margin="12,0,12,0"
+                                Visibility="{Binding HasSelectedCustomerWithDebt, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Page Info -->
-                                <TextBlock Grid.Column="0" 
-                                           Text="{Binding CurrentPage, StringFormat='صفحة {0}'}" 
-                                           FontSize="12" Foreground="#6B7280" 
-                                           VerticalAlignment="Center"/>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedCustomer.CustomerName, StringFormat='الزبون: {0}'}"
+                                               FontSize="14" FontWeight="SemiBold" 
+                                               Foreground="White"/>
+                                    <!-- FIXED: Single converter usage -->
+                                    <TextBlock Text="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource DebtCurrencyConverter}, ConverterParameter=USD, StringFormat='الدين: {0}'}"
+                                               FontSize="12" 
+                                               Foreground="#D1FAE5"/>
+                                </StackPanel>
 
-                                <!-- Navigation Buttons -->
-                                <StackPanel Grid.Column="2" Orientation="Horizontal">
-                                    <Button Content="الأولى" 
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Width="60" Height="32"
-                                            Command="{Binding GoToFirstPageCommand}"
-                                            IsEnabled="{Binding CanGoToPreviousPage}"/>
-                                    <Button Content="السابقة" 
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Width="60" Height="32"
-                                            Command="{Binding GoToPreviousPageCommand}"
-                                            IsEnabled="{Binding CanGoToPreviousPage}"/>
-                                    <Button Content="التالية" 
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Width="60" Height="32"
-                                            Command="{Binding GoToNextPageCommand}"
-                                            IsEnabled="{Binding CanGoToNextPage}"/>
-                                    <Button Content="الأخيرة" 
-                                            Style="{StaticResource SecondaryButtonStyle}"
-                                            Width="60" Height="32"
-                                            Command="{Binding GoToLastPageCommand}"
-                                            IsEnabled="{Binding CanGoToNextPage}"/>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                    <Button Style="{StaticResource PaymentButtonStyle}" 
+                                            Width="100" Height="36"
+                                            Background="White" Foreground="#059669"
+                                            Command="{Binding ProcessPaymentCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="💰" Style="{StaticResource IconStyle}" 
+                                                       Margin="0,0,6,0" FontSize="14"/>
+                                            <TextBlock Text="تسديد دين"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource PaymentButtonStyle}" 
+                                            Width="80" Height="36"
+                                            Background="#F59E0B" Foreground="White"
+                                            Command="{Binding ViewPaymentHistoryCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="📊" Style="{StaticResource IconStyle}" 
+                                                       Margin="0,0,4,0" FontSize="12"/>
+                                            <TextBlock Text="الدفعات" FontSize="12"/>
+                                        </StackPanel>
+                                    </Button>
                                 </StackPanel>
                             </Grid>
                         </Border>
@@ -584,7 +818,7 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Tab Navigation -->
+                        <!-- ENHANCED: Tab Navigation with Payment History -->
                         <Border Grid.Row="1" 
                                 Background="White" 
                                 BorderBrush="#E5E7EB"
@@ -599,9 +833,9 @@
                                         Style="{StaticResource TabButtonStyle}"
                                         Width="100"
                                         Command="{Binding ShowTransactionHistoryCommand}"/>
-                                <Button Content="الدفعات" 
+                                <Button Content="تاريخ الدفعات" 
                                         Style="{StaticResource TabButtonStyle}"
-                                        Width="100"
+                                        Width="120"
                                         Command="{Binding ShowPaymentHistoryCommand}"/>
                                 <Button Content="تحليل الديون" 
                                         Style="{StaticResource TabButtonStyle}"
@@ -650,28 +884,39 @@
 
                                             <TextBlock Grid.Row="3" Grid.Column="0" Text="الرصيد الحالي:" 
                                                        FontWeight="Medium" Margin="0,8,16,8"/>
+                                            <!-- FIXED: Single converter usage -->
                                             <TextBlock Grid.Row="3" Grid.Column="1" 
-                                                       Text="{Binding SelectedCustomer.TotalDebt, StringFormat='{}{0:N2} USD'}" 
+                                                       Text="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource DebtCurrencyConverter}, ConverterParameter=USD}" 
                                                        Foreground="{Binding SelectedCustomer.TotalDebt, Converter={StaticResource DebtColorConverter}}"
                                                        FontWeight="Bold" Margin="0,8"/>
 
                                             <TextBlock Grid.Row="4" Grid.Column="0" Text="الحالة:" 
                                                        FontWeight="Medium" Margin="0,8,16,8"/>
                                             <TextBlock Grid.Row="4" Grid.Column="1" 
-                                                       Text="{Binding SelectedCustomer.IsActive, Converter={x:Static converters:TruckAvailabilityConverter.Instance}}" 
+                                                       Text="{Binding SelectedCustomer.IsActive, Converter={StaticResource TruckAvailabilityConverter}}" 
                                                        Margin="0,8"/>
 
                                             <TextBlock Grid.Row="5" Grid.Column="0" Text="تاريخ الإنشاء:" 
                                                        FontWeight="Medium" Margin="0,8,16,8"/>
                                             <TextBlock Grid.Row="5" Grid.Column="1" 
-                                                       Text="{Binding SelectedCustomer.CreatedDate, StringFormat='{}{0:yyyy/MM/dd}'}" 
+                                                       Text="{Binding SelectedCustomer.CreatedDate, Converter={StaticResource RelativeDateConverter}}" 
                                                        Margin="0,8"/>
                                         </Grid>
                                     </Border>
 
-                                    <!-- Actions -->
+                                    <!-- ENHANCED: Payment Actions for Selected Customer -->
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
                                                 Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <Button Style="{StaticResource PaymentButtonStyle}" 
+                                                Width="140"
+                                                Command="{Binding ProcessPaymentCommand}"
+                                                IsEnabled="{Binding CanProcessPayment}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="💰" Style="{StaticResource IconStyle}" 
+                                                           Margin="0,0,6,0" FontSize="14"/>
+                                                <TextBlock Text="تسديد دين"/>
+                                            </StackPanel>
+                                        </Button>
                                         <Button Style="{StaticResource WarningButtonStyle}" 
                                                 Width="140"
                                                 Command="{Binding RecalculateCustomerBalanceCommand}">
@@ -726,6 +971,33 @@
                                         </Grid>
                                     </Border>
 
+                                    <!-- Invoice Summary Card -->
+                                    <Border Style="{StaticResource FinancialCardStyle}" 
+                                            Padding="20" Margin="0,0,0,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                                <TextBlock Text="إجمالي الفواتير" FontSize="12" Foreground="#065F46" 
+                                                           HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding CustomerInvoices.Count}" FontSize="24" FontWeight="Bold" 
+                                                           Foreground="#047857" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                                <TextBlock Text="مجموع المبالغ" FontSize="12" Foreground="#065F46" 
+                                                           HorizontalAlignment="Center"/>
+                                                <!-- FIXED: Single composite converter usage -->
+                                                <TextBlock Text="{Binding CustomerInvoices, Converter={StaticResource InvoiceSumCurrencyConverter}, ConverterParameter=USD}" 
+                                                           FontSize="20" FontWeight="Bold" 
+                                                           Foreground="#047857" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
                                     <!-- Invoices DataGrid -->
                                     <DataGrid ItemsSource="{Binding CustomerInvoices}"
                                               SelectedItem="{Binding SelectedInvoice}"
@@ -744,16 +1016,58 @@
                                                                 Binding="{Binding InvoiceDate, StringFormat=yyyy/MM/dd}"/>
                                             <DataGridTextColumn Header="الوزن الصافي" 
                                                                 Width="100"
-                                                                Binding="{Binding NetWeight, StringFormat=N2}"/>
+                                                                Binding="{Binding NetWeight, Converter={StaticResource WeightUnitConverter}}"/>
                                             <DataGridTextColumn Header="المبلغ النهائي" 
                                                                 Width="120"
-                                                                Binding="{Binding FinalAmount, StringFormat=N2}"/>
+                                                                Binding="{Binding FinalAmount, Converter={StaticResource CurrencyConverter}, ConverterParameter=USD}"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </StackPanel>
 
-                                <!-- Payment History View -->
+                                <!-- ENHANCED: Payment History View with PaymentSumCurrencyConverter -->
                                 <StackPanel Visibility="{Binding IsPaymentHistoryVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <!-- Payment Summary Card - FIXED: Using PaymentSumCurrencyConverter -->
+                                    <Border Style="{StaticResource FinancialCardStyle}" 
+                                            Padding="20" Margin="0,0,0,16">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                                <TextBlock Text="إجمالي الدفعات" FontSize="12" Foreground="#065F46" 
+                                                           HorizontalAlignment="Center"/>
+                                                <TextBlock Text="{Binding CustomerPayments, Converter={StaticResource PaymentCountConverter}}" 
+                                                           FontSize="18" FontWeight="Bold" 
+                                                           Foreground="#047857" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                                <TextBlock Text="مجموع المبالغ" FontSize="12" Foreground="#065F46" 
+                                                           HorizontalAlignment="Center"/>
+                                                <!-- FIXED: Single composite converter usage -->
+                                                <TextBlock Text="{Binding CustomerPayments, Converter={StaticResource PaymentSumCurrencyConverter}, ConverterParameter=USD}" 
+                                                           FontSize="20" FontWeight="Bold" 
+                                                           Foreground="#047857" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                                <Button Style="{StaticResource PaymentButtonStyle}" 
+                                                        Width="120" Height="36"
+                                                        Command="{Binding ProcessPaymentCommand}"
+                                                        IsEnabled="{Binding CanProcessPayment}">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="➕" Style="{StaticResource IconStyle}" 
+                                                                   Margin="0,0,6,0" FontSize="14"/>
+                                                        <TextBlock Text="دفعة جديدة"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
                                     <!-- Payments DataGrid -->
                                     <DataGrid ItemsSource="{Binding CustomerPayments}"
                                               SelectedItem="{Binding SelectedPayment}"
@@ -767,12 +1081,29 @@
                                             <DataGridTextColumn Header="التاريخ" 
                                                                 Width="100"
                                                                 Binding="{Binding PaymentDate, StringFormat=yyyy/MM/dd}"/>
-                                            <DataGridTextColumn Header="المبلغ" 
+                                            <DataGridTextColumn Header="المبلغ (USD)" 
                                                                 Width="120"
-                                                                Binding="{Binding Amount, StringFormat=N2}"/>
-                                            <DataGridTextColumn Header="طريقة الدفع" 
-                                                                Width="100"
-                                                                Binding="{Binding PaymentMethod}"/>
+                                                                Binding="{Binding Amount, Converter={StaticResource CurrencyConverter}, ConverterParameter=USD}">
+                                                <DataGridTextColumn.ElementStyle>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="#059669"/>
+                                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                                    </Style>
+                                                </DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTemplateColumn Header="طريقة الدفع" Width="100">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Border Background="{Binding PaymentMethod, Converter={StaticResource PaymentMethodToBrushConverter}}" 
+                                                                CornerRadius="4" Padding="8,4">
+                                                            <TextBlock Text="{Binding PaymentMethod}" 
+                                                                       Foreground="White" FontSize="12" 
+                                                                       HorizontalAlignment="Center"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
                                             <DataGridTextColumn Header="ملاحظات" 
                                                                 Width="*"
                                                                 Binding="{Binding Notes}"/>
@@ -782,9 +1113,18 @@
 
                                 <!-- Debt Analysis View -->
                                 <StackPanel Visibility="{Binding IsDebtAnalysisVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                    <TextBlock Text="تحليل الديون - قيد التطوير" 
-                                               FontSize="16" Foreground="#6B7280" 
-                                               HorizontalAlignment="Center" Margin="40"/>
+                                    <Border Style="{StaticResource ModernCardStyle}" Padding="40">
+                                        <StackPanel HorizontalAlignment="Center">
+                                            <TextBlock Text="📊" Style="{StaticResource IconStyle}" 
+                                                       FontSize="48" Foreground="#8B5CF6" Margin="0,0,0,16"/>
+                                            <TextBlock Text="تحليل الديون والتقارير المالية" 
+                                                       FontSize="18" FontWeight="SemiBold" 
+                                                       Foreground="#374151" TextAlignment="Center" Margin="0,0,0,8"/>
+                                            <TextBlock Text="هذا القسم قيد التطوير وسيتضمن تحليلات متقدمة للديون والأداء المالي" 
+                                                       FontSize="14" Foreground="#6B7280" 
+                                                       TextAlignment="Center" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
                                 </StackPanel>
                             </Grid>
                         </ScrollViewer>
@@ -793,7 +1133,7 @@
             </Grid>
 
             <!-- Loading Overlay -->
-            <Border Grid.RowSpan="4" 
+            <Border Grid.RowSpan="5" 
                     Background="#80000000"
                     Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
                     CornerRadius="12">
@@ -823,7 +1163,7 @@
                                     </BeginStoryboard>
                                 </EventTrigger>
                             </Border.Triggers>
-                            <Ellipse Fill="#3B82F6" Opacity="0.2"/>
+                            <Ellipse Fill="#10B981" Opacity="0.2"/>
                         </Border>
                         <TextBlock Text="{Binding StatusMessage}" 
                                    FontSize="16" FontWeight="SemiBold" 

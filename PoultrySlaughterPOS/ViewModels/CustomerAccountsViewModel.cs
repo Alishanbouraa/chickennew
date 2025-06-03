@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// PoultrySlaughterPOS/ViewModels/CustomerAccountsViewModel.cs
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,6 +21,8 @@ namespace PoultrySlaughterPOS.ViewModels
     /// <summary>
     /// Enterprise-grade Customer Accounts ViewModel implementing comprehensive customer management,
     /// financial tracking, debt analysis, and business intelligence for poultry slaughter operations.
+    /// ENHANCED: Complete debt settlement integration with advanced payment processing capabilities,
+    /// real-time collection statistics, and bulk settlement operations.
     /// Optimized for high-performance operations with advanced search, filtering, and reporting capabilities.
     /// </summary>
     public partial class CustomerAccountsViewModel : ObservableObject
@@ -73,10 +76,18 @@ namespace PoultrySlaughterPOS.ViewModels
         private int _totalRecords = 0;
 
         // View states
-        private bool _isCustomerDetailsVisible = false;
+        private bool _isCustomerDetailsVisible = true;
         private bool _isTransactionHistoryVisible = false;
         private bool _isPaymentHistoryVisible = false;
         private bool _isDebtAnalysisVisible = false;
+
+        // ENHANCED: Debt settlement specific properties
+        private decimal _totalCollectionsToday = 0;
+        private int _paymentsProcessedToday = 0;
+        private decimal _averagePaymentAmount = 0;
+        private bool _isQuickPaymentMode = false;
+        private decimal _totalCollectionsThisMonth = 0;
+        private decimal _collectionEfficiencyRate = 0;
 
         #endregion
 
@@ -97,7 +108,7 @@ namespace PoultrySlaughterPOS.ViewModels
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             InitializeCollectionViews();
-            _logger.LogInformation("CustomerAccountsViewModel initialized with enterprise-grade customer management");
+            _logger.LogInformation("CustomerAccountsViewModel initialized with enhanced debt settlement capabilities");
         }
 
         #endregion
@@ -142,6 +153,9 @@ namespace PoultrySlaughterPOS.ViewModels
                 if (SetProperty(ref _selectedCustomer, value))
                 {
                     OnCustomerSelectionChanged();
+                    OnPropertyChanged(nameof(CanProcessPayment));
+                    OnPropertyChanged(nameof(HasSelectedCustomerWithDebt));
+                    OnPropertyChanged(nameof(SelectedCustomerDebtAmount));
                 }
             }
         }
@@ -417,9 +431,336 @@ namespace PoultrySlaughterPOS.ViewModels
         /// </summary>
         public bool CanGoToNextPage => CurrentPage < TotalPages;
 
+        // ENHANCED: Debt Settlement Properties
+
+        /// <summary>
+        /// Total collections processed today
+        /// </summary>
+        public decimal TotalCollectionsToday
+        {
+            get => _totalCollectionsToday;
+            set => SetProperty(ref _totalCollectionsToday, value);
+        }
+
+        /// <summary>
+        /// Number of payments processed today
+        /// </summary>
+        public int PaymentsProcessedToday
+        {
+            get => _paymentsProcessedToday;
+            set => SetProperty(ref _paymentsProcessedToday, value);
+        }
+
+        /// <summary>
+        /// Average payment amount across all customers
+        /// </summary>
+        public decimal AveragePaymentAmount
+        {
+            get => _averagePaymentAmount;
+            set => SetProperty(ref _averagePaymentAmount, value);
+        }
+
+        /// <summary>
+        /// Quick payment mode for rapid debt settlement processing
+        /// </summary>
+        public bool IsQuickPaymentMode
+        {
+            get => _isQuickPaymentMode;
+            set => SetProperty(ref _isQuickPaymentMode, value);
+        }
+
+        /// <summary>
+        /// Total collections for current month
+        /// </summary>
+        public decimal TotalCollectionsThisMonth
+        {
+            get => _totalCollectionsThisMonth;
+            set => SetProperty(ref _totalCollectionsThisMonth, value);
+        }
+
+        /// <summary>
+        /// Collection efficiency rate (collections vs total debt)
+        /// </summary>
+        public decimal CollectionEfficiencyRate
+        {
+            get => _collectionEfficiencyRate;
+            set => SetProperty(ref _collectionEfficiencyRate, value);
+        }
+
+        /// <summary>
+        /// Indicates whether a payment can be processed for selected customer
+        /// </summary>
+        public bool CanProcessPayment => SelectedCustomer != null && SelectedCustomer.TotalDebt > 0;
+
+        /// <summary>
+        /// Indicates whether selected customer has outstanding debt
+        /// </summary>
+        public bool HasSelectedCustomerWithDebt => SelectedCustomer?.TotalDebt > 0;
+
+        /// <summary>
+        /// Selected customer's debt amount for display
+        /// </summary>
+        public decimal SelectedCustomerDebtAmount => SelectedCustomer?.TotalDebt ?? 0;
+
         #endregion
 
         #region Commands
+
+        // ENHANCED: Debt Settlement Commands
+
+        [RelayCommand]
+        private async Task ProcessPaymentAsync()
+        {
+            if (SelectedCustomer == null) return;
+
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                _logger.LogInformation("Opening payment dialog for customer: {CustomerName} (Debt: {Debt})",
+                    SelectedCustomer.CustomerName, SelectedCustomer.TotalDebt);
+
+                var currentWindow = GetCurrentWindow();
+                var processedPayment = await PaymentDialog.ShowPaymentDialogAsync(
+                    _serviceProvider, currentWindow, SelectedCustomer);
+
+                if (processedPayment != null)
+                {
+                    await RefreshAfterPaymentAsync(processedPayment);
+                    UpdateStatus($"تم تسجيل دفعة بمبلغ {processedPayment.Amount:N2} USD للزبون '{SelectedCustomer.CustomerName}'",
+                        "CheckCircle", "#28A745");
+                }
+            }, "معالجة دفعة");
+        }
+
+        [RelayCommand]
+        private async Task QuickPaymentAsync(object? parameter)
+        {
+            if (SelectedCustomer == null) return;
+
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                decimal paymentAmount = 0;
+
+                // Determine payment amount based on parameter
+                if (parameter is string percentageStr && decimal.TryParse(percentageStr, out var percentage))
+                {
+                    paymentAmount = Math.Round(SelectedCustomer.TotalDebt * percentage, 2);
+                }
+                else if (parameter is decimal amount)
+                {
+                    paymentAmount = amount;
+                }
+                else if (parameter is string amountStr && decimal.TryParse(amountStr, out var parsedAmount))
+                {
+                    paymentAmount = parsedAmount;
+                }
+                else
+                {
+                    // Default to full amount
+                    paymentAmount = SelectedCustomer.TotalDebt;
+                }
+
+                if (paymentAmount <= 0 || paymentAmount > SelectedCustomer.TotalDebt * 2)
+                {
+                    UpdateStatus("مبلغ الدفعة غير صحيح", "ExclamationTriangle", "#DC3545");
+                    return;
+                }
+
+                // Confirm quick payment
+                var result = MessageBox.Show(
+                    $"هل تريد تسجيل دفعة سريعة بمبلغ {paymentAmount:N2} USD للزبون '{SelectedCustomer.CustomerName}'؟",
+                    "تأكيد الدفعة السريعة",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    // Create payment directly
+                    var payment = new Payment
+                    {
+                        CustomerId = SelectedCustomer.CustomerId,
+                        Amount = paymentAmount,
+                        PaymentMethod = "CASH",
+                        PaymentDate = DateTime.Now,
+                        Notes = "دفعة سريعة",
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    var processedPayment = await _unitOfWork.Payments.CreatePaymentWithTransactionAsync(payment);
+                    await _unitOfWork.SaveChangesAsync("QUICK_PAYMENT");
+
+                    await RefreshAfterPaymentAsync(processedPayment);
+                    UpdateStatus($"تم تسجيل دفعة سريعة بمبلغ {paymentAmount:N2} USD", "CheckCircle", "#28A745");
+                }
+            }, "دفعة سريعة");
+        }
+
+        [RelayCommand]
+        private async Task ViewPaymentHistoryAsync()
+        {
+            if (SelectedCustomer == null) return;
+
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                IsPaymentHistoryVisible = true;
+                IsCustomerDetailsVisible = false;
+                IsTransactionHistoryVisible = false;
+                IsDebtAnalysisVisible = false;
+
+                await LoadCustomerPaymentsAsync();
+                UpdateStatus($"تم تحميل تاريخ الدفعات للزبون '{SelectedCustomer.CustomerName}'", "History", "#007BFF");
+            }, "عرض تاريخ الدفعات");
+        }
+
+        [RelayCommand]
+        private async Task RefreshCollectionStatisticsAsync()
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                await CalculateCollectionStatisticsAsync();
+                UpdateStatus("تم تحديث إحصائيات التحصيل", "ChartBar", "#007BFF");
+            }, "تحديث إحصائيات التحصيل");
+        }
+
+        [RelayCommand]
+        private async Task SettleAllDebtsAsync()
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                var customersWithDebt = Customers.Where(c => c.TotalDebt > 0).ToList();
+
+                if (!customersWithDebt.Any())
+                {
+                    UpdateStatus("لا يوجد زبائن مديونين", "Info", "#17A2B8");
+                    return;
+                }
+
+                var result = MessageBox.Show(
+                    $"هل تريد تسوية جميع ديون الزبائن ({customersWithDebt.Count} زبون)؟\n\nإجمالي المبلغ: {customersWithDebt.Sum(c => c.TotalDebt):N2} USD\n\nتحذير: هذا الإجراء لا يمكن التراجع عنه!",
+                    "تأكيد تسوية جميع الديون",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    int settledCount = 0;
+                    decimal totalSettled = 0;
+                    var failedCustomers = new List<string>();
+
+                    foreach (var customer in customersWithDebt)
+                    {
+                        try
+                        {
+                            var payment = new Payment
+                            {
+                                CustomerId = customer.CustomerId,
+                                Amount = customer.TotalDebt,
+                                PaymentMethod = "CASH",
+                                PaymentDate = DateTime.Now,
+                                Notes = "تسوية شاملة للديون",
+                                CreatedDate = DateTime.Now,
+                                UpdatedDate = DateTime.Now
+                            };
+
+                            await _unitOfWork.Payments.CreatePaymentWithTransactionAsync(payment);
+                            settledCount++;
+                            totalSettled += payment.Amount;
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to settle debt for customer {CustomerId}", customer.CustomerId);
+                            failedCustomers.Add(customer.CustomerName);
+                        }
+                    }
+
+                    await _unitOfWork.SaveChangesAsync("BULK_DEBT_SETTLEMENT");
+                    await RefreshCustomersAsync();
+                    await CalculateCollectionStatisticsAsync();
+
+                    var statusMessage = $"تم تسوية ديون {settledCount} زبون بإجمالي {totalSettled:N2} USD";
+                    if (failedCustomers.Any())
+                    {
+                        statusMessage += $" (فشل في تسوية {failedCustomers.Count} زبون)";
+                    }
+
+                    UpdateStatus(statusMessage, "CheckCircle", "#28A745");
+
+                    if (failedCustomers.Any())
+                    {
+                        MessageBox.Show(
+                            $"تم تسوية معظم الديون بنجاح.\n\nفشل في تسوية ديون الزبائن التاليين:\n{string.Join("\n", failedCustomers)}",
+                            "تقرير التسوية",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                }
+            }, "تسوية جميع الديون");
+        }
+
+        [RelayCommand]
+        private async Task ProcessBulkPaymentsAsync()
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                var customersWithDebt = Customers.Where(c => c.TotalDebt > 0).Take(10).ToList();
+
+                if (!customersWithDebt.Any())
+                {
+                    UpdateStatus("لا يوجد زبائن مديونين", "Info", "#17A2B8");
+                    return;
+                }
+
+                // Process partial payments for top 10 debtors
+                var result = MessageBox.Show(
+                    $"هل تريد معالجة دفعات جزئية لأعلى {customersWithDebt.Count} زبون مديون؟\n\nسيتم دفع 25% من دين كل زبون.",
+                    "تأكيد الدفعات الجماعية",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    int processedCount = 0;
+                    decimal totalProcessed = 0;
+
+                    foreach (var customer in customersWithDebt)
+                    {
+                        try
+                        {
+                            var paymentAmount = Math.Round(customer.TotalDebt * 0.25m, 2);
+                            if (paymentAmount > 0)
+                            {
+                                var payment = new Payment
+                                {
+                                    CustomerId = customer.CustomerId,
+                                    Amount = paymentAmount,
+                                    PaymentMethod = "CASH",
+                                    PaymentDate = DateTime.Now,
+                                    Notes = "دفعة جماعية - 25% من الدين",
+                                    CreatedDate = DateTime.Now,
+                                    UpdatedDate = DateTime.Now
+                                };
+
+                                await _unitOfWork.Payments.CreatePaymentWithTransactionAsync(payment);
+                                processedCount++;
+                                totalProcessed += paymentAmount;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to process bulk payment for customer {CustomerId}", customer.CustomerId);
+                        }
+                    }
+
+                    await _unitOfWork.SaveChangesAsync("BULK_PAYMENTS");
+                    await RefreshCustomersAsync();
+                    await CalculateCollectionStatisticsAsync();
+
+                    UpdateStatus($"تم معالجة {processedCount} دفعة جماعية بإجمالي {totalProcessed:N2} USD", "CheckCircle", "#28A745");
+                }
+            }, "الدفعات الجماعية");
+        }
+
+        // Standard Customer Management Commands
 
         [RelayCommand]
         private async Task AddNewCustomerAsync()
@@ -500,6 +841,7 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 await RefreshCustomersAsync();
                 await CalculateStatisticsAsync();
+                await CalculateCollectionStatisticsAsync();
                 UpdateStatus("تم تحديث البيانات بنجاح", "Refresh", "#007BFF");
             }, "تحديث البيانات");
         }
@@ -581,10 +923,10 @@ namespace PoultrySlaughterPOS.ViewModels
             }, "إعادة حساب الرصيد");
         }
 
+        // Pagination Commands
         [RelayCommand]
         private async Task GoToPreviousPageAsync()
         {
-            // FIXED: Add async operation to resolve CS1998 warning
             if (CanGoToPreviousPage)
             {
                 CurrentPage--;
@@ -595,7 +937,6 @@ namespace PoultrySlaughterPOS.ViewModels
         [RelayCommand]
         private async Task GoToNextPageAsync()
         {
-            // FIXED: Add async operation to resolve CS1998 warning
             if (CanGoToNextPage)
             {
                 CurrentPage++;
@@ -603,12 +944,9 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-
-
         [RelayCommand]
         private async Task GoToFirstPageAsync()
         {
-            // FIXED: Add async operation to resolve CS1998 warning
             if (CurrentPage != 1)
             {
                 CurrentPage = 1;
@@ -619,13 +957,13 @@ namespace PoultrySlaughterPOS.ViewModels
         [RelayCommand]
         private async Task GoToLastPageAsync()
         {
-            // FIXED: Add async operation to resolve CS1998 warning
             if (CurrentPage != TotalPages)
             {
                 CurrentPage = TotalPages;
                 await Task.Delay(10); // Brief delay for UI responsiveness
             }
         }
+
         #endregion
 
         #region Public Methods
@@ -642,6 +980,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 await LoadCustomersPagedAsync();
                 await CalculateStatisticsAsync();
+                await CalculateCollectionStatisticsAsync();
 
                 // Show customer details by default
                 ShowCustomerDetails();
@@ -786,6 +1125,97 @@ namespace PoultrySlaughterPOS.ViewModels
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating customer statistics");
+            }
+        }
+
+        /// <summary>
+        /// Calculates collection and payment statistics
+        /// </summary>
+        private async Task CalculateCollectionStatisticsAsync()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var startOfDay = today;
+                var endOfDay = today.AddDays(1);
+
+                // Get today's payment summary
+                var (totalAmount, paymentCount) = await _unitOfWork.Payments.GetPaymentsSummaryAsync(startOfDay, endOfDay);
+                TotalCollectionsToday = totalAmount;
+                PaymentsProcessedToday = paymentCount;
+
+                // Calculate this month's collections
+                var startOfMonth = new DateTime(today.Year, today.Month, 1);
+                var (monthlyTotal, monthlyCount) = await _unitOfWork.Payments.GetPaymentsSummaryAsync(startOfMonth, endOfDay);
+                TotalCollectionsThisMonth = monthlyTotal;
+
+                // Calculate average payment amount (last 30 days)
+                var thirtyDaysAgo = DateTime.Today.AddDays(-30);
+                var (monthlyAvgTotal, monthlyAvgCount) = await _unitOfWork.Payments.GetPaymentsSummaryAsync(thirtyDaysAgo, endOfDay);
+                AveragePaymentAmount = monthlyAvgCount > 0 ? monthlyAvgTotal / monthlyAvgCount : 0;
+
+                // Calculate collection efficiency rate
+                if (TotalDebtAmount > 0)
+                {
+                    CollectionEfficiencyRate = Math.Min(1.0m, TotalCollectionsThisMonth / TotalDebtAmount);
+                }
+                else
+                {
+                    CollectionEfficiencyRate = 0;
+                }
+
+                _logger.LogDebug("Collection statistics calculated - Today: {TodayAmount}, Count: {TodayCount}, Avg: {AvgAmount}, Efficiency: {Efficiency:P}",
+                    TotalCollectionsToday, PaymentsProcessedToday, AveragePaymentAmount, CollectionEfficiencyRate);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating collection statistics");
+            }
+        }
+
+        /// <summary>
+        /// Refreshes data after payment processing
+        /// </summary>
+        private async Task RefreshAfterPaymentAsync(Payment processedPayment)
+        {
+            try
+            {
+                // Refresh customer data
+                await RefreshCustomersAsync();
+
+                // Refresh customer transactions if visible
+                if (SelectedCustomer != null)
+                {
+                    if (IsPaymentHistoryVisible)
+                    {
+                        await LoadCustomerPaymentsAsync();
+                    }
+
+                    if (IsTransactionHistoryVisible)
+                    {
+                        await LoadCustomerTransactionsAsync();
+                    }
+                }
+
+                // Update collection statistics
+                await CalculateCollectionStatisticsAsync();
+
+                // Update customer selection to reflect new balance
+                if (SelectedCustomer != null)
+                {
+                    var updatedCustomer = Customers.FirstOrDefault(c => c.CustomerId == SelectedCustomer.CustomerId);
+                    if (updatedCustomer != null)
+                    {
+                        SelectedCustomer = updatedCustomer;
+                    }
+                }
+
+                _logger.LogDebug("Data refreshed after payment processing. PaymentId: {PaymentId}",
+                    processedPayment.PaymentId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error refreshing data after payment processing");
             }
         }
 

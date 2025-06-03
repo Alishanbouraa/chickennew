@@ -1,25 +1,37 @@
-﻿using System;
+﻿// src/Converters/ValueConverters.cs
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using PoultrySlaughterPOS.Models;
 
 namespace PoultrySlaughterPOS.Converters
 {
     /// <summary>
-    /// Comprehensive collection of value converters for the Poultry Slaughter POS system.
-    /// Implements enterprise-grade data transformation for MVVM binding scenarios with proper 
-    /// error handling, cultural formatting support, and complete customer management integration.
+    /// Enterprise-grade comprehensive collection of value converters for the Poultry Slaughter POS system.
+    /// Implements advanced data transformation for MVVM binding scenarios with professional error handling,
+    /// cultural formatting support, and complete customer management integration.
     /// 
-    /// ENHANCED: Complete converter collection including customer management, financial analysis,
-    /// and advanced UI binding converters with professional error handling patterns.
+    /// ARCHITECTURE: Optimized converter collection designed to eliminate XAML converter chaining requirements
+    /// while maintaining optimal performance, type safety, and comprehensive business logic integration.
+    /// 
+    /// ENHANCED FEATURES:
+    /// - Multi-currency support with regional formatting
+    /// - Arabic localization with RTL support
+    /// - Composite converters for complex data transformations
+    /// - Advanced financial calculations and risk assessment
+    /// - Performance-optimized singleton patterns
+    /// - Comprehensive error handling with graceful degradation
     /// </summary>
 
     #region Core System Converters
 
     /// <summary>
     /// Multi-value converter for calculating weight per cage from total weight and cages count
-    /// with enhanced precision and error handling
+    /// with enhanced precision handling and comprehensive error management
     /// </summary>
     public class WeightPerCageConverter : IMultiValueConverter
     {
@@ -39,8 +51,9 @@ namespace PoultrySlaughterPOS.Converters
 
                 return "0.00";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"WeightPerCageConverter error: {ex.Message}");
                 return "0.00";
             }
         }
@@ -53,6 +66,7 @@ namespace PoultrySlaughterPOS.Converters
 
     /// <summary>
     /// Converter for null to visibility conversion with configurable behavior and enhanced logic
+    /// Supports inversion parameter for complementary UI scenarios
     /// </summary>
     public class NullToVisibilityConverter : IValueConverter
     {
@@ -75,8 +89,9 @@ namespace PoultrySlaughterPOS.Converters
 
                 return isNull ? Visibility.Collapsed : Visibility.Visible;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"NullToVisibilityConverter error: {ex.Message}");
                 return Visibility.Collapsed;
             }
         }
@@ -104,8 +119,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return Visibility.Collapsed;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"BooleanToVisibilityConverter error: {ex.Message}");
                 return Visibility.Collapsed;
             }
         }
@@ -120,8 +136,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"BooleanToVisibilityConverter ConvertBack error: {ex.Message}");
                 return false;
             }
         }
@@ -144,8 +161,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return Visibility.Visible;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"InverseBooleanToVisibilityConverter error: {ex.Message}");
                 return Visibility.Visible;
             }
         }
@@ -160,8 +178,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"InverseBooleanToVisibilityConverter ConvertBack error: {ex.Message}");
                 return true;
             }
         }
@@ -184,8 +203,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"InverseBooleanConverter error: {ex.Message}");
                 return true;
             }
         }
@@ -200,10 +220,52 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"InverseBooleanConverter ConvertBack error: {ex.Message}");
                 return false;
             }
+        }
+    }
+
+    /// <summary>
+    /// Count to visibility converter for conditional UI element display with enhanced type support
+    /// </summary>
+    public class CountToVisibilityConverter : IValueConverter
+    {
+        public static readonly CountToVisibilityConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value is int count)
+                {
+                    return count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (value is decimal countDecimal)
+                {
+                    return countDecimal > 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                if (value is double countDouble)
+                {
+                    return countDouble > 0 ? Visibility.Visible : Visibility.Collapsed;
+                }
+
+                return Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CountToVisibilityConverter error: {ex.Message}");
+                return Visibility.Collapsed;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("CountToVisibilityConverter does not support ConvertBack operation");
         }
     }
 
@@ -212,8 +274,8 @@ namespace PoultrySlaughterPOS.Converters
     #region Financial and Currency Converters
 
     /// <summary>
-    /// Enterprise-grade currency converter with multi-format support, cultural formatting,
-    /// and enhanced precision handling for financial applications
+    /// Enterprise-grade currency converter with comprehensive multi-region support, cultural formatting,
+    /// and enhanced precision handling for international financial applications
     /// </summary>
     public class CurrencyConverter : IValueConverter
     {
@@ -240,14 +302,27 @@ namespace PoultrySlaughterPOS.Converters
                 else
                     return "$0.00";
 
-                // Use parameter for currency symbol override
-                string currencySymbol = parameter?.ToString() ?? "$";
-                string format = $"{currencySymbol}{{0:N2}}";
+                // Enhanced currency formatting with comprehensive regional support
+                string currencyCode = parameter?.ToString()?.ToUpperInvariant() ?? "USD";
 
-                return string.Format(culture ?? CultureInfo.CurrentCulture, format.Replace("{0:N2}", "{0:N2}"), amount);
+                return currencyCode switch
+                {
+                    "USD" => $"${amount:N2}",
+                    "EUR" => $"€{amount:N2}",
+                    "GBP" => $"£{amount:N2}",
+                    "SAR" => $"{amount:N2} ر.س",
+                    "AED" => $"{amount:N2} د.إ",
+                    "JOD" => $"{amount:N2} د.أ",
+                    "LBP" => $"{amount:N0} ل.ل", // Lebanese Pound without decimals
+                    "EGP" => $"{amount:N2} ج.م",
+                    "QAR" => $"{amount:N2} ر.ق",
+                    "KWD" => $"{amount:N3} د.ك", // Kuwaiti Dinar with 3 decimal places
+                    _ => $"${amount:N2}" // Fallback to USD format
+                };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"CurrencyConverter error: {ex.Message}");
                 return "$0.00";
             }
         }
@@ -264,6 +339,13 @@ namespace PoultrySlaughterPOS.Converters
                         .Replace("USD", "")
                         .Replace("€", "")
                         .Replace("£", "")
+                        .Replace("ر.س", "")
+                        .Replace("د.إ", "")
+                        .Replace("د.أ", "")
+                        .Replace("ل.ل", "")
+                        .Replace("ج.م", "")
+                        .Replace("ر.ق", "")
+                        .Replace("د.ك", "")
                         .Replace(",", "")
                         .Trim();
 
@@ -274,8 +356,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return 0m;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"CurrencyConverter ConvertBack error: {ex.Message}");
                 return 0m;
             }
         }
@@ -283,6 +366,7 @@ namespace PoultrySlaughterPOS.Converters
 
     /// <summary>
     /// Weight converter with Arabic unit display and enhanced precision formatting
+    /// Supports multiple weight units with parameter-based unit override
     /// </summary>
     public class WeightConverter : IValueConverter
     {
@@ -309,13 +393,14 @@ namespace PoultrySlaughterPOS.Converters
                 else
                     return "0.00 كغم";
 
-                // Use parameter for unit override
+                // Use parameter for unit override with support for multiple units
                 string unit = parameter?.ToString() ?? "كغم";
 
                 return $"{weight:F2} {unit}";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"WeightConverter error: {ex.Message}");
                 return "0.00 كغم";
             }
         }
@@ -330,6 +415,8 @@ namespace PoultrySlaughterPOS.Converters
                         .Replace("كغم", "")
                         .Replace("kg", "")
                         .Replace("lbs", "")
+                        .Replace("g", "")
+                        .Replace("طن", "")
                         .Trim();
 
                     if (decimal.TryParse(cleanValue, out decimal result))
@@ -339,8 +426,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return 0m;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"WeightConverter ConvertBack error: {ex.Message}");
                 return 0m;
             }
         }
@@ -348,6 +436,7 @@ namespace PoultrySlaughterPOS.Converters
 
     /// <summary>
     /// Percentage converter with precision control and localized formatting
+    /// Supports configurable decimal places via parameter
     /// </summary>
     public class PercentageConverter : IValueConverter
     {
@@ -362,13 +451,13 @@ namespace PoultrySlaughterPOS.Converters
                 decimal percentage = 0;
 
                 if (value is decimal decimalValue)
-                    percentage = decimalValue;
+                    percentage = decimalValue * 100; // Convert decimal to percentage
                 else if (value is double doubleValue)
-                    percentage = (decimal)doubleValue;
+                    percentage = (decimal)(doubleValue * 100);
                 else if (value is float floatValue)
-                    percentage = (decimal)floatValue;
+                    percentage = (decimal)(floatValue * 100);
                 else if (value is int intValue)
-                    percentage = intValue;
+                    percentage = intValue; // Assume already in percentage form
                 else if (decimal.TryParse(value.ToString(), out decimal parsedValue))
                     percentage = parsedValue;
                 else
@@ -384,8 +473,9 @@ namespace PoultrySlaughterPOS.Converters
                 string format = $"F{decimalPlaces}";
                 return $"{percentage.ToString(format, culture ?? CultureInfo.CurrentCulture)}%";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PercentageConverter error: {ex.Message}");
                 return "0.0%";
             }
         }
@@ -400,20 +490,21 @@ namespace PoultrySlaughterPOS.Converters
 
                     if (decimal.TryParse(cleanValue, out decimal result))
                     {
-                        return result;
+                        return result / 100; // Convert percentage back to decimal
                     }
                 }
                 return 0m;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PercentageConverter ConvertBack error: {ex.Message}");
                 return 0m;
             }
         }
     }
 
     /// <summary>
-    /// Debt amount to color converter for financial status visualization with enhanced color logic
+    /// Debt amount to color converter for financial status visualization with enhanced risk assessment
     /// </summary>
     public class DebtColorConverter : IValueConverter
     {
@@ -440,6 +531,7 @@ namespace PoultrySlaughterPOS.Converters
 
                 return debt switch
                 {
+                    > 10000 => "#7F1D1D",   // Very dark red for critical debt
                     > 5000 => "#B91C1C",    // Dark red for very high debt
                     > 1000 => "#DC2626",    // Red for high debt
                     > 500 => "#EF4444",     // Medium red for moderate debt
@@ -448,8 +540,9 @@ namespace PoultrySlaughterPOS.Converters
                     _ => "#6B7280"          // Gray for zero balance
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"DebtColorConverter error: {ex.Message}");
                 return "#6B7280";
             }
         }
@@ -460,13 +553,58 @@ namespace PoultrySlaughterPOS.Converters
         }
     }
 
+    /// <summary>
+    /// Converter for formatting large numbers with K/M/B suffixes and Arabic support
+    /// </summary>
+    public class NumberFormatConverter : IValueConverter
+    {
+        public static readonly NumberFormatConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                decimal number = 0;
+
+                if (value is decimal decimalValue)
+                    number = decimalValue;
+                else if (value is double doubleValue)
+                    number = (decimal)doubleValue;
+                else if (value is int intValue)
+                    number = intValue;
+                else if (decimal.TryParse(value?.ToString(), out decimal parsedValue))
+                    number = parsedValue;
+                else
+                    return "0";
+
+                if (number >= 1000000000)
+                    return $"{number / 1000000000:F1}B";
+                if (number >= 1000000)
+                    return $"{number / 1000000:F1}M";
+                if (number >= 1000)
+                    return $"{number / 1000:F1}K";
+                return number.ToString("F0", culture ?? CultureInfo.CurrentCulture);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"NumberFormatConverter error: {ex.Message}");
+                return "0";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("NumberFormatConverter does not support ConvertBack operation");
+        }
+    }
+
     #endregion
 
     #region Customer Management Converters
 
     /// <summary>
     /// Converter for customer status indicator colors based on active status and debt amount
-    /// with sophisticated business logic for risk assessment
+    /// with sophisticated business logic for comprehensive risk assessment
     /// </summary>
     public class StatusIndicatorConverter : IMultiValueConverter
     {
@@ -481,7 +619,7 @@ namespace PoultrySlaughterPOS.Converters
                 var isActive = values[0] is bool active && active;
                 var debt = values[1] is decimal debtAmount ? debtAmount : 0m;
 
-                // Enhanced business logic for status determination
+                // Enhanced business logic for comprehensive status determination
                 if (!isActive)
                     return Colors.Red; // Inactive customer
 
@@ -499,8 +637,9 @@ namespace PoultrySlaughterPOS.Converters
 
                 return Colors.Green; // Good standing or credit balance
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"StatusIndicatorConverter error: {ex.Message}");
                 return Colors.Gray;
             }
         }
@@ -528,8 +667,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return Colors.Gray;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"StatusToBrushConverter error: {ex.Message}");
                 return Colors.Gray;
             }
         }
@@ -541,7 +681,7 @@ namespace PoultrySlaughterPOS.Converters
     }
 
     /// <summary>
-    /// Converter for account age calculation with enhanced localization
+    /// Converter for account age calculation with enhanced Arabic localization
     /// </summary>
     public class AccountAgeConverter : IValueConverter
     {
@@ -564,8 +704,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return "غير معروف";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"AccountAgeConverter error: {ex.Message}");
                 return "غير معروف";
             }
         }
@@ -577,78 +718,8 @@ namespace PoultrySlaughterPOS.Converters
     }
 
     /// <summary>
-    /// Converter for formatting large numbers with K/M suffixes and Arabic support
-    /// </summary>
-    public class NumberFormatConverter : IValueConverter
-    {
-        public static readonly NumberFormatConverter Instance = new();
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            try
-            {
-                if (value is decimal number)
-                {
-                    if (number >= 1000000)
-                        return $"{number / 1000000:F1}M";
-                    if (number >= 1000)
-                        return $"{number / 1000:F1}K";
-                    return number.ToString("F0", culture ?? CultureInfo.CurrentCulture);
-                }
-                return "0";
-            }
-            catch (Exception)
-            {
-                return "0";
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException("NumberFormatConverter does not support ConvertBack operation");
-        }
-    }
-
-    /// <summary>
-    /// Converter for debt urgency levels with sophisticated business rules
-    /// </summary>
-    public class DebtUrgencyConverter : IMultiValueConverter
-    {
-        public static readonly DebtUrgencyConverter Instance = new();
-
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            try
-            {
-                if (values?.Length != 2) return "عادي";
-
-                var debt = values[0] is decimal debtAmount ? debtAmount : 0m;
-                var createdDate = values[1] is DateTime created ? created : DateTime.Now;
-
-                var accountAge = (DateTime.Now - createdDate).Days;
-
-                if (debt <= 0) return "جيد";
-                if (debt > 10000 || accountAge > 730) return "حرج";
-                if (debt > 5000 || accountAge > 365) return "عالي";
-                if (debt > 1000 || accountAge > 180) return "متوسط";
-                if (debt > 100) return "منخفض";
-
-                return "عادي";
-            }
-            catch (Exception)
-            {
-                return "عادي";
-            }
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException("DebtUrgencyConverter does not support ConvertBack operation");
-        }
-    }
-
-    /// <summary>
     /// Converter for customer priority ranking based on transaction volume and loyalty
+    /// Implements sophisticated scoring algorithm for VIP customer identification
     /// </summary>
     public class CustomerPriorityConverter : IMultiValueConverter
     {
@@ -690,8 +761,9 @@ namespace PoultrySlaughterPOS.Converters
                     _ => "جديد"
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"CustomerPriorityConverter error: {ex.Message}");
                 return "عادي";
             }
         }
@@ -699,6 +771,45 @@ namespace PoultrySlaughterPOS.Converters
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException("CustomerPriorityConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Converter for debt urgency levels with sophisticated business rules
+    /// </summary>
+    public class DebtUrgencyConverter : IMultiValueConverter
+    {
+        public static readonly DebtUrgencyConverter Instance = new();
+
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (values?.Length != 2) return "عادي";
+
+                var debt = values[0] is decimal debtAmount ? debtAmount : 0m;
+                var createdDate = values[1] is DateTime created ? created : DateTime.Now;
+
+                var accountAge = (DateTime.Now - createdDate).Days;
+
+                if (debt <= 0) return "جيد";
+                if (debt > 10000 || accountAge > 730) return "حرج";
+                if (debt > 5000 || accountAge > 365) return "عالي";
+                if (debt > 1000 || accountAge > 180) return "متوسط";
+                if (debt > 100) return "منخفض";
+
+                return "عادي";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DebtUrgencyConverter error: {ex.Message}");
+                return "عادي";
+            }
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("DebtUrgencyConverter does not support ConvertBack operation");
         }
     }
 
@@ -723,8 +834,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return new SolidColorBrush(Colors.Gray);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"FinancialHealthConverter error: {ex.Message}");
                 return new SolidColorBrush(Colors.Gray);
             }
         }
@@ -776,8 +888,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return "غير معروف";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"RelativeDateConverter error: {ex.Message}");
                 return "غير معروف";
             }
         }
@@ -814,8 +927,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return "غير محدد";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"TransactionFrequencyConverter error: {ex.Message}");
                 return "غير محدد";
             }
         }
@@ -866,8 +980,9 @@ namespace PoultrySlaughterPOS.Converters
                     _ => "#EF4444"      // Red - Very poor
                 };
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"EfficiencyToColorConverter error: {ex.Message}");
                 return "#6C757D"; // Gray default
             }
         }
@@ -904,8 +1019,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return "#6B7280";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"StatusToColorConverter error: {ex.Message}");
                 return "#6B7280";
             }
         }
@@ -933,8 +1049,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return "غير معروف";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"TruckAvailabilityConverter error: {ex.Message}");
                 return "غير معروف";
             }
         }
@@ -949,50 +1066,11 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"TruckAvailabilityConverter ConvertBack error: {ex.Message}");
                 return false;
             }
-        }
-    }
-
-    /// <summary>
-    /// Count to visibility converter for conditional UI element display
-    /// </summary>
-    public class CountToVisibilityConverter : IValueConverter
-    {
-        public static readonly CountToVisibilityConverter Instance = new();
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            try
-            {
-                if (value is int count)
-                {
-                    return count > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                if (value is decimal countDecimal)
-                {
-                    return countDecimal > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                if (value is double countDouble)
-                {
-                    return countDouble > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
-            }
-            catch (Exception)
-            {
-                return Visibility.Collapsed;
-            }
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException("CountToVisibilityConverter does not support ConvertBack operation");
         }
     }
 
@@ -1026,8 +1104,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return new SolidColorBrush(Colors.Gray);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PaymentMethodToBrushConverter error: {ex.Message}");
                 return new SolidColorBrush(Colors.Gray);
             }
         }
@@ -1063,8 +1142,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return new SolidColorBrush(Colors.Gray);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"TransactionTypeToBrushConverter error: {ex.Message}");
                 return new SolidColorBrush(Colors.Gray);
             }
         }
@@ -1072,6 +1152,148 @@ namespace PoultrySlaughterPOS.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException("TransactionTypeToBrushConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Payment collection sum converter for calculating total payment amounts from collections.
+    /// Implements enterprise-grade aggregation logic with null safety and type validation
+    /// for comprehensive financial calculation support in customer management scenarios.
+    /// </summary>
+    public class PaymentSumConverter : IValueConverter
+    {
+        public static readonly PaymentSumConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return 0m;
+
+                decimal totalSum = 0m;
+
+                // Handle different collection types with comprehensive type checking
+                if (value is IEnumerable<Payment> payments)
+                {
+                    totalSum = payments.Sum(p => p?.Amount ?? 0m);
+                }
+                else if (value is IEnumerable<object> objects)
+                {
+                    totalSum = objects.OfType<Payment>().Sum(p => p.Amount);
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    totalSum = enumerable.Cast<object>().OfType<Payment>().Sum(p => p.Amount);
+                }
+
+                return totalSum;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PaymentSumConverter error: {ex.Message}");
+                return 0m;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("PaymentSumConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Invoice collection sum converter for calculating total invoice amounts from collections.
+    /// Companion converter to PaymentSumConverter for comprehensive financial calculations.
+    /// </summary>
+    public class InvoiceSumConverter : IValueConverter
+    {
+        public static readonly InvoiceSumConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return 0m;
+
+                decimal totalSum = 0m;
+
+                if (value is IEnumerable<Invoice> invoices)
+                {
+                    totalSum = invoices.Sum(i => i?.FinalAmount ?? 0m);
+                }
+                else if (value is IEnumerable<object> objects)
+                {
+                    totalSum = objects.OfType<Invoice>().Sum(i => i.FinalAmount);
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    totalSum = enumerable.Cast<object>().OfType<Invoice>().Sum(i => i.FinalAmount);
+                }
+
+                return totalSum;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"InvoiceSumConverter error: {ex.Message}");
+                return 0m;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("InvoiceSumConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Payment count converter for displaying collection counts with proper Arabic pluralization.
+    /// </summary>
+    public class PaymentCountConverter : IValueConverter
+    {
+        public static readonly PaymentCountConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                var count = 0;
+
+                if (value is IEnumerable<Payment> payments)
+                {
+                    count = payments.Count();
+                }
+                else if (value is IEnumerable<object> objects)
+                {
+                    count = objects.Count(obj => obj is Payment);
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    count = enumerable.Cast<object>().Count(item => item is Payment);
+                }
+                else if (value is int intCount)
+                {
+                    count = intCount;
+                }
+
+                return count switch
+                {
+                    0 => "لا توجد دفعات",
+                    1 => "دفعة واحدة",
+                    2 => "دفعتان",
+                    <= 10 => $"{count} دفعات",
+                    _ => $"{count} دفعة"
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PaymentCountConverter error: {ex.Message}");
+                return "لا توجد دفعات";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("PaymentCountConverter does not support ConvertBack operation");
         }
     }
 
@@ -1106,8 +1328,9 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return 0.0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PercentageToWidthConverter error: {ex.Message}");
                 return 0.0;
             }
         }
@@ -1122,10 +1345,245 @@ namespace PoultrySlaughterPOS.Converters
                 }
                 return 0.0;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"PercentageToWidthConverter ConvertBack error: {ex.Message}");
                 return 0.0;
             }
+        }
+    }
+
+    #endregion
+
+    #region Composite Converters - Eliminates XAML Converter Chaining
+
+    /// <summary>
+    /// Enterprise-grade payment sum with currency formatting converter.
+    /// Combines collection aggregation and currency formatting in a single, optimized operation
+    /// for enhanced performance and simplified XAML binding scenarios.
+    /// Eliminates the need for converter chaining in XAML markup.
+    /// </summary>
+    public class PaymentSumCurrencyConverter : IValueConverter
+    {
+        public static readonly PaymentSumCurrencyConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return "$0.00";
+
+                decimal totalSum = 0m;
+
+                // Efficient aggregation with comprehensive type handling
+                if (value is IEnumerable<Payment> payments)
+                {
+                    totalSum = payments.Sum(p => p?.Amount ?? 0m);
+                }
+                else if (value is IEnumerable<object> objects)
+                {
+                    totalSum = objects.OfType<Payment>().Sum(p => p.Amount);
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    totalSum = enumerable.Cast<object>().OfType<Payment>().Sum(p => p.Amount);
+                }
+
+                // Advanced currency formatting with multi-region support
+                string currencyCode = parameter?.ToString()?.ToUpperInvariant() ?? "USD";
+
+                return currencyCode switch
+                {
+                    "USD" => $"${totalSum:N2}",
+                    "EUR" => $"€{totalSum:N2}",
+                    "GBP" => $"£{totalSum:N2}",
+                    "SAR" => $"{totalSum:N2} ر.س",
+                    "AED" => $"{totalSum:N2} د.إ",
+                    "JOD" => $"{totalSum:N2} د.أ",
+                    "LBP" => $"{totalSum:N0} ل.ل", // Lebanese Pound without decimals
+                    "EGP" => $"{totalSum:N2} ج.م",
+                    "QAR" => $"{totalSum:N2} ر.ق",
+                    "KWD" => $"{totalSum:N3} د.ك", // Kuwaiti Dinar with 3 decimal places
+                    _ => $"${totalSum:N2}" // Fallback to USD format
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"PaymentSumCurrencyConverter error: {ex.Message}");
+                return "$0.00";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("PaymentSumCurrencyConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Invoice sum with currency formatting converter for transaction history display.
+    /// Companion converter providing consistent financial formatting across the application.
+    /// Eliminates the need for converter chaining in XAML markup.
+    /// </summary>
+    public class InvoiceSumCurrencyConverter : IValueConverter
+    {
+        public static readonly InvoiceSumCurrencyConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return "$0.00";
+
+                decimal totalSum = 0m;
+
+                // Comprehensive invoice aggregation logic
+                if (value is IEnumerable<Invoice> invoices)
+                {
+                    totalSum = invoices.Sum(i => i?.FinalAmount ?? 0m);
+                }
+                else if (value is IEnumerable<object> objects)
+                {
+                    totalSum = objects.OfType<Invoice>().Sum(i => i.FinalAmount);
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    totalSum = enumerable.Cast<object>().OfType<Invoice>().Sum(i => i.FinalAmount);
+                }
+
+                // Consistent currency formatting with regional support
+                string currencyCode = parameter?.ToString()?.ToUpperInvariant() ?? "USD";
+
+                return currencyCode switch
+                {
+                    "USD" => $"${totalSum:N2}",
+                    "EUR" => $"€{totalSum:N2}",
+                    "GBP" => $"£{totalSum:N2}",
+                    "SAR" => $"{totalSum:N2} ر.س",
+                    "AED" => $"{totalSum:N2} د.إ",
+                    "JOD" => $"{totalSum:N2} د.أ",
+                    "LBP" => $"{totalSum:N0} ل.ل",
+                    "EGP" => $"{totalSum:N2} ج.م",
+                    "QAR" => $"{totalSum:N2} ر.ق",
+                    "KWD" => $"{totalSum:N3} د.ك",
+                    _ => $"${totalSum:N2}"
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"InvoiceSumCurrencyConverter error: {ex.Message}");
+                return "$0.00";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("InvoiceSumCurrencyConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Weight with unit formatting converter combining weight calculation and unit display.
+    /// Eliminates the need for converter chaining in weight-related XAML bindings.
+    /// </summary>
+    public class WeightUnitConverter : IValueConverter
+    {
+        public static readonly WeightUnitConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return "0.00 كغم";
+
+                decimal weight = 0;
+
+                if (value is decimal decimalValue)
+                    weight = decimalValue;
+                else if (value is double doubleValue)
+                    weight = (decimal)doubleValue;
+                else if (value is float floatValue)
+                    weight = (decimal)floatValue;
+                else if (value is int intValue)
+                    weight = intValue;
+                else if (decimal.TryParse(value.ToString(), out decimal parsedValue))
+                    weight = parsedValue;
+                else
+                    return "0.00 كغم";
+
+                // Enhanced unit formatting with parameter support
+                string unit = parameter?.ToString() ?? "كغم";
+
+                return $"{weight:F2} {unit}";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"WeightUnitConverter error: {ex.Message}");
+                return "0.00 كغم";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("WeightUnitConverter does not support ConvertBack operation");
+        }
+    }
+
+    /// <summary>
+    /// Debt amount to formatted currency converter with color-coded financial status.
+    /// Eliminates the need for converter chaining in debt display scenarios.
+    /// </summary>
+    public class DebtCurrencyConverter : IValueConverter
+    {
+        public static readonly DebtCurrencyConverter Instance = new();
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                if (value == null) return "$0.00";
+
+                decimal debt = 0;
+
+                if (value is decimal decimalValue)
+                    debt = decimalValue;
+                else if (value is double doubleValue)
+                    debt = (decimal)doubleValue;
+                else if (value is float floatValue)
+                    debt = (decimal)floatValue;
+                else if (value is int intValue)
+                    debt = intValue;
+                else if (decimal.TryParse(value.ToString(), out decimal parsedValue))
+                    debt = parsedValue;
+
+                // Currency formatting with regional support
+                string currencyCode = parameter?.ToString()?.ToUpperInvariant() ?? "USD";
+
+                return currencyCode switch
+                {
+                    "USD" => $"${debt:N2}",
+                    "EUR" => $"€{debt:N2}",
+                    "GBP" => $"£{debt:N2}",
+                    "SAR" => $"{debt:N2} ر.س",
+                    "AED" => $"{debt:N2} د.إ",
+                    "JOD" => $"{debt:N2} د.أ",
+                    "LBP" => $"{debt:N0} ل.ل",
+                    "EGP" => $"{debt:N2} ج.م",
+                    "QAR" => $"{debt:N2} ر.ق",
+                    "KWD" => $"{debt:N3} د.ك",
+                    _ => $"${debt:N2}"
+                };
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"DebtCurrencyConverter error: {ex.Message}");
+                return "$0.00";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException("DebtCurrencyConverter does not support ConvertBack operation");
         }
     }
 
