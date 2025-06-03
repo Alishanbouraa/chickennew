@@ -1,4 +1,6 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿// File: PoultrySlaughterPOS/ViewModels/AddCustomerDialogViewModel.cs
+
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
@@ -16,8 +18,8 @@ using System.Windows.Threading;
 namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
-    /// BULLETPROOF: Enterprise-grade Add/Edit Customer Dialog ViewModel with resilient validation,
-    /// comprehensive error handling, and graceful degradation for database connectivity issues.
+    /// BULLETPROOF: Fixed validation system with proper thread synchronization
+    /// and enhanced error state management for reliable customer dialog operations.
     /// </summary>
     public partial class AddCustomerDialogViewModel : ObservableObject
     {
@@ -25,9 +27,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<AddCustomerDialogViewModel> _logger;
-        private bool _isLoading = false;
-        private bool _isSaving = false;
-        private string _statusMessage = string.Empty;
+        private readonly Dispatcher _dispatcher;
 
         // Customer data properties
         private string _customerName = string.Empty;
@@ -40,20 +40,27 @@ namespace PoultrySlaughterPOS.ViewModels
         private Customer? _editingCustomer = null;
         private int? _editingCustomerId = null;
 
-        // ENHANCED: Validation state with better control
-        private bool _hasValidationErrors = false;
+        // State management
+        private bool _isLoading = false;
+        private bool _isSaving = false;
         private bool _isValidating = false;
-        private bool _databaseValidationEnabled = true; // ADDED: Flag to disable database validation if connectivity issues
-        private ObservableCollection<string> _validationErrors = new();
+        private string _statusMessage = string.Empty;
+
+        // FIXED: Enhanced validation state management
+        private bool _hasValidationErrors = false;
+        private bool _databaseValidationEnabled = true;
+        private readonly ObservableCollection<string> _validationErrors = new();
+        private readonly HashSet<string> _currentErrors = new();
+        private readonly object _validationLock = new object();
 
         // Dialog result
         private Customer? _createdCustomer;
         private bool? _dialogResult;
 
-        // ENHANCED: Cancellation and debouncing
+        // FIXED: Improved cancellation and debouncing
         private CancellationTokenSource? _validationCancellationTokenSource;
-        private readonly object _validationLock = new object();
-        private Timer? _validationDebounceTimer;
+        private Timer? _nameValidationTimer;
+        private Timer? _phoneValidationTimer;
 
         #endregion
 
@@ -65,11 +72,12 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
 
             InitializeViewModel();
-            TestDatabaseConnectivity(); // ADDED: Test connectivity on initialization
+            _ = TestDatabaseConnectivityAsync(); // Fire and forget, but logged
 
-            _logger.LogInformation("BULLETPROOF AddCustomerDialogViewModel initialized with resilient validation");
+            _logger.LogInformation("BULLETPROOF AddCustomerDialogViewModel initialized with enhanced validation");
         }
 
         #endregion
@@ -77,7 +85,7 @@ namespace PoultrySlaughterPOS.ViewModels
         #region Observable Properties
 
         /// <summary>
-        /// BULLETPROOF: Customer name with debounced validation and fallback logic
+        /// FIXED: Customer name with improved debounced validation
         /// </summary>
         [Required(ErrorMessage = "اسم الزبون مطلوب")]
         [StringLength(100, MinimumLength = 2, ErrorMessage = "اسم الزبون يجب أن يكون بين 2 و 100 حرف")]
@@ -88,14 +96,14 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 if (SetProperty(ref _customerName, value))
                 {
-                    // FIXED: Debounced validation to prevent excessive database calls
-                    DebouncedValidation(() => ValidateCustomerNameAsync());
+                    ClearFieldValidationErrors("اسم الزبون");
+                    ScheduleNameValidation();
                 }
             }
         }
 
         /// <summary>
-        /// BULLETPROOF: Phone number with debounced validation and fallback logic
+        /// FIXED: Phone number with improved debounced validation
         /// </summary>
         [Phone(ErrorMessage = "رقم الهاتف غير صحيح")]
         [StringLength(20, ErrorMessage = "رقم الهاتف طويل جداً")]
@@ -106,14 +114,14 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 if (SetProperty(ref _phoneNumber, value))
                 {
-                    // FIXED: Debounced validation to prevent excessive database calls
-                    DebouncedValidation(() => ValidatePhoneNumberAsync());
+                    ClearFieldValidationErrors("رقم الهاتف");
+                    SchedulePhoneValidation();
                 }
             }
         }
 
         /// <summary>
-        /// Customer address with immediate validation
+        /// FIXED: Address with immediate validation
         /// </summary>
         [StringLength(200, ErrorMessage = "العنوان طويل جداً")]
         public string Address
@@ -123,37 +131,29 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 if (SetProperty(ref _address, value))
                 {
+                    ClearFieldValidationErrors("العنوان");
                     ValidateAddressImmediate();
                     UpdateCanSaveCustomer();
                 }
             }
         }
 
-        /// <summary>
-        /// Customer active status
-        /// </summary>
         public bool IsActive
         {
             get => _isActive;
             set => SetProperty(ref _isActive, value);
         }
 
-        /// <summary>
-        /// Indicates if dialog is in edit mode
-        /// </summary>
         public bool IsEditMode
         {
             get => _isEditMode;
             private set => SetProperty(ref _isEditMode, value);
         }
 
-        /// <summary>
-        /// ENHANCED: Validation in progress indicator
-        /// </summary>
         public bool IsValidating
         {
             get => _isValidating;
-            set
+            private set
             {
                 if (SetProperty(ref _isValidating, value))
                 {
@@ -162,18 +162,12 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-        /// <summary>
-        /// Loading state indicator
-        /// </summary>
         public bool IsLoading
         {
             get => _isLoading;
             set => SetProperty(ref _isLoading, value);
         }
 
-        /// <summary>
-        /// Saving state indicator
-        /// </summary>
         public bool IsSaving
         {
             get => _isSaving;
@@ -186,22 +180,16 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-        /// <summary>
-        /// Status message for user feedback
-        /// </summary>
         public string StatusMessage
         {
             get => _statusMessage;
             set => SetProperty(ref _statusMessage, value);
         }
 
-        /// <summary>
-        /// Validation errors indicator
-        /// </summary>
         public bool HasValidationErrors
         {
             get => _hasValidationErrors;
-            set
+            private set
             {
                 if (SetProperty(ref _hasValidationErrors, value))
                 {
@@ -210,27 +198,14 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-        /// <summary>
-        /// Collection of validation error messages
-        /// </summary>
-        public ObservableCollection<string> ValidationErrors
-        {
-            get => _validationErrors;
-            set => SetProperty(ref _validationErrors, value);
-        }
+        public ObservableCollection<string> ValidationErrors => _validationErrors;
 
-        /// <summary>
-        /// Created or updated customer result
-        /// </summary>
         public Customer? CreatedCustomer
         {
             get => _createdCustomer;
             private set => SetProperty(ref _createdCustomer, value);
         }
 
-        /// <summary>
-        /// Dialog result
-        /// </summary>
         public bool? DialogResult
         {
             get => _dialogResult;
@@ -238,36 +213,31 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// BULLETPROOF: More robust CanSaveCustomer logic with fallback validation
+        /// FIXED: More robust CanSaveCustomer logic
         /// </summary>
-        public bool CanSaveCustomer =>
-            !string.IsNullOrWhiteSpace(CustomerName) &&
-            CustomerName.Trim().Length >= 2 &&
-            CustomerName.Trim().Length <= 100 &&
-            (string.IsNullOrWhiteSpace(PhoneNumber) || IsValidPhoneNumberFormat(PhoneNumber)) &&
-            (string.IsNullOrWhiteSpace(Address) || Address.Trim().Length <= 200) &&
-            !HasValidationErrors &&
-            !IsSaving &&
-            !IsValidating &&
-            !IsLoading;
+        public bool CanSaveCustomer
+        {
+            get
+            {
+                return !string.IsNullOrWhiteSpace(CustomerName) &&
+                       CustomerName.Trim().Length >= 2 &&
+                       CustomerName.Trim().Length <= 100 &&
+                       (string.IsNullOrWhiteSpace(PhoneNumber) || IsValidPhoneNumberFormat(PhoneNumber)) &&
+                       (string.IsNullOrWhiteSpace(Address) || Address.Trim().Length <= 200) &&
+                       !HasValidationErrors &&
+                       !IsSaving &&
+                       !IsValidating &&
+                       !IsLoading;
+            }
+        }
 
-        /// <summary>
-        /// Dialog title based on mode
-        /// </summary>
         public string DialogTitle => IsEditMode ? "تعديل بيانات الزبون" : "إضافة زبون جديد";
-
-        /// <summary>
-        /// Save button text based on mode
-        /// </summary>
         public string SaveButtonText => IsEditMode ? "تحديث" : "حفظ";
 
         #endregion
 
         #region Commands
 
-        /// <summary>
-        /// BULLETPROOF: Command to save customer with comprehensive validation
-        /// </summary>
         [RelayCommand(CanExecute = nameof(CanSaveCustomer))]
         private async Task SaveCustomerAsync()
         {
@@ -278,7 +248,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 _logger.LogInformation("{Action} customer: {CustomerName}", IsEditMode ? "Updating" : "Creating", CustomerName);
 
-                // BULLETPROOF: Final validation with fallback to basic validation if database unavailable
+                // FIXED: Final validation with proper error handling
                 if (!await ValidateAllFieldsAsync())
                 {
                     StatusMessage = "يرجى تصحيح الأخطاء المذكورة أعلاه";
@@ -308,9 +278,6 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
-        /// <summary>
-        /// Command to cancel the dialog
-        /// </summary>
         [RelayCommand]
         private void CancelDialog()
         {
@@ -320,22 +287,15 @@ namespace PoultrySlaughterPOS.ViewModels
             DialogResult = false;
         }
 
-        /// <summary>
-        /// Command to clear all fields
-        /// </summary>
         [RelayCommand]
         private void ClearFields()
         {
-            // Cancel any ongoing validation
-            _validationCancellationTokenSource?.Cancel();
-            _validationDebounceTimer?.Dispose();
-
+            CancelAllValidation();
             CustomerName = string.Empty;
             PhoneNumber = string.Empty;
             Address = string.Empty;
             IsActive = true;
-            ValidationErrors.Clear();
-            HasValidationErrors = false;
+            ClearAllValidationErrors();
             StatusMessage = string.Empty;
 
             _logger.LogDebug("Customer dialog fields cleared");
@@ -343,62 +303,17 @@ namespace PoultrySlaughterPOS.ViewModels
 
         #endregion
 
-        #region Public Methods
+        #region FIXED: Validation Methods
 
         /// <summary>
-        /// Loads customer data for editing
+        /// FIXED: Robust database connectivity test
         /// </summary>
-        public void LoadCustomerForEdit(Customer customer)
-        {
-            if (customer == null)
-                throw new ArgumentNullException(nameof(customer));
-
-            _editingCustomer = customer;
-            _editingCustomerId = customer.CustomerId;
-            IsEditMode = true;
-
-            // Populate form with customer data
-            CustomerName = customer.CustomerName;
-            PhoneNumber = customer.PhoneNumber ?? string.Empty;
-            Address = customer.Address ?? string.Empty;
-            IsActive = customer.IsActive;
-
-            // Clear validation errors
-            ValidationErrors.Clear();
-            HasValidationErrors = false;
-            StatusMessage = "جاهز لتعديل بيانات الزبون";
-
-            _logger.LogDebug("Customer loaded for editing: {CustomerId} - {CustomerName}", customer.CustomerId, customer.CustomerName);
-        }
-
-        /// <summary>
-        /// Configures dialog for new customer creation
-        /// </summary>
-        public void ConfigureForNewCustomer()
-        {
-            _editingCustomer = null;
-            _editingCustomerId = null;
-            IsEditMode = false;
-
-            ResetDialog();
-            StatusMessage = "أدخل بيانات الزبون الجديد";
-
-            _logger.LogDebug("Dialog configured for new customer creation");
-        }
-
-        #endregion
-
-        #region BULLETPROOF Validation Methods
-
-        /// <summary>
-        /// BULLETPROOF: Tests database connectivity and adjusts validation strategy
-        /// </summary>
-        private async void TestDatabaseConnectivity()
+        private async Task TestDatabaseConnectivityAsync()
         {
             try
             {
-                // Simple connectivity test
-                await _unitOfWork.Customers.GetActiveCustomerCountAsync();
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                await _unitOfWork.Customers.GetActiveCustomerCountAsync(cts.Token);
                 _databaseValidationEnabled = true;
                 _logger.LogDebug("Database connectivity confirmed - full validation enabled");
             }
@@ -406,66 +321,74 @@ namespace PoultrySlaughterPOS.ViewModels
             {
                 _databaseValidationEnabled = false;
                 _logger.LogWarning(ex, "Database connectivity issues detected - using basic validation only");
-                StatusMessage = "تحذير: سيتم استخدام التحقق الأساسي فقط بسبب مشاكل الاتصال";
+
+                await _dispatcher.BeginInvoke(() =>
+                {
+                    StatusMessage = "تحذير: سيتم استخدام التحقق الأساسي فقط بسبب مشاكل الاتصال";
+                });
             }
         }
 
         /// <summary>
-        /// BULLETPROOF: Debounced validation to prevent excessive calls
+        /// FIXED: Scheduled name validation with proper debouncing
         /// </summary>
-        private void DebouncedValidation(Func<Task> validationAction)
+        private void ScheduleNameValidation()
         {
-            // Cancel existing timer
-            _validationDebounceTimer?.Dispose();
+            _nameValidationTimer?.Dispose();
 
-            // Create new timer with 500ms delay
-            _validationDebounceTimer = new Timer(async _ =>
+            _nameValidationTimer = new Timer(async _ =>
             {
                 try
                 {
-                    await validationAction();
+                    await ValidateCustomerNameAsync();
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning(ex, "Error in debounced validation");
+                    _logger.LogWarning(ex, "Error in scheduled name validation");
                 }
-                finally
-                {
-                    // Ensure UI updates on main thread
-                    Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
-                    {
-                        UpdateCanSaveCustomer();
-                    }));
-                }
-            }, null, 500, Timeout.Infinite);
+            }, null, 750, Timeout.Infinite); // 750ms debounce
         }
 
         /// <summary>
-        /// BULLETPROOF: Customer name validation with fallback logic
+        /// FIXED: Scheduled phone validation with proper debouncing
+        /// </summary>
+        private void SchedulePhoneValidation()
+        {
+            _phoneValidationTimer?.Dispose();
+
+            _phoneValidationTimer = new Timer(async _ =>
+            {
+                try
+                {
+                    await ValidatePhoneNumberAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error in scheduled phone validation");
+                }
+            }, null, 750, Timeout.Infinite); // 750ms debounce
+        }
+
+        /// <summary>
+        /// FIXED: Customer name validation with proper error handling
         /// </summary>
         private async Task ValidateCustomerNameAsync()
         {
-            lock (_validationLock)
-            {
-                _validationCancellationTokenSource?.Cancel();
-                _validationCancellationTokenSource = new CancellationTokenSource();
-            }
-
-            var cancellationToken = _validationCancellationTokenSource.Token;
+            var cancellationToken = CancelCurrentValidation();
 
             try
             {
-                IsValidating = true;
-                ClearValidationError("اسم الزبون");
+                await _dispatcher.BeginInvoke(() => IsValidating = true);
 
-                // Basic validation first (always works)
-                if (string.IsNullOrWhiteSpace(CustomerName))
+                // Basic validation first
+                var trimmedName = CustomerName?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(trimmedName))
                 {
                     AddValidationError("اسم الزبون مطلوب");
                     return;
                 }
 
-                var trimmedName = CustomerName.Trim();
                 if (trimmedName.Length < 2)
                 {
                     AddValidationError("اسم الزبون قصير جداً");
@@ -478,7 +401,7 @@ namespace PoultrySlaughterPOS.ViewModels
                     return;
                 }
 
-                // BULLETPROOF: Database validation with fallback
+                // Database validation if enabled
                 if (_databaseValidationEnabled)
                 {
                     try
@@ -491,19 +414,17 @@ namespace PoultrySlaughterPOS.ViewModels
                     }
                     catch (OperationCanceledException)
                     {
-                        // Validation was cancelled, ignore
-                        return;
+                        return; // Validation was cancelled
                     }
                     catch (Exception ex)
                     {
                         _logger.LogWarning(ex, "Database validation failed for customer name - continuing with basic validation");
-                        _databaseValidationEnabled = false; // Disable for subsequent validations
+                        _databaseValidationEnabled = false;
 
-                        // Update status to inform user
-                        Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
+                        await _dispatcher.BeginInvoke(() =>
                         {
                             StatusMessage = "تحذير: تم تعطيل التحقق من قاعدة البيانات مؤقتاً";
-                        }));
+                        });
                     }
                 }
             }
@@ -514,28 +435,32 @@ namespace PoultrySlaughterPOS.ViewModels
             }
             finally
             {
-                IsValidating = false;
+                await _dispatcher.BeginInvoke(() =>
+                {
+                    IsValidating = false;
+                    UpdateCanSaveCustomer();
+                });
             }
         }
 
         /// <summary>
-        /// BULLETPROOF: Phone number validation with fallback logic
+        /// FIXED: Phone number validation with proper error handling
         /// </summary>
         private async Task ValidatePhoneNumberAsync()
         {
+            var cancellationToken = CancelCurrentValidation();
+
             try
             {
-                IsValidating = true;
-                ClearValidationError("رقم الهاتف");
+                await _dispatcher.BeginInvoke(() => IsValidating = true);
 
-                if (string.IsNullOrWhiteSpace(PhoneNumber))
+                var trimmedPhone = PhoneNumber?.Trim() ?? string.Empty;
+
+                if (string.IsNullOrWhiteSpace(trimmedPhone))
                 {
-                    return; // Phone number is optional
+                    return; // Phone is optional
                 }
 
-                var trimmedPhone = PhoneNumber.Trim();
-
-                // Basic validation first
                 if (trimmedPhone.Length > 20)
                 {
                     AddValidationError("رقم الهاتف طويل جداً");
@@ -548,16 +473,20 @@ namespace PoultrySlaughterPOS.ViewModels
                     return;
                 }
 
-                // BULLETPROOF: Database validation with fallback
+                // Database validation if enabled
                 if (_databaseValidationEnabled)
                 {
                     try
                     {
-                        var existingCustomer = await _unitOfWork.Customers.GetCustomerByPhoneAsync(trimmedPhone);
+                        var existingCustomer = await _unitOfWork.Customers.GetCustomerByPhoneAsync(trimmedPhone, cancellationToken);
                         if (existingCustomer != null && existingCustomer.CustomerId != _editingCustomerId)
                         {
                             AddValidationError("رقم الهاتف مستخدم مسبقاً");
                         }
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        return; // Validation was cancelled
                     }
                     catch (Exception ex)
                     {
@@ -573,17 +502,19 @@ namespace PoultrySlaughterPOS.ViewModels
             }
             finally
             {
-                IsValidating = false;
+                await _dispatcher.BeginInvoke(() =>
+                {
+                    IsValidating = false;
+                    UpdateCanSaveCustomer();
+                });
             }
         }
 
         /// <summary>
-        /// BULLETPROOF: Immediate address validation (no database required)
+        /// FIXED: Immediate address validation
         /// </summary>
         private void ValidateAddressImmediate()
         {
-            ClearValidationError("العنوان");
-
             if (!string.IsNullOrWhiteSpace(Address) && Address.Trim().Length > 200)
             {
                 AddValidationError("العنوان طويل جداً");
@@ -591,43 +522,36 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// BULLETPROOF: Comprehensive validation with timeout protection
+        /// FIXED: Comprehensive validation with timeout protection
         /// </summary>
         private async Task<bool> ValidateAllFieldsAsync()
         {
             try
             {
-                ValidationErrors.Clear();
-                HasValidationErrors = false;
+                ClearAllValidationErrors();
 
-                // Run all validations with timeout protection
-                var validationTasks = new List<Task>
-                {
-                    ValidateCustomerNameAsync(),
-                    ValidatePhoneNumberAsync()
-                };
-
-                // Immediate validation
+                // Run immediate validations
                 ValidateAddressImmediate();
 
-                // Wait for async validations with timeout
-                using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                try
+                // Wait for any pending async validations to complete
+                await Task.Delay(100); // Small delay to allow debounced validations to start
+
+                // Wait for validation to complete with timeout
+                var timeout = DateTime.Now.AddSeconds(5);
+                while (IsValidating && DateTime.Now < timeout)
                 {
-                    await Task.WhenAll(validationTasks).WaitAsync(timeoutCts.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    _logger.LogWarning("Validation timeout - proceeding with basic validation only");
-                    _databaseValidationEnabled = false;
+                    await Task.Delay(50);
                 }
 
-                // Wait for any remaining validation to complete
-                var waitCount = 0;
-                while (IsValidating && waitCount < 50) // Max 5 seconds
+                // Force final validation if still pending
+                if (!string.IsNullOrWhiteSpace(CustomerName))
                 {
-                    await Task.Delay(100);
-                    waitCount++;
+                    await ValidateCustomerNameAsync();
+                }
+
+                if (!string.IsNullOrWhiteSpace(PhoneNumber))
+                {
+                    await ValidatePhoneNumberAsync();
                 }
 
                 return !HasValidationErrors;
@@ -639,52 +563,110 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
+        #endregion
+
+        #region FIXED: Error Management Methods
+
         /// <summary>
-        /// BULLETPROOF: Enhanced phone number format validation
+        /// FIXED: Thread-safe validation error addition
         /// </summary>
-        private bool IsValidPhoneNumberFormat(string phoneNumber)
+        private void AddValidationError(string message)
         {
-            if (string.IsNullOrWhiteSpace(phoneNumber))
-                return false;
-
-            var cleanNumber = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
-
-            if (cleanNumber.StartsWith("+"))
+            _dispatcher.BeginInvoke(() =>
             {
-                cleanNumber = cleanNumber.Substring(1);
-            }
+                lock (_validationLock)
+                {
+                    if (!_currentErrors.Contains(message))
+                    {
+                        _currentErrors.Add(message);
+                        ValidationErrors.Add(message);
+                        HasValidationErrors = true;
+                    }
+                }
+            });
+        }
 
-            return cleanNumber.Length >= 7 && cleanNumber.Length <= 15 && cleanNumber.All(char.IsDigit);
+        /// <summary>
+        /// FIXED: Clear validation errors for specific field
+        /// </summary>
+        private void ClearFieldValidationErrors(string fieldName)
+        {
+            _dispatcher.BeginInvoke(() =>
+            {
+                lock (_validationLock)
+                {
+                    var errorsToRemove = _currentErrors.Where(e => e.Contains(fieldName)).ToList();
+                    foreach (var error in errorsToRemove)
+                    {
+                        _currentErrors.Remove(error);
+                        ValidationErrors.Remove(error);
+                    }
+                    HasValidationErrors = _currentErrors.Count > 0;
+                }
+            });
+        }
+
+        /// <summary>
+        /// FIXED: Clear all validation errors
+        /// </summary>
+        private void ClearAllValidationErrors()
+        {
+            _dispatcher.BeginInvoke(() =>
+            {
+                lock (_validationLock)
+                {
+                    _currentErrors.Clear();
+                    ValidationErrors.Clear();
+                    HasValidationErrors = false;
+                }
+            });
+        }
+
+        /// <summary>
+        /// FIXED: Cancel current validation and return new token
+        /// </summary>
+        private CancellationToken CancelCurrentValidation()
+        {
+            _validationCancellationTokenSource?.Cancel();
+            _validationCancellationTokenSource = new CancellationTokenSource();
+            return _validationCancellationTokenSource.Token;
+        }
+
+        /// <summary>
+        /// FIXED: Cancel all validation operations
+        /// </summary>
+        private void CancelAllValidation()
+        {
+            _validationCancellationTokenSource?.Cancel();
+            _nameValidationTimer?.Dispose();
+            _phoneValidationTimer?.Dispose();
         }
 
         #endregion
 
         #region Helper Methods
 
-        /// <summary>
-        /// Updates existing customer with comprehensive error handling
-        /// </summary>
-        private async Task UpdateExistingCustomerAsync()
+        private bool IsValidPhoneNumberFormat(string phoneNumber)
         {
-            _editingCustomer!.CustomerName = CustomerName.Trim();
-            _editingCustomer.PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim();
-            _editingCustomer.Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim();
-            _editingCustomer.IsActive = IsActive;
-            _editingCustomer.UpdatedDate = DateTime.Now;
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return false;
 
-            await _unitOfWork.Customers.UpdateAsync(_editingCustomer);
-            await _unitOfWork.SaveChangesAsync("POS_USER");
+            var cleanNumber = phoneNumber.Replace(" ", "").Replace("-", "").Replace("(", "").Replace(")", "");
+            if (cleanNumber.StartsWith("+"))
+                cleanNumber = cleanNumber.Substring(1);
 
-            CreatedCustomer = _editingCustomer;
-            StatusMessage = "تم تحديث بيانات الزبون بنجاح";
-
-            _logger.LogInformation("Customer updated successfully - ID: {CustomerId}, Name: {CustomerName}",
-                _editingCustomer.CustomerId, _editingCustomer.CustomerName);
+            return cleanNumber.Length >= 7 && cleanNumber.Length <= 15 && cleanNumber.All(char.IsDigit);
         }
 
-        /// <summary>
-        /// Creates new customer with comprehensive error handling
-        /// </summary>
+        private void UpdateCanSaveCustomer()
+        {
+            _dispatcher.BeginInvoke(() =>
+            {
+                OnPropertyChanged(nameof(CanSaveCustomer));
+                SaveCustomerCommand.NotifyCanExecuteChanged();
+            });
+        }
+
         private async Task CreateNewCustomerAsync()
         {
             var customer = new Customer
@@ -700,19 +682,31 @@ namespace PoultrySlaughterPOS.ViewModels
 
             CreatedCustomer = await _unitOfWork.Customers.AddAsync(customer);
             await _unitOfWork.SaveChangesAsync("POS_USER");
-
             StatusMessage = "تم حفظ الزبون بنجاح";
 
             _logger.LogInformation("Customer created successfully - ID: {CustomerId}, Name: {CustomerName}",
                 CreatedCustomer.CustomerId, CreatedCustomer.CustomerName);
         }
 
-        /// <summary>
-        /// Initializes the ViewModel with default state
-        /// </summary>
+        private async Task UpdateExistingCustomerAsync()
+        {
+            _editingCustomer!.CustomerName = CustomerName.Trim();
+            _editingCustomer.PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim();
+            _editingCustomer.Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim();
+            _editingCustomer.IsActive = IsActive;
+            _editingCustomer.UpdatedDate = DateTime.Now;
+
+            await _unitOfWork.Customers.UpdateAsync(_editingCustomer);
+            await _unitOfWork.SaveChangesAsync("POS_USER");
+            CreatedCustomer = _editingCustomer;
+            StatusMessage = "تم تحديث بيانات الزبون بنجاح";
+
+            _logger.LogInformation("Customer updated successfully - ID: {CustomerId}, Name: {CustomerName}",
+                _editingCustomer.CustomerId, _editingCustomer.CustomerName);
+        }
+
         private void InitializeViewModel()
         {
-            ValidationErrors = new ObservableCollection<string>();
             StatusMessage = "أدخل بيانات الزبون الجديد";
             HasValidationErrors = false;
             DialogResult = null;
@@ -722,65 +716,45 @@ namespace PoultrySlaughterPOS.ViewModels
             _databaseValidationEnabled = true;
         }
 
-        /// <summary>
-        /// BULLETPROOF: Thread-safe validation error management
-        /// </summary>
-        private void AddValidationError(string message)
+        public void LoadCustomerForEdit(Customer customer)
         {
-            Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
-            {
-                if (!ValidationErrors.Contains(message))
-                {
-                    ValidationErrors.Add(message);
-                    HasValidationErrors = true;
-                }
-            }));
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
+
+            _editingCustomer = customer;
+            _editingCustomerId = customer.CustomerId;
+            IsEditMode = true;
+
+            CustomerName = customer.CustomerName;
+            PhoneNumber = customer.PhoneNumber ?? string.Empty;
+            Address = customer.Address ?? string.Empty;
+            IsActive = customer.IsActive;
+
+            ClearAllValidationErrors();
+            StatusMessage = "جاهز لتعديل بيانات الزبون";
+
+            _logger.LogDebug("Customer loaded for editing: {CustomerId} - {CustomerName}", customer.CustomerId, customer.CustomerName);
         }
 
-        /// <summary>
-        /// BULLETPROOF: Thread-safe validation error clearing
-        /// </summary>
-        private void ClearValidationError(string fieldName)
+        public void ConfigureForNewCustomer()
         {
-            Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
-            {
-                var errorsToRemove = ValidationErrors.Where(e => e.Contains(fieldName)).ToList();
-                foreach (var error in errorsToRemove)
-                {
-                    ValidationErrors.Remove(error);
-                }
+            _editingCustomer = null;
+            _editingCustomerId = null;
+            IsEditMode = false;
+            ResetDialog();
+            StatusMessage = "أدخل بيانات الزبون الجديد";
 
-                HasValidationErrors = ValidationErrors.Count > 0;
-            }));
+            _logger.LogDebug("Dialog configured for new customer creation");
         }
 
-        /// <summary>
-        /// BULLETPROOF: Centralized command state update
-        /// </summary>
-        private void UpdateCanSaveCustomer()
-        {
-            Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
-            {
-                OnPropertyChanged(nameof(CanSaveCustomer));
-                SaveCustomerCommand.NotifyCanExecuteChanged();
-            }));
-        }
-
-        /// <summary>
-        /// Resets the dialog to initial state
-        /// </summary>
         public void ResetDialog()
         {
-            // Cancel any ongoing operations
-            _validationCancellationTokenSource?.Cancel();
-            _validationDebounceTimer?.Dispose();
-
+            CancelAllValidation();
             CustomerName = string.Empty;
             PhoneNumber = string.Empty;
             Address = string.Empty;
             IsActive = true;
-            ValidationErrors.Clear();
-            HasValidationErrors = false;
+            ClearAllValidationErrors();
             StatusMessage = IsEditMode ? "جاهز لتعديل بيانات الزبون" : "أدخل بيانات الزبون الجديد";
             CreatedCustomer = null;
             DialogResult = null;
@@ -800,7 +774,6 @@ namespace PoultrySlaughterPOS.ViewModels
         {
             base.OnPropertyChanged(e);
 
-            // Update command states when relevant properties change
             if (e.PropertyName == nameof(CustomerName) ||
                 e.PropertyName == nameof(HasValidationErrors) ||
                 e.PropertyName == nameof(IsValidating) ||
@@ -812,9 +785,8 @@ namespace PoultrySlaughterPOS.ViewModels
 
         public void Dispose()
         {
-            _validationCancellationTokenSource?.Cancel();
+            CancelAllValidation();
             _validationCancellationTokenSource?.Dispose();
-            _validationDebounceTimer?.Dispose();
         }
 
         #endregion

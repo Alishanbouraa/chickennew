@@ -1,0 +1,321 @@
+[2025-06-03 13:16:35.008 +03:00 INF] : === Poultry Slaughter POS Application Starting ===
+[2025-06-03 13:16:35.101 +03:00 INF] : Startup initiated with complete customer management integration
+[2025-06-03 13:16:35.744 +03:00 INF] : Database configuration - UseExplicitTransactions: true, EnableRetryOnFailure: false
+[2025-06-03 13:16:35.848 +03:00 INF] : Service configuration completed successfully with 114 services registered (complete customer management integration)
+[2025-06-03 13:16:35.926 +03:00 INF] Microsoft.Hosting.Lifetime: Application started. Press Ctrl+C to shut down.
+[2025-06-03 13:16:35.936 +03:00 INF] Microsoft.Hosting.Lifetime: Hosting environment: Production
+[2025-06-03 13:16:35.937 +03:00 INF] Microsoft.Hosting.Lifetime: Content root path: C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\bin\Debug\net8.0-windows
+[2025-06-03 13:16:35.937 +03:00 INF] : Application host built and started successfully with complete customer management integration
+[2025-06-03 13:16:36.068 +03:00 INF] : Database initialization started
+[2025-06-03 13:16:36.071 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Starting database initialization for SQL Server...
+[2025-06-03 13:16:37.329 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Verifying SQL Server instance with connection: Server=.\posserver;Database=chicken;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True
+[2025-06-03 13:16:38.570 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Testing SQL Server connection...
+[2025-06-03 13:16:38.729 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: SQL Server connection successful.
+[2025-06-03 13:16:39.081 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Database 'chicken' created/verified successfully.
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Database schema verification completed:
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - TRUCKS: 3 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - CUSTOMERS: 3 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - TRUCK_LOADS: 5 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - INVOICES: 36 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - PAYMENTS: 0 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - DAILY_RECONCILIATION: 0 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: - AUDIT_LOGS: 77 records
+[2025-06-03 13:16:39.834 +03:00 INF] PoultrySlaughterPOS.Services.DatabaseInitializationService: Database initialization completed successfully.
+[2025-06-03 13:16:39.835 +03:00 INF] : Database initialization completed successfully
+[2025-06-03 13:16:40.497 +03:00 INF] : SQL Server retry strategy disabled to support explicit transactions
+[2025-06-03 13:16:41.208 +03:00 WRN] Microsoft.EntityFrameworkCore.Query: The query uses the 'First'/'FirstOrDefault' operator without 'OrderBy' and filter operators. This may lead to unpredictable results.
+[2025-06-03 13:16:41.223 +03:00 INF] PoultrySlaughterPOS.MainWindow: MainWindow initialized successfully with complete customer management support
+[2025-06-03 13:16:41.626 +03:00 INF] : SQL Server retry strategy disabled to support explicit transactions
+[2025-06-03 13:16:42.074 +03:00 ERR] Microsoft.EntityFrameworkCore.Query: An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2025-06-03 13:16:42.264 +03:00 ERR] PoultrySlaughterPOS.Services.Repositories.CustomerRepository: Error retrieving debt summary
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetDebtSummaryAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 177
+[2025-06-03 13:16:42.435 +03:00 INF] PoultrySlaughterPOS.MainWindow: MainWindow loaded successfully
+[2025-06-03 13:16:42.473 +03:00 INF] : Main window created and displayed successfully
+[2025-06-03 13:16:42.473 +03:00 INF] : === Poultry Slaughter POS Application Started Successfully ===
+[2025-06-03 13:16:42.529 +03:00 INF] PoultrySlaughterPOS.MainWindow: Dashboard statistics loaded successfully - Trucks: 3, Customers: 3, Invoices: 0, Debt: ¤5,303.10
+[2025-06-03 13:16:42.621 +03:00 ERR] PoultrySlaughterPOS.MainWindow: Error loading dashboard statistics
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetDebtSummaryAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 177
+   at PoultrySlaughterPOS.MainWindow.LoadDashboardStatisticsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\MainWindow.xaml.cs:line 527
+[2025-06-03 13:16:42.625 +03:00 WRN] PoultrySlaughterPOS.MainWindow: Status message (Error): خطأ في تحميل إحصائيات النظام
+[2025-06-03 13:16:42.627 +03:00 INF] PoultrySlaughterPOS.MainWindow: Initial dashboard loaded successfully
+[2025-06-03 13:16:47.094 +03:00 INF] : SQL Server retry strategy disabled to support explicit transactions
+[2025-06-03 13:16:47.106 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel initialized with enterprise-grade customer management
+[2025-06-03 13:16:47.107 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel initialized with enterprise-grade customer management
+[2025-06-03 13:16:47.211 +03:00 INF] PoultrySlaughterPOS.Views.CustomerAccountsView: ViewModel set successfully for CustomerAccountsView
+[2025-06-03 13:16:47.247 +03:00 INF] PoultrySlaughterPOS.Views.CustomerAccountsView: ViewModel set successfully for CustomerAccountsView
+[2025-06-03 13:16:47.249 +03:00 INF] PoultrySlaughterPOS.MainWindow: Customer Accounts view created and configured successfully
+[2025-06-03 13:16:47.264 +03:00 ERR] Microsoft.EntityFrameworkCore.Query: An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2025-06-03 13:16:47.264 +03:00 ERR] Microsoft.EntityFrameworkCore.Query: An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2025-06-03 13:16:47.409 +03:00 ERR] PoultrySlaughterPOS.Services.Repositories.CustomerRepository: Error retrieving paged customers. Page: 1, Size: 50, Search: , Active: true
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+[2025-06-03 13:16:47.372 +03:00 ERR] PoultrySlaughterPOS.Services.Repositories.CustomerRepository: Error retrieving paged customers. Page: 1, Size: 50, Search: , Active: true
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+[2025-06-03 13:16:47.648 +03:00 ERR] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Error loading customers paged
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+[2025-06-03 13:16:47.762 +03:00 ERR] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Error loading customers paged
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+[2025-06-03 13:16:47.852 +03:00 ERR] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Error during CustomerAccountsViewModel initialization
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.InitializeAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 643
+[2025-06-03 13:16:47.866 +03:00 ERR] PoultrySlaughterPOS.Services.ErrorHandlingService: Error faa658db in CustomerAccountsViewModel.InitializeAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.InitializeAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 643
+[2025-06-03 13:16:47.914 +03:00 ERR] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Error during CustomerAccountsViewModel initialization
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.InitializeAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 643
+[2025-06-03 13:16:47.918 +03:00 ERR] PoultrySlaughterPOS.Services.ErrorHandlingService: Error a00e4e7e in CustomerAccountsViewModel.InitializeAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.CustomerRepository.GetCustomersPagedAsync(Int32 pageNumber, Int32 pageSize, String searchTerm, Nullable`1 isActive, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\CustomerRepository.cs:line 356
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.LoadCustomersPagedAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 706
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.InitializeAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 643
+[2025-06-03 13:16:48.458 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel initialized successfully with 3 customers
+[2025-06-03 13:16:48.461 +03:00 INF] PoultrySlaughterPOS.Views.CustomerAccountsView: CustomerAccountsView initialization completed successfully
+[2025-06-03 13:16:48.463 +03:00 INF] PoultrySlaughterPOS.MainWindow: Successfully navigated to CustomerAccounts
+[2025-06-03 13:16:50.357 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Opening add new customer dialog
+[2025-06-03 13:16:50.372 +03:00 INF] PoultrySlaughterPOS.Views.Dialogs.AddCustomerDialog: Creating new customer dialog via factory method
+[2025-06-03 13:16:50.380 +03:00 INF] PoultrySlaughterPOS.ViewModels.AddCustomerDialogViewModel: BULLETPROOF AddCustomerDialogViewModel initialized with enhanced validation
+[2025-06-03 13:16:50.437 +03:00 INF] PoultrySlaughterPOS.Views.Dialogs.AddCustomerDialog: AddCustomerDialog initialized with enterprise-grade MVVM architecture
+[2025-06-03 13:16:50.442 +03:00 INF] PoultrySlaughterPOS.Views.Dialogs.AddCustomerDialog: Displaying AddCustomerDialog modally
+[2025-06-03 13:16:59.393 +03:00 INF] PoultrySlaughterPOS.ViewModels.AddCustomerDialogViewModel: Creating customer: ali
+[2025-06-03 13:16:59.944 +03:00 INF] PoultrySlaughterPOS.Services.Repositories.UnitOfWork: Successfully saved 2 changes to database for user POS_USER
+[2025-06-03 13:16:59.945 +03:00 INF] PoultrySlaughterPOS.ViewModels.AddCustomerDialogViewModel: Customer created successfully - ID: 4, Name: ali
+[2025-06-03 13:17:00.062 +03:00 INF] PoultrySlaughterPOS.Views.Dialogs.AddCustomerDialog: AddCustomerDialog closed with result: true, Customer created: true
+[2025-06-03 13:18:05.748 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: TruckLoadingViewModel initialized with enhanced save functionality and debugging capabilities
+[2025-06-03 13:18:05.748 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: TruckLoadingViewModel initialized with enhanced save functionality and debugging capabilities
+[2025-06-03 13:18:05.782 +03:00 INF] PoultrySlaughterPOS.Views.TruckLoadingView: TruckLoadingView ViewModel set successfully
+[2025-06-03 13:18:05.782 +03:00 INF] PoultrySlaughterPOS.MainWindow: Truck Loading view created and configured successfully
+[2025-06-03 13:18:05.788 +03:00 INF] PoultrySlaughterPOS.Views.TruckLoadingView: TruckLoadingView async initialization started
+[2025-06-03 13:18:05.789 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Initializing TruckLoadingViewModel with enhanced save capabilities
+[2025-06-03 13:18:05.794 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Retrieving available trucks for loading
+[2025-06-03 13:18:05.969 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel cleanup completed successfully
+[2025-06-03 13:18:05.970 +03:00 INF] PoultrySlaughterPOS.Views.TruckLoadingView: TruckLoadingView loaded, initializing ViewModel with save functionality
+[2025-06-03 13:18:05.970 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Initializing TruckLoadingViewModel with enhanced save capabilities
+[2025-06-03 13:18:05.970 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Retrieving available trucks for loading
+[2025-06-03 13:18:06.679 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Found 3 available trucks for loading
+[2025-06-03 13:18:06.710 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Found 3 available trucks for loading
+[2025-06-03 13:18:06.711 +03:00 ERR] Microsoft.EntityFrameworkCore.Query: An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2025-06-03 13:18:06.813 +03:00 ERR] PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository: Error retrieving truck loads for date "2025-06-03T00:00:00.0000000+03:00"
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+[2025-06-03 13:18:06.913 +03:00 ERR] PoultrySlaughterPOS.Services.TruckLoadingService: Error retrieving today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+[2025-06-03 13:18:06.915 +03:00 ERR] PoultrySlaughterPOS.Services.ErrorHandlingService: Error 3de3a2a6 in GetTodaysTruckLoadsAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+[2025-06-03 13:18:07.012 +03:00 ERR] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Error loading today's truck loads
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+[2025-06-03 13:18:07.094 +03:00 ERR] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Error loading truck loading data after 1124ms
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+[2025-06-03 13:18:07.097 +03:00 ERR] PoultrySlaughterPOS.Services.ErrorHandlingService: Error ab5bb998 in LoadDataAsync: InvalidOperationException - A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.TruckLoadRepository.GetTruckLoadsByDateAsync(DateTime loadDate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Implementations\TruckLoadRepository.cs:line 47
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 253
+   at PoultrySlaughterPOS.Services.TruckLoadingService.GetTodaysTruckLoadsAsync(CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\TruckLoadingService.cs:line 259
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadTodaysTruckLoadsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 410
+   at PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel.LoadDataAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\TruckLoadingViewModel.cs:line 134
+[2025-06-03 13:18:07.101 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Error message displayed: فشل في تحميل البيانات. يرجى المحاولة مرة أخرى.
+[2025-06-03 13:18:07.110 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: TruckLoadingViewModel initialized successfully
+[2025-06-03 13:18:07.208 +03:00 INF] PoultrySlaughterPOS.Views.TruckLoadingView: TruckLoadingView initialization completed successfully in 1238ms
+[2025-06-03 13:18:07.214 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Truck loading data loaded successfully in 1124ms
+[2025-06-03 13:18:07.214 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: TruckLoadingViewModel initialized successfully
+[2025-06-03 13:18:07.214 +03:00 INF] PoultrySlaughterPOS.Views.TruckLoadingView: TruckLoadingView async initialization completed successfully
+[2025-06-03 13:18:07.214 +03:00 INF] PoultrySlaughterPOS.MainWindow: Successfully navigated to TruckLoading
+[2025-06-03 13:18:08.380 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 2 errors: الوزن يجب أن يكون بين 0.01 و 10000 كيلو, عدد الأقفاص يجب أن يكون بين 1 و 1000
+[2025-06-03 13:18:11.709 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 1 errors: عدد الأقفاص يجب أن يكون بين 1 و 1000
+[2025-06-03 13:18:12.175 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 1 errors: عدد الأقفاص يجب أن يكون بين 1 و 1000
+[2025-06-03 13:18:12.519 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 1 errors: عدد الأقفاص يجب أن يكون بين 1 و 1000
+[2025-06-03 13:18:12.954 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 1 errors: عدد الأقفاص يجب أن يكون بين 1 و 1000
+[2025-06-03 13:18:14.604 +03:00 WRN] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Validation failed with 1 errors: متوسط وزن القفص (200.00 كيلو) غير طبيعي. يجب أن يكون بين 5 و 100 كيلو
+[2025-06-03 13:18:36.204 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Starting truck load save operation for truck 2 with weight 1000kg and 45 cages
+[2025-06-03 13:18:36.317 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Creating truck load for truck 2 with weight 1000 and 45 cages
+[2025-06-03 13:18:36.486 +03:00 WRN] Microsoft.EntityFrameworkCore.Database.Transaction: Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w => w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
+[2025-06-03 13:18:36.500 +03:00 INF] PoultrySlaughterPOS.Services.Repositories.UnitOfWork: Successfully saved 2 changes to database for user SYSTEM
+[2025-06-03 13:18:36.503 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Successfully created truck load 6 for truck 2
+[2025-06-03 13:18:36.504 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Truck load saved successfully with ID 6 in 299ms
+[2025-06-03 13:18:36.631 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Retrieving available trucks for loading
+[2025-06-03 13:18:36.911 +03:00 INF] PoultrySlaughterPOS.Services.TruckLoadingService: Found 2 available trucks for loading
+[2025-06-03 13:18:36.933 +03:00 INF] PoultrySlaughterPOS.ViewModels.TruckLoadingViewModel: Success message displayed: تم حفظ تحميل الشاحنة بنجاح - رقم العملية: 6
+[2025-06-03 13:18:41.502 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: POSViewModel initialized with immediate invoice number display
+[2025-06-03 13:18:41.503 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: POSViewModel initialized with immediate invoice number display
+[2025-06-03 13:18:41.541 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Enhanced POSView initialized successfully with modern scrollable design
+[2025-06-03 13:18:41.541 +03:00 INF] PoultrySlaughterPOS.Views.POSView: POSView ViewModel set successfully
+[2025-06-03 13:18:41.541 +03:00 INF] PoultrySlaughterPOS.MainWindow: POS view created and configured successfully
+[2025-06-03 13:18:41.544 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Initializing enhanced POSView with comprehensive data loading
+[2025-06-03 13:18:41.668 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Initializing enhanced POSView with comprehensive data loading
+[2025-06-03 13:18:41.674 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Loaded 4 active customers
+[2025-06-03 13:18:41.730 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Loaded 3 active trucks
+[2025-06-03 13:18:41.790 +03:00 INF] PoultrySlaughterPOS.Repositories.InvoiceRepository: Generated optimized invoice number: 202506030001
+[2025-06-03 13:18:41.799 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Real invoice number generated and set: 202506030001
+[2025-06-03 13:18:41.799 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: POSViewModel initialized successfully with real invoice number
+[2025-06-03 13:18:41.805 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Enhanced POSView initialization completed successfully
+[2025-06-03 13:18:41.806 +03:00 INF] PoultrySlaughterPOS.Views.POSView: POSView async initialization completed successfully
+[2025-06-03 13:18:41.807 +03:00 INF] PoultrySlaughterPOS.MainWindow: Successfully navigated to POSSales
+[2025-06-03 13:18:41.808 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Loaded 4 active customers
+[2025-06-03 13:18:41.982 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Loaded 3 active trucks
+[2025-06-03 13:18:42.102 +03:00 INF] PoultrySlaughterPOS.Repositories.InvoiceRepository: Generated optimized invoice number: 202506030001
+[2025-06-03 13:18:42.105 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Real invoice number generated and set: 202506030001
+[2025-06-03 13:18:42.108 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: POSViewModel initialized successfully with real invoice number
+[2025-06-03 13:18:42.108 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Enhanced POSView initialization completed successfully
+[2025-06-03 13:18:42.109 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Applying emergency TextBox visibility fix
+[2025-06-03 13:18:42.166 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Emergency TextBox visibility fix applied successfully
+[2025-06-03 13:18:42.167 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Applying emergency TextBox visibility fix
+[2025-06-03 13:18:42.225 +03:00 INF] PoultrySlaughterPOS.Views.POSView: Emergency TextBox visibility fix applied successfully
+[2025-06-03 13:34:10.388 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Executing SaveAndPrintInvoice command for bulk invoice
+[2025-06-03 13:34:10.930 +03:00 INF] PoultrySlaughterPOS.Repositories.InvoiceRepository: Successfully created invoice 202506030001 for customer 4 with amount 0
+[2025-06-03 13:34:10.944 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Bulk invoice saved successfully - Number: 202506030001, Items: 1, Amount: 0
+[2025-06-03 13:34:10.946 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Starting enhanced bulk invoice printing with individual cage entries for Invoice: 202506030001
+[2025-06-03 13:34:11.024 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Enhanced receipt totals calculated for 1 individual cage entries - Total: $170.00
+[2025-06-03 13:34:11.031 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Enhanced receipt totals calculated for 1 individual cage entries - Total: $170.00
+[2025-06-03 13:34:22.614 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: Enhanced individual cage receipt printing completed successfully
+[2025-06-03 13:34:22.705 +03:00 INF] PoultrySlaughterPOS.Repositories.InvoiceRepository: Generated optimized invoice number: 202506030002
+[2025-06-03 13:34:25.307 +03:00 ERR] Microsoft.EntityFrameworkCore.Query: An exception occurred while iterating over the results of a query for context type 'PoultrySlaughterPOS.Data.PoultryDbContext'.
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+[2025-06-03 13:34:25.384 +03:00 ERR] PoultrySlaughterPOS.Services.Repositories.CustomerRepository: Error counting entities Customer
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.Repository`1.CountAsync(Expression`1 predicate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Repository.cs:line 95
+[2025-06-03 13:34:25.482 +03:00 ERR] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: Error calculating customer statistics
+System.InvalidOperationException: A second operation was started on this context instance before a previous operation completed. This is usually caused by different threads concurrently using the same instance of DbContext. For more information on how to avoid threading issues with DbContext, see https://go.microsoft.com/fwlink/?linkid=2097913.
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.ConcurrencyDetector.EnterCriticalSection()
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at PoultrySlaughterPOS.Services.Repositories.Repository`1.CountAsync(Expression`1 predicate, CancellationToken cancellationToken) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\Services\Repositories\Repository.cs:line 95
+   at PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel.CalculateStatisticsAsync() in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\ViewModels\CustomerAccountsViewModel.cs:line 774
+[2025-06-03 13:34:25.484 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel initialized successfully with 4 customers
+[2025-06-03 13:34:25.491 +03:00 INF] PoultrySlaughterPOS.Views.CustomerAccountsView: CustomerAccountsView initialization completed successfully
+[2025-06-03 13:34:25.496 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel initialized successfully with 4 customers
+[2025-06-03 13:34:25.499 +03:00 INF] PoultrySlaughterPOS.Views.CustomerAccountsView: CustomerAccountsView initialization completed successfully
+[2025-06-03 13:34:25.499 +03:00 INF] PoultrySlaughterPOS.MainWindow: Successfully navigated to CustomerAccounts
+[2025-06-03 13:36:37.535 +03:00 INF] PoultrySlaughterPOS.MainWindow: Application closing initiated - performing comprehensive cleanup
+[2025-06-03 13:36:37.536 +03:00 INF] PoultrySlaughterPOS.MainWindow: Starting comprehensive resource cleanup
+[2025-06-03 13:36:37.543 +03:00 INF] PoultrySlaughterPOS.ViewModels.POSViewModel: POSViewModel cleanup completed successfully
+[2025-06-03 13:36:37.548 +03:00 INF] PoultrySlaughterPOS.ViewModels.CustomerAccountsViewModel: CustomerAccountsViewModel cleanup completed successfully
+[2025-06-03 13:36:37.551 +03:00 INF] PoultrySlaughterPOS.MainWindow: Resource cleanup completed successfully
+[2025-06-03 13:36:37.551 +03:00 INF] PoultrySlaughterPOS.MainWindow: Application cleanup completed successfully
+[2025-06-03 13:36:37.606 +03:00 INF] : === Poultry Slaughter POS Application Shutdown Initiated ===
+[2025-06-03 13:36:37.616 +03:00 INF] Microsoft.Hosting.Lifetime: Application is shutting down...
+[2025-06-03 13:36:37.658 +03:00 INF] : Application host stopped and disposed successfully
+[2025-06-03 13:36:37.658 +03:00 INF] : === Poultry Slaughter POS Application Shutdown Completed ===
