@@ -209,8 +209,8 @@ namespace PoultrySlaughterPOS.Repositories
                         invoice.InvoiceNumber = await GenerateUniqueInvoiceNumberAsync(context, cancellationToken).ConfigureAwait(false);
                     }
 
-                    // Calculate financial values
-                    CalculateInvoiceAmounts(invoice);
+                    // ✅ REMOVED: CalculateInvoiceAmounts(invoice) - POSViewModel already calculated these
+                    // The ViewModel has properly calculated NetWeight, TotalAmount, FinalAmount from InvoiceItems
 
                     // Get customer with row lock for balance update
                     var customer = await context.Customers
@@ -222,11 +222,11 @@ namespace PoultrySlaughterPOS.Repositories
                         throw new InvalidOperationException($"Customer with ID {invoice.CustomerId} not found");
                     }
 
-                    // Set invoice balance information
+                    // Set invoice balance information (preserve calculated amounts)
                     invoice.PreviousBalance = customer.TotalDebt;
                     invoice.CurrentBalance = customer.TotalDebt + invoice.FinalAmount;
 
-                    // Add invoice
+                    // Add invoice (with preserved calculated values)
                     var invoiceEntry = await context.Invoices.AddAsync(invoice, cancellationToken).ConfigureAwait(false);
 
                     // Update customer balance

@@ -530,6 +530,8 @@ namespace PoultrySlaughterPOS.ViewModels
             }
         }
 
+
+
         /// <summary>
         /// Generates real invoice number and updates CurrentInvoice property
         /// </summary>
@@ -556,6 +558,73 @@ namespace PoultrySlaughterPOS.ViewModels
                 CurrentInvoice.InvoiceNumber = fallbackNumber;
                 OnPropertyChanged(nameof(CurrentInvoice));
             }
+        }
+
+        /// <summary>
+        /// Populates CurrentInvoice with aggregated data from InvoiceItems for repository processing
+        /// </summary>
+        private void PopulateInvoiceFromItems()
+        {
+            try
+            {
+                if (InvoiceItems == null || InvoiceItems.Count == 0)
+                {
+                    _logger.LogWarning("No invoice items found for invoice population");
+                    return;
+                }
+
+                // ✅ CALCULATE aggregated values for single Invoice record
+                var totalGrossWeight = InvoiceItems.Sum(item => item.GrossWeight);
+                var totalCagesWeight = InvoiceItems.Sum(item => item.CagesWeight);
+                var totalCagesCount = InvoiceItems.Sum(item => item.CagesCount);
+                var weightedAveragePrice = CalculateWeightedAverageUnitPrice();
+                var averageDiscountPercentage = CalculateAverageDiscountPercentage();
+
+                // ✅ POPULATE CurrentInvoice with aggregated data
+                CurrentInvoice.GrossWeight = totalGrossWeight;
+                CurrentInvoice.CagesWeight = totalCagesWeight;
+                CurrentInvoice.CagesCount = totalCagesCount;
+                CurrentInvoice.UnitPrice = weightedAveragePrice;
+                CurrentInvoice.DiscountPercentage = averageDiscountPercentage;
+
+                // These will be recalculated by repository, but set them anyway
+                CurrentInvoice.NetWeight = TotalNetWeight;
+                CurrentInvoice.TotalAmount = TotalAmount;
+                CurrentInvoice.FinalAmount = FinalTotal;
+
+                _logger.LogDebug("Invoice populated with aggregated data - GrossWeight: {GrossWeight}, UnitPrice: {UnitPrice}",
+                    totalGrossWeight, weightedAveragePrice);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error populating invoice from items");
+            }
+        }
+
+        /// <summary>
+        /// Calculates weighted average unit price across all invoice items
+        /// </summary>
+        private decimal CalculateWeightedAverageUnitPrice()
+        {
+            var totalWeight = InvoiceItems.Where(item => item.NetWeight > 0).Sum(item => item.NetWeight);
+            if (totalWeight == 0) return 0;
+
+            return InvoiceItems
+                .Where(item => item.NetWeight > 0)
+                .Sum(item => item.UnitPrice * item.NetWeight) / totalWeight;
+        }
+
+        /// <summary>
+        /// Calculates average discount percentage weighted by amount
+        /// </summary>
+        private decimal CalculateAverageDiscountPercentage()
+        {
+            var totalAmount = InvoiceItems.Where(item => item.TotalAmount > 0).Sum(item => item.TotalAmount);
+            if (totalAmount == 0) return 0;
+
+            return InvoiceItems
+                .Where(item => item.TotalAmount > 0)
+                .Sum(item => item.DiscountPercentage * item.TotalAmount) / totalAmount;
         }
         /// <summary>
         /// Validates the current bulk invoice and returns validation result
@@ -1016,8 +1085,9 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 UpdateStatus("جاري حفظ الفاتورة...", "Spinner", "#007BFF");
 
-                // Create invoice with aggregated totals
+                // ✅ POPULATE invoice with aggregated data from items
                 RecalculateTotals();
+                PopulateInvoiceFromItems(); // ← ADD THIS LINE
 
                 var savedInvoice = await _unitOfWork.Invoices.CreateInvoiceWithTransactionAsync(CurrentInvoice);
                 await _unitOfWork.SaveChangesAsync("POS_USER");
