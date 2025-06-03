@@ -1,0 +1,417 @@
+﻿<UserControl x:Class="PoultrySlaughterPOS.Controls.CustomerListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:PoultrySlaughterPOS.Converters"
+             x:Name="CustomerListControlRoot"
+             FlowDirection="RightToLeft"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+        <!-- Enhanced Value Converters -->
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:DebtColorConverter x:Key="DebtColorConverter"/>
+        <converters:TruckAvailabilityConverter x:Key="TruckAvailabilityConverter"/>
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+
+        <!-- Modern DataGrid Style -->
+        <Style x:Key="CustomerDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="#F1F5F9"/>
+            <Setter Property="RowHeight" Value="48"/>
+            <Setter Property="ColumnHeaderHeight" Value="44"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="AlternatingRowBackground" Value="#FAFBFC"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+        </Style>
+
+        <!-- DataGrid Header Style -->
+        <Style x:Key="CustomerDataGridHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="Foreground" Value="#374151"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        </Style>
+
+        <!-- DataGrid Cell Style -->
+        <Style x:Key="CustomerDataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                    <Setter Property="Foreground" Value="#1E40AF"/>
+                </Trigger>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Row Style with Hover Effects -->
+        <Style x:Key="CustomerDataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F9FAFB"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Status Icon Style -->
+        <Style x:Key="StatusIconStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header Section -->
+        <Border Grid.Row="0" 
+                Background="#F8FAFC" 
+                BorderBrush="#E5E7EB"
+                BorderThickness="0,0,0,1"
+                Padding="16,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Title and Count -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="👥" Style="{StaticResource StatusIconStyle}" 
+                               Foreground="#374151" Margin="0,0,8,0"/>
+                    <TextBlock Text="قائمة الزبائن" 
+                               FontSize="16" FontWeight="SemiBold" 
+                               Foreground="#374151" VerticalAlignment="Center"/>
+                    <Border Background="#EFF6FF" 
+                            CornerRadius="12" 
+                            Padding="8,4" 
+                            Margin="12,0,0,0">
+                        <TextBlock x:Name="CustomerCountBadge"
+                                   Text="{Binding Items.Count, RelativeSource={RelativeSource AncestorType=DataGrid}, StringFormat='{}{0} زبون'}" 
+                                   FontSize="11" FontWeight="Medium" 
+                                   Foreground="#1E40AF"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- Filter Summary -->
+                <TextBlock Grid.Column="1" 
+                           x:Name="FilterSummaryText"
+                           Text="جميع الزبائن" 
+                           FontSize="12" 
+                           Foreground="#6B7280" 
+                           VerticalAlignment="Center"
+                           Margin="16,0"/>
+
+                <!-- View Options -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button x:Name="RefreshButton"
+                            Content="🔄" 
+                            ToolTip="تحديث القائمة"
+                            Background="Transparent" 
+                            BorderThickness="0"
+                            FontSize="16" 
+                            Width="32" Height="32"
+                            Cursor="Hand"/>
+                    <Button x:Name="ExportButton"
+                            Content="📊" 
+                            ToolTip="تصدير البيانات"
+                            Background="Transparent" 
+                            BorderThickness="0"
+                            FontSize="16" 
+                            Width="32" Height="32"
+                            Cursor="Hand"
+                            Margin="4,0,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Customer DataGrid -->
+        <DataGrid Grid.Row="1"
+                  x:Name="CustomersDataGrid"
+                  Style="{StaticResource CustomerDataGridStyle}"
+                  ColumnHeaderStyle="{StaticResource CustomerDataGridHeaderStyle}"
+                  CellStyle="{StaticResource CustomerDataGridCellStyle}"
+                  RowStyle="{StaticResource CustomerDataGridRowStyle}">
+
+            <DataGrid.Columns>
+                <!-- Status Indicator -->
+                <DataGridTemplateColumn Header="●" Width="40" MinWidth="40">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border Width="16" Height="16" 
+                                    CornerRadius="8"
+                                    ToolTip="{Binding IsActive, Converter={StaticResource TruckAvailabilityConverter}}">
+                                <Border.Background>
+                                    <SolidColorBrush>
+                                        <SolidColorBrush.Color>
+                                            <MultiBinding Converter="{x:Static converters:StatusIndicatorConverter.Instance}">
+                                                <Binding Path="IsActive"/>
+                                                <Binding Path="TotalDebt"/>
+                                            </MultiBinding>
+                                        </SolidColorBrush.Color>
+                                    </SolidColorBrush>
+                                </Border.Background>
+                            </Border>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <!-- Customer Name -->
+                <DataGridTextColumn Header="اسم الزبون" 
+                                    Width="*" MinWidth="150"
+                                    Binding="{Binding CustomerName}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="FontWeight" Value="Medium"/>
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="Margin" Value="8,0"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Phone Number -->
+                <DataGridTextColumn Header="رقم الهاتف" 
+                                    Width="130" MinWidth="130"
+                                    Binding="{Binding PhoneNumber}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontFamily" Value="Consolas, Courier New"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- City/Address -->
+                <DataGridTextColumn Header="المدينة" 
+                                    Width="120" MinWidth="120"
+                                    Binding="{Binding Address}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="12"/>
+                            <Setter Property="Foreground" Value="#6B7280"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Total Debt with Color Coding -->
+                <DataGridTextColumn Header="الرصيد (USD)" 
+                                    Width="120" MinWidth="120"
+                                    Binding="{Binding TotalDebt, StringFormat=N2}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="FontFamily" Value="Consolas, Courier New"/>
+                            <Setter Property="Foreground" 
+                                    Value="{Binding TotalDebt, Converter={StaticResource DebtColorConverter}}"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Last Transaction Date -->
+                <DataGridTextColumn Header="آخر معاملة" 
+                                    Width="100" MinWidth="100"
+                                    Binding="{Binding UpdatedDate, StringFormat=yyyy/MM/dd}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="12"/>
+                            <Setter Property="Foreground" Value="#6B7280"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Status Text -->
+                <DataGridTextColumn Header="الحالة" 
+                                    Width="80" MinWidth="80"
+                                    Binding="{Binding IsActive, Converter={StaticResource TruckAvailabilityConverter}}">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="FontSize" Value="12"/>
+                            <Setter Property="FontWeight" Value="Medium"/>
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <!-- Quick Actions -->
+                <DataGridTemplateColumn Header="إجراءات" Width="100" MinWidth="100">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Button x:Name="EditCustomerButton"
+                                        Content="✏️" 
+                                        ToolTip="تعديل بيانات الزبون"
+                                        Background="Transparent" 
+                                        BorderThickness="0"
+                                        FontSize="14" 
+                                        Width="28" Height="28"
+                                        Cursor="Hand"
+                                        Margin="2"/>
+                                <Button x:Name="ViewDetailsButton"
+                                        Content="👁️" 
+                                        ToolTip="عرض تفاصيل الزبون"
+                                        Background="Transparent" 
+                                        BorderThickness="0"
+                                        FontSize="14" 
+                                        Width="28" Height="28"
+                                        Cursor="Hand"
+                                        Margin="2"/>
+                                <Button x:Name="DeleteCustomerButton"
+                                        Content="🗑️" 
+                                        ToolTip="حذف الزبون"
+                                        Background="Transparent" 
+                                        BorderThickness="0"
+                                        FontSize="14" 
+                                        Width="28" Height="28"
+                                        Cursor="Hand"
+                                        Margin="2"
+                                        Foreground="#EF4444"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+            <!-- Context Menu for Right-Click Actions -->
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="تعديل الزبون" 
+                              Icon="✏️"/>
+                    <MenuItem Header="عرض التفاصيل" 
+                              Icon="👁️"/>
+                    <Separator/>
+                    <MenuItem Header="إضافة دفعة" 
+                              Icon="💰"/>
+                    <MenuItem Header="عرض المعاملات" 
+                              Icon="📊"/>
+                    <Separator/>
+                    <MenuItem Header="إعادة حساب الرصيد" 
+                              Icon="🧮"/>
+                    <Separator/>
+                    <MenuItem Header="حذف الزبون" 
+                              Icon="🗑️"
+                              Foreground="#EF4444"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+        </DataGrid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="2" 
+                Background="#F8FAFC" 
+                BorderBrush="#E5E7EB"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Selection Info -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock x:Name="SelectionInfoText"
+                               Text="لم يتم اختيار زبون" 
+                               FontSize="12" 
+                               Foreground="#6B7280"/>
+                </StackPanel>
+
+                <!-- Statistics Summary -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
+                    <TextBlock Text="إجمالي الديون:" 
+                               FontSize="12" 
+                               Foreground="#6B7280" 
+                               Margin="0,0,4,0"/>
+                    <TextBlock x:Name="TotalDebtSummary"
+                               Text="0.00 USD" 
+                               FontSize="12" 
+                               FontWeight="SemiBold"
+                               Foreground="#DC2626"/>
+                </StackPanel>
+
+                <!-- Last Update Time -->
+                <TextBlock Grid.Column="2" 
+                           x:Name="LastUpdateText"
+                           Text="{Binding Source={x:Static sys:DateTime.Now}, StringFormat='آخر تحديث: {0:HH:mm:ss}'}" 
+                           FontSize="11" 
+                           Foreground="#9CA3AF"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
+        <!-- Loading Overlay -->
+        <Border Grid.RowSpan="3"
+                x:Name="LoadingOverlay"
+                Background="#80FFFFFF"
+                Visibility="Collapsed">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border Width="32" Height="32" 
+                        RenderTransformOrigin="0.5,0.5"
+                        Margin="0,0,0,16">
+                    <Border.RenderTransform>
+                        <RotateTransform/>
+                    </Border.RenderTransform>
+                    <Border.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                                                     From="0" To="360" Duration="0:0:1"
+                                                     RepeatBehavior="Forever"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </Border.Triggers>
+                    <Ellipse Fill="#3B82F6" Opacity="0.8"/>
+                </Border>
+                <TextBlock Text="جاري تحميل قائمة الزبائن..." 
+                           FontSize="14" 
+                           Foreground="#374151"
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
