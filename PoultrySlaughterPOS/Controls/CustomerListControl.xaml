@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="PoultrySlaughterPOS.Controls.CustomerListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
              xmlns:converters="clr-namespace:PoultrySlaughterPOS.Converters"
              x:Name="CustomerListControlRoot"
              FlowDirection="RightToLeft"
@@ -12,6 +13,7 @@
         <converters:DebtColorConverter x:Key="DebtColorConverter"/>
         <converters:TruckAvailabilityConverter x:Key="TruckAvailabilityConverter"/>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+        <converters:StatusIndicatorConverter x:Key="StatusIndicatorConverter"/>
 
         <!-- Modern DataGrid Style -->
         <Style x:Key="CustomerDataGridStyle" TargetType="DataGrid">
@@ -128,7 +130,7 @@
                             Padding="8,4" 
                             Margin="12,0,0,0">
                         <TextBlock x:Name="CustomerCountBadge"
-                                   Text="{Binding Items.Count, RelativeSource={RelativeSource AncestorType=DataGrid}, StringFormat='{}{0} زبون'}" 
+                                   Text="0 زبون" 
                                    FontSize="11" FontWeight="Medium" 
                                    Foreground="#1E40AF"/>
                     </Border>
@@ -185,7 +187,7 @@
                                 <Border.Background>
                                     <SolidColorBrush>
                                         <SolidColorBrush.Color>
-                                            <MultiBinding Converter="{x:Static converters:StatusIndicatorConverter.Instance}">
+                                            <MultiBinding Converter="{StaticResource StatusIndicatorConverter}">
                                                 <Binding Path="IsActive"/>
                                                 <Binding Path="TotalDebt"/>
                                             </MultiBinding>
