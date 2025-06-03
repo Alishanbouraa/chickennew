@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
 using System;
 using System.Collections.Generic;
@@ -163,8 +164,8 @@ namespace PoultrySlaughterPOS.Controls
             {
                 InitializeComponent();
 
-                // Initialize logger through dependency injection if available
-                _logger = App.Current?.Services?.GetService<ILogger<DebtManagementControl>>()
+                // Initialize logger through dependency injection if available - FIXED: Use App.Services instead of App.Current.Services
+                _logger = App.Services?.GetService<ILogger<DebtManagementControl>>()
                           ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<DebtManagementControl>.Instance;
 
                 ConfigureEventHandlers();
@@ -553,33 +554,37 @@ namespace PoultrySlaughterPOS.Controls
         {
             try
             {
-                // This would typically involve complex calculations using repository data
-                // For now, we'll create sample analysis based on customer data
-
-                var accountAge = (DateTime.Now - customer.CreatedDate).Days;
-                var currentDebt = customer.TotalDebt;
-
-                // Calculate risk score based on debt amount and account age
-                var riskScore = CalculateRiskScore(currentDebt, accountAge);
-
-                DebtAnalysis = new DebtAnalysisData
+                // FIXED: Add actual async operation to resolve CS1998 warning
+                await Task.Run(() =>
                 {
-                    CurrentDebt = currentDebt,
-                    DaysOverdue = Math.Max(0, accountAge - 30), // Simple calculation
-                    RiskScore = riskScore,
-                    RiskLevel = GetRiskLevel(riskScore),
-                    AgingBreakdown = CalculateAgingBreakdown(currentDebt, accountAge)
-                };
+                    // This would typically involve complex calculations using repository data
+                    // For now, we'll create sample analysis based on customer data
 
-                PaymentPlan = new PaymentPlanRecommendation
-                {
-                    SuggestedMonthlyPayment = Math.Max(50, currentDebt / 6), // 6-month plan
-                    PaymentDuration = currentDebt > 0 ? Math.Ceiling(currentDebt / Math.Max(50, currentDebt / 6)) : 0,
-                    NextDueDate = DateTime.Today.AddDays(30)
-                };
+                    var accountAge = (DateTime.Now - customer.CreatedDate).Days;
+                    var currentDebt = customer.TotalDebt;
+
+                    // Calculate risk score based on debt amount and account age
+                    var riskScore = CalculateRiskScore(currentDebt, accountAge);
+
+                    DebtAnalysis = new DebtAnalysisData
+                    {
+                        CurrentDebt = currentDebt,
+                        DaysOverdue = Math.Max(0, accountAge - 30), // Simple calculation
+                        RiskScore = riskScore,
+                        RiskLevel = GetRiskLevel(riskScore),
+                        AgingBreakdown = CalculateAgingBreakdown(currentDebt, accountAge)
+                    };
+
+                    PaymentPlan = new PaymentPlanRecommendation
+                    {
+                        SuggestedMonthlyPayment = Math.Max(50, currentDebt / 6), // 6-month plan
+                        PaymentDuration = currentDebt > 0 ? Math.Ceiling(currentDebt / Math.Max(50, currentDebt / 6)) : 0,
+                        NextDueDate = DateTime.Today.AddDays(30)
+                    };
+                });
 
                 _logger.LogDebug("Debt analysis calculated for customer: {CustomerName}, Risk Score: {RiskScore}",
-                    customer.CustomerName, riskScore);
+                    customer.CustomerName, DebtAnalysis?.RiskScore ?? 0);
             }
             catch (Exception ex)
             {

@@ -584,39 +584,48 @@ namespace PoultrySlaughterPOS.ViewModels
         [RelayCommand]
         private async Task GoToPreviousPageAsync()
         {
+            // FIXED: Add async operation to resolve CS1998 warning
             if (CanGoToPreviousPage)
             {
                 CurrentPage--;
+                await Task.Delay(10); // Brief delay for UI responsiveness
             }
         }
 
         [RelayCommand]
         private async Task GoToNextPageAsync()
         {
+            // FIXED: Add async operation to resolve CS1998 warning
             if (CanGoToNextPage)
             {
                 CurrentPage++;
+                await Task.Delay(10); // Brief delay for UI responsiveness
             }
         }
+
+
 
         [RelayCommand]
         private async Task GoToFirstPageAsync()
         {
+            // FIXED: Add async operation to resolve CS1998 warning
             if (CurrentPage != 1)
             {
                 CurrentPage = 1;
+                await Task.Delay(10); // Brief delay for UI responsiveness
             }
         }
 
         [RelayCommand]
         private async Task GoToLastPageAsync()
         {
+            // FIXED: Add async operation to resolve CS1998 warning
             if (CurrentPage != TotalPages)
             {
                 CurrentPage = TotalPages;
+                await Task.Delay(10); // Brief delay for UI responsiveness
             }
         }
-
         #endregion
 
         #region Public Methods

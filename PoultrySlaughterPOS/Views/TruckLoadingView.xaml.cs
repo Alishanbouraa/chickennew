@@ -24,6 +24,7 @@ namespace PoultrySlaughterPOS.Views
         {
             InitializeComponent();
 
+            // FIXED: Initialize logger field to resolve CS8618 warning
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
 
@@ -41,6 +42,9 @@ namespace PoultrySlaughterPOS.Views
         public TruckLoadingView()
         {
             InitializeComponent();
+
+            // FIXED: Initialize logger field for designer support
+            _logger = Microsoft.Extensions.Logging.Abstractions.NullLogger<TruckLoadingView>.Instance;
 
             // Design-time support
             if (System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
@@ -86,7 +90,77 @@ namespace PoultrySlaughterPOS.Views
                 await AttemptGracefulDegradation();
             }
         }
+        /// <summary>
+        /// Sets the ViewModel for this view and establishes data binding
+        /// ADDED: Missing SetViewModel method required by MainWindow
+        /// </summary>
+        /// <param name="viewModel">TruckLoadingViewModel instance</param>
+        public void SetViewModel(TruckLoadingViewModel viewModel)
+        {
+            try
+            {
+                _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+                DataContext = _viewModel;
 
+                // Subscribe to ViewModel events
+                SubscribeToViewModelEvents();
+
+                _logger.LogInformation("TruckLoadingView ViewModel set successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting ViewModel for TruckLoadingView");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously initializes the view with comprehensive data loading
+        /// ADDED: Missing InitializeAsync method required by MainWindow
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                if (_viewModel != null && !System.ComponentModel.DesignerProperties.GetIsInDesignMode(this))
+                {
+                    _logger.LogInformation("TruckLoadingView async initialization started");
+
+                    await _viewModel.InitializeAsync();
+
+                    _logger.LogInformation("TruckLoadingView async initialization completed successfully");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during TruckLoadingView async initialization");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Comprehensive cleanup method for resource disposal
+        /// ADDED: Missing Cleanup method required by MainWindow
+        /// </summary>
+        public void Cleanup()
+        {
+            try
+            {
+                _logger.LogDebug("TruckLoadingView cleanup initiated");
+
+                // Unsubscribe from ViewModel events
+                UnsubscribeFromViewModelEvents();
+
+                // Cleanup ViewModel
+                _viewModel?.Cleanup();
+
+                _logger.LogDebug("TruckLoadingView cleanup completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error during TruckLoadingView cleanup");
+            }
+        }
         /// <summary>
         /// Handles the UserControl unloaded event for comprehensive cleanup
         /// </summary>

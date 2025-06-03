@@ -636,6 +636,55 @@ namespace PoultrySlaughterPOS.Views
         #region Enhanced Private Methods
 
         /// <summary>
+        /// Sets the ViewModel for this view and establishes data binding
+        /// ADDED: Missing SetViewModel method required by MainWindow
+        /// </summary>
+        /// <param name="viewModel">POSViewModel instance</param>
+        public void SetViewModel(POSViewModel viewModel)
+        {
+            try
+            {
+                _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+                DataContext = _viewModel;
+
+                // Wire up ViewModel event handlers if needed
+                if (_viewModel != null)
+                {
+                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                }
+
+                _logger.LogInformation("POSView ViewModel set successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting ViewModel for POSView");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously initializes the view with comprehensive data loading
+        /// ADDED: Missing InitializeAsync method required by MainWindow
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                if (!_isInitialized)
+                {
+                    await InitializeViewAsync();
+                }
+
+                _logger.LogInformation("POSView async initialization completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during POSView async initialization");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Enhanced view properties configuration
         /// </summary>
         private void ConfigureEnhancedViewProperties()

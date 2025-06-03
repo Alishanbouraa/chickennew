@@ -56,7 +56,7 @@ namespace PoultrySlaughterPOS.Views.Dialogs
         #region Public Properties
 
         /// <summary>
-        /// Returns the created customer if dialog completed successfully, null otherwise
+        /// Returns the created/updated customer if dialog completed successfully, null otherwise
         /// </summary>
         public Customer? CreatedCustomer => _viewModel.CreatedCustomer;
 
@@ -72,48 +72,103 @@ namespace PoultrySlaughterPOS.Views.Dialogs
 
         #endregion
 
-        #region Public Methods
+        #region Static Factory Methods
 
         /// <summary>
-        /// Shows the dialog modally and returns the created customer if successful
+        /// Factory method for creating and showing new customer dialog
+        /// FIXED: Complete implementation using ViewModel pattern
         /// </summary>
+        /// <param name="serviceProvider">Service provider for dependency resolution</param>
         /// <param name="owner">Parent window for modal positioning</param>
         /// <returns>Created customer or null if cancelled</returns>
-        public async Task<Customer?> ShowDialogAsync(Window? owner = null)
+        public static async Task<Customer?> ShowNewCustomerDialogAsync(IServiceProvider serviceProvider, Window? owner = null)
         {
             try
             {
-                _logger.LogInformation("Displaying AddCustomerDialog modally");
+                var logger = serviceProvider.GetService<ILogger<AddCustomerDialog>>();
+                logger?.LogInformation("Creating new customer dialog via factory method");
 
-                // Set owner for proper modal behavior
-                if (owner != null)
-                {
-                    Owner = owner;
-                }
+                // Resolve dialog from DI container
+                var dialog = serviceProvider.GetRequiredService<AddCustomerDialog>();
 
-                // Reset dialog state for reuse scenarios
-                await ResetDialogStateAsync();
+                // Configure for new customer mode
+                dialog._viewModel.ConfigureForNewCustomer();
+                dialog.Title = dialog._viewModel.DialogTitle;
 
-                // Set initial focus for optimal user experience
-                Loaded += (s, e) => SetInitialFocus();
-
-                // Show dialog modally
-                var dialogResult = ShowDialog();
-
-                _logger.LogInformation("AddCustomerDialog closed with result: {DialogResult}, Customer created: {CustomerCreated}",
-                    dialogResult, CreatedCustomer != null);
-
-                return dialogResult == true ? CreatedCustomer : null;
+                // Show dialog and return result
+                return await dialog.ShowDialogInternalAsync(owner);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error displaying AddCustomerDialog");
-                MessageBox.Show($"خطأ في عرض نافذة إضافة الزبون:\n{ex.Message}",
-                               "خطأ",
+                var logger = serviceProvider.GetService<ILogger<AddCustomerDialog>>();
+                logger?.LogError(ex, "Error in ShowNewCustomerDialogAsync factory method");
+
+                MessageBox.Show($"خطأ في إنشاء نافذة إضافة الزبون:\n{ex.Message}",
+                               "خطأ في النظام",
                                MessageBoxButton.OK,
                                MessageBoxImage.Error);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Shows the edit customer dialog with pre-populated customer data
+        /// FIXED: Complete implementation using ViewModel pattern instead of direct control access
+        /// </summary>
+        /// <param name="serviceProvider">Service provider for dependency injection</param>
+        /// <param name="owner">Owner window for modal positioning</param>
+        /// <param name="customer">Customer to edit</param>
+        /// <returns>Updated customer if saved, null if cancelled</returns>
+        public static async Task<Customer?> ShowEditCustomerDialogAsync(
+            IServiceProvider serviceProvider,
+            Window? owner,
+            Customer customer)
+        {
+            try
+            {
+                if (customer == null)
+                    throw new ArgumentNullException(nameof(customer));
+
+                var logger = serviceProvider.GetService<ILogger<AddCustomerDialog>>();
+                logger?.LogInformation("Creating edit customer dialog for customer {CustomerId}", customer.CustomerId);
+
+                // Resolve dialog from DI container
+                var dialog = serviceProvider.GetRequiredService<AddCustomerDialog>();
+
+                // FIXED: Use ViewModel to load customer data instead of direct control access
+                dialog._viewModel.LoadCustomerForEdit(customer);
+                dialog.Title = dialog._viewModel.DialogTitle;
+
+                // Show dialog and return result
+                return await dialog.ShowDialogInternalAsync(owner);
+            }
+            catch (Exception ex)
+            {
+                var logger = serviceProvider.GetService<ILogger<AddCustomerDialog>>();
+                logger?.LogError(ex, "Error showing edit customer dialog for customer {CustomerId}", customer?.CustomerId);
+
+                MessageBox.Show(
+                    "حدث خطأ أثناء فتح نافذة تعديل الزبون. يرجى المحاولة مرة أخرى.",
+                    "خطأ",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+
+                return null;
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Shows the dialog modally and returns the created/updated customer if successful
+        /// </summary>
+        /// <param name="owner">Parent window for modal positioning</param>
+        /// <returns>Created/updated customer or null if cancelled</returns>
+        public async Task<Customer?> ShowDialogAsync(Window? owner = null)
+        {
+            return await ShowDialogInternalAsync(owner);
         }
 
         /// <summary>
@@ -124,12 +179,6 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             try
             {
                 _viewModel.ResetDialog();
-
-                // Clear any UI-specific state
-                CustomerNameTextBox.Clear();
-                PhoneNumberTextBox.Clear();
-                AddressTextBox.Clear();
-
                 _logger.LogDebug("AddCustomerDialog state reset successfully");
             }
             catch (Exception ex)
@@ -147,7 +196,6 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             {
                 _isClosingProgrammatically = true;
                 DialogResult = true;
-
                 _logger.LogDebug("AddCustomerDialog closed programmatically with success");
             }
             catch (Exception ex)
@@ -165,12 +213,135 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             {
                 _isClosingProgrammatically = true;
                 DialogResult = false;
-
                 _logger.LogDebug("AddCustomerDialog closed programmatically with cancellation");
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Error closing dialog with cancellation");
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Internal method to show dialog with proper configuration
+        /// </summary>
+        private async Task<Customer?> ShowDialogInternalAsync(Window? owner)
+        {
+            try
+            {
+                _logger.LogInformation("Displaying AddCustomerDialog modally");
+
+                // Set owner for proper modal behavior
+                if (owner != null)
+                {
+                    Owner = owner;
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                }
+                else
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                }
+
+                // Set initial focus for optimal user experience
+                Loaded += (s, e) => SetInitialFocus();
+
+                // Show dialog modally
+                var dialogResult = ShowDialog();
+
+                _logger.LogInformation("AddCustomerDialog closed with result: {DialogResult}, Customer created: {CustomerCreated}",
+                    dialogResult, CreatedCustomer != null);
+
+                return dialogResult == true ? CreatedCustomer : null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error displaying AddCustomerDialog");
+                MessageBox.Show($"خطأ في عرض نافذة الزبون:\n{ex.Message}",
+                               "خطأ",
+                               MessageBoxButton.OK,
+                               MessageBoxImage.Error);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Configures dialog-specific properties for optimal user experience
+        /// </summary>
+        private void ConfigureDialogProperties()
+        {
+            try
+            {
+                // Prevent resizing for consistent experience
+                ResizeMode = ResizeMode.NoResize;
+
+                // Set appropriate minimum size
+                MinWidth = 480;
+                MinHeight = 520;
+
+                // Configure for modal behavior
+                ShowInTaskbar = false;
+
+                _logger.LogDebug("Dialog properties configured successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error configuring dialog properties");
+            }
+        }
+
+        /// <summary>
+        /// Wires up comprehensive event handlers for advanced dialog management
+        /// </summary>
+        private void WireUpEventHandlers()
+        {
+            try
+            {
+                // Window event handlers
+                Loaded += AddCustomerDialog_Loaded;
+                Closing += AddCustomerDialog_Closing;
+                KeyDown += AddCustomerDialog_KeyDown;
+
+                // ViewModel event handlers
+                _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+
+                _logger.LogDebug("Event handlers wired up successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error wiring up event handlers");
+            }
+        }
+
+        /// <summary>
+        /// Sets initial focus to the first input field for optimal user experience
+        /// </summary>
+        private void SetInitialFocus()
+        {
+            try
+            {
+                // Try to find CustomerNameTextBox and set focus
+                if (FindName("CustomerNameTextBox") is FrameworkElement customerNameTextBox)
+                {
+                    customerNameTextBox.Focus();
+                    if (customerNameTextBox is System.Windows.Controls.TextBox textBox)
+                    {
+                        textBox.SelectAll();
+                    }
+                    _logger.LogDebug("Initial focus set to customer name field");
+                }
+                else
+                {
+                    // Fallback to first focusable element
+                    MoveFocus(new TraversalRequest(FocusNavigationDirection.First));
+                    _logger.LogDebug("Initial focus set to first focusable element");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error setting initial focus");
             }
         }
 
@@ -304,112 +475,6 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             }
         }
 
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Configures dialog-specific properties for optimal user experience
-        /// </summary>
-        private void ConfigureDialogProperties()
-        {
-            try
-            {
-                // Center dialog on owner or screen
-                WindowStartupLocation = WindowStartupLocation.CenterOwner;
-
-                // Prevent resizing for consistent experience
-                ResizeMode = ResizeMode.NoResize;
-
-                // Set appropriate minimum size
-                MinWidth = 480;
-                MinHeight = 520;
-
-                // Configure for modal behavior
-                ShowInTaskbar = false;
-
-                // Set appropriate icon if available
-                // Icon = Application.Current.MainWindow?.Icon;
-
-                _logger.LogDebug("Dialog properties configured successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error configuring dialog properties");
-            }
-        }
-
-        /// <summary>
-        /// Wires up comprehensive event handlers for advanced dialog management
-        /// </summary>
-        private void WireUpEventHandlers()
-        {
-            try
-            {
-                // Window event handlers
-                Loaded += AddCustomerDialog_Loaded;
-                Closing += AddCustomerDialog_Closing;
-                KeyDown += AddCustomerDialog_KeyDown;
-
-                // ViewModel event handlers
-                _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-
-                // Input field event handlers for enhanced UX
-                CustomerNameTextBox.GotFocus += (s, e) => CustomerNameTextBox.SelectAll();
-                PhoneNumberTextBox.GotFocus += (s, e) => PhoneNumberTextBox.SelectAll();
-                AddressTextBox.GotFocus += (s, e) => AddressTextBox.SelectAll();
-
-                // Enter key navigation
-                CustomerNameTextBox.KeyDown += InputField_KeyDown;
-                PhoneNumberTextBox.KeyDown += InputField_KeyDown;
-                AddressTextBox.KeyDown += InputField_KeyDown;
-
-                _logger.LogDebug("Event handlers wired up successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error wiring up event handlers");
-            }
-        }
-
-        /// <summary>
-        /// Handles Enter key navigation between input fields
-        /// </summary>
-        private void InputField_KeyDown(object sender, KeyEventArgs e)
-        {
-            try
-            {
-                if (e.Key == Key.Enter && sender is FrameworkElement element)
-                {
-                    // Move to next tabstop
-                    element.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-                    e.Handled = true;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling input field key navigation");
-            }
-        }
-
-        /// <summary>
-        /// Sets initial focus to the first input field for optimal user experience
-        /// </summary>
-        private void SetInitialFocus()
-        {
-            try
-            {
-                CustomerNameTextBox.Focus();
-                CustomerNameTextBox.SelectAll();
-
-                _logger.LogDebug("Initial focus set to customer name field");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error setting initial focus");
-            }
-        }
-
         /// <summary>
         /// Handles ViewModel DialogResult changes for proper dialog closure
         /// </summary>
@@ -442,13 +507,10 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             {
                 if (_viewModel.IsSaving)
                 {
-                    // Disable window closing during save operation
-                    IsEnabled = true; // Keep enabled but show visual feedback
                     Cursor = Cursors.Wait;
                 }
                 else
                 {
-                    // Re-enable normal cursor
                     Cursor = Cursors.Arrow;
                 }
 
@@ -467,9 +529,6 @@ namespace PoultrySlaughterPOS.Views.Dialogs
         {
             try
             {
-                // Additional UI feedback for validation errors could be implemented here
-                // For example, changing border colors, showing tooltips, etc.
-
                 _logger.LogDebug("Validation state changed: {HasErrors}", _viewModel.HasValidationErrors);
             }
             catch (Exception ex)
@@ -494,42 +553,6 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             {
                 _logger.LogWarning(ex, "Error checking for unsaved changes");
                 return false;
-            }
-        }
-
-        #endregion
-
-        #region Static Factory Methods
-
-        /// <summary>
-        /// Factory method for creating and showing the dialog with proper dependency injection
-        /// </summary>
-        /// <param name="serviceProvider">Service provider for dependency resolution</param>
-        /// <param name="owner">Parent window for modal positioning</param>
-        /// <returns>Created customer or null if cancelled</returns>
-        public static async Task<Customer?> ShowNewCustomerDialogAsync(IServiceProvider serviceProvider, Window? owner = null)
-        {
-            try
-            {
-                var logger = serviceProvider.GetService(typeof(ILogger<AddCustomerDialog>)) as ILogger<AddCustomerDialog>;
-                logger?.LogInformation("Creating AddCustomerDialog via factory method");
-
-                // Resolve dialog from DI container
-                var dialog = serviceProvider.GetRequiredService<AddCustomerDialog>();
-
-                // Show dialog and return result
-                return await dialog.ShowDialogAsync(owner);
-            }
-            catch (Exception ex)
-            {
-                var logger = serviceProvider.GetService(typeof(ILogger<AddCustomerDialog>)) as ILogger<AddCustomerDialog>;
-                logger?.LogError(ex, "Error in ShowNewCustomerDialogAsync factory method");
-
-                MessageBox.Show($"خطأ في إنشاء نافذة إضافة الزبون:\n{ex.Message}",
-                               "خطأ في النظام",
-                               MessageBoxButton.OK,
-                               MessageBoxImage.Error);
-                return null;
             }
         }
 

@@ -226,23 +226,8 @@ namespace PoultrySlaughterPOS
         /// </summary>
         public static IServiceProvider Services => Extensions.ApplicationExtensions.Services;
 
-        /// <summary>
-        /// Enhanced OnExit override to ensure proper service provider disposal
-        /// </summary>
-        protected override void OnExit(ExitEventArgs e)
-        {
-            try
-            {
-                // Dispose service provider to prevent resource leaks
-                this.DisposeServiceProvider();
-                base.OnExit(e);
-            }
-            catch (Exception ex)
-            {
-                // Log error but don't prevent application exit
-                System.Diagnostics.Debug.WriteLine($"Error during application exit: {ex.Message}");
-                base.OnExit(e);
-            }
-        }
+        // NOTE: OnExit method removed to prevent CS0111 duplicate method error
+        // The comprehensive OnExit implementation in App.xaml.cs already handles 
+        // service provider disposal by calling this.DisposeServiceProvider()
     }
 }

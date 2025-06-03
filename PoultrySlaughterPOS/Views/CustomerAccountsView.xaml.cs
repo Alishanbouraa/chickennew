@@ -35,8 +35,8 @@ namespace PoultrySlaughterPOS.Views
             {
                 InitializeComponent();
 
-                // Initialize logger if available through service provider
-                _logger = App.Current?.Services?.GetService<ILogger<CustomerAccountsView>>()
+                // Initialize logger if available through service provider - FIXED: Use App.Services instead of App.Current.Services
+                _logger = App.Services?.GetService<ILogger<CustomerAccountsView>>()
                           ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<CustomerAccountsView>.Instance;
 
                 ConfigureEventHandlers();

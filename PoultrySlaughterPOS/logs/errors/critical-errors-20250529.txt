@@ -1,0 +1,20 @@
+2025-05-29 01:45:42.400 +03:00 [FTL] Critical failure during application startup - initiating emergency shutdown
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.Write[T](DiagnosticListener diagnosticSource, String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at PoultrySlaughterPOS.App.CreateApplicationHost(IConfiguration configuration) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\App.xaml.cs:line 99
+   at PoultrySlaughterPOS.App.OnStartup(StartupEventArgs e) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\App.xaml.cs:line 35
+2025-05-29 01:55:05.743 +03:00 [FTL] Critical failure during application startup - initiating emergency shutdown
+Microsoft.Extensions.Hosting.HostAbortedException: The host was aborted.
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.ThrowHostAborted()
+   at Microsoft.Extensions.Hosting.HostFactoryResolver.HostingListener.OnNext(KeyValuePair`2 value)
+   at System.Diagnostics.DiagnosticListener.Write(String name, Object value)
+   at Microsoft.Extensions.Hosting.HostBuilder.Write[T](DiagnosticListener diagnosticSource, String name, T value)
+   at Microsoft.Extensions.Hosting.HostBuilder.ResolveHost(IServiceProvider serviceProvider, DiagnosticListener diagnosticListener)
+   at Microsoft.Extensions.Hosting.HostBuilder.Build()
+   at PoultrySlaughterPOS.App.CreateApplicationHost(IConfiguration configuration) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\App.xaml.cs:line 99
+   at PoultrySlaughterPOS.App.OnStartup(StartupEventArgs e) in C:\Users\$\Desktop\PoultrySlaughterPOS\PoultrySlaughterPOS\App.xaml.cs:line 35

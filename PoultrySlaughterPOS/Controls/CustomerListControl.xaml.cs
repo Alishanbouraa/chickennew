@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
 using System;
 using System.Collections.ObjectModel;
@@ -159,8 +160,8 @@ namespace PoultrySlaughterPOS.Controls
             {
                 InitializeComponent();
 
-                // Initialize logger if available
-                _logger = App.Current?.Services?.GetService<ILogger<CustomerListControl>>()
+                // Initialize logger if available - FIXED: Use App.Services instead of App.Current.Services
+                _logger = App.Services?.GetService<ILogger<CustomerListControl>>()
                           ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<CustomerListControl>.Instance;
 
                 ConfigureEventHandlers();

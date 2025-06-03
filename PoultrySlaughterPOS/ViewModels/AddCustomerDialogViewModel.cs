@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace PoultrySlaughterPOS.ViewModels
 {
     /// <summary>
-    /// Enterprise-grade Add Customer Dialog ViewModel implementing comprehensive customer creation
+    /// Enterprise-grade Add/Edit Customer Dialog ViewModel implementing comprehensive customer creation and editing
     /// with real-time validation, duplicate checking, and business rule enforcement.
     /// Optimized for POS workflow integration with async operations and error handling.
     /// </summary>
@@ -31,6 +31,12 @@ namespace PoultrySlaughterPOS.ViewModels
         private string _customerName = string.Empty;
         private string _phoneNumber = string.Empty;
         private string _address = string.Empty;
+        private bool _isActive = true; // ADDED: Missing IsActive property
+
+        // Edit mode tracking
+        private bool _isEditMode = false; // ADDED: Track if in edit mode
+        private Customer? _editingCustomer = null; // ADDED: Customer being edited
+        private int? _editingCustomerId = null; // ADDED: ID for duplicate checking
 
         // Validation state
         private bool _hasValidationErrors = false;
@@ -58,7 +64,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
             InitializeViewModel();
 
-            _logger.LogInformation("AddCustomerDialogViewModel initialized with enterprise-grade validation");
+            _logger.LogInformation("AddCustomerDialogViewModel initialized with enterprise-grade validation and edit mode support");
         }
 
         #endregion
@@ -118,6 +124,24 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
+        /// ADDED: Customer active status
+        /// </summary>
+        public bool IsActive
+        {
+            get => _isActive;
+            set => SetProperty(ref _isActive, value);
+        }
+
+        /// <summary>
+        /// ADDED: Indicates if dialog is in edit mode
+        /// </summary>
+        public bool IsEditMode
+        {
+            get => _isEditMode;
+            private set => SetProperty(ref _isEditMode, value);
+        }
+
+        /// <summary>
         /// Loading state indicator
         /// </summary>
         public bool IsLoading
@@ -163,7 +187,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Created customer result (null if cancelled)
+        /// Created or updated customer result (null if cancelled)
         /// </summary>
         public Customer? CreatedCustomer
         {
@@ -188,12 +212,22 @@ namespace PoultrySlaughterPOS.ViewModels
             !HasValidationErrors &&
             !IsSaving;
 
+        /// <summary>
+        /// ADDED: Dialog title based on mode
+        /// </summary>
+        public string DialogTitle => IsEditMode ? "تعديل بيانات الزبون" : "إضافة زبون جديد";
+
+        /// <summary>
+        /// ADDED: Save button text based on mode
+        /// </summary>
+        public string SaveButtonText => IsEditMode ? "تحديث" : "حفظ";
+
         #endregion
 
         #region Commands
 
         /// <summary>
-        /// Command to save the new customer
+        /// Command to save the customer (create or update)
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanExecuteSaveCustomer))]
         private async Task SaveCustomerAsync()
@@ -201,9 +235,9 @@ namespace PoultrySlaughterPOS.ViewModels
             try
             {
                 IsSaving = true;
-                StatusMessage = "جاري حفظ بيانات الزبون...";
+                StatusMessage = IsEditMode ? "جاري تحديث بيانات الزبون..." : "جاري حفظ بيانات الزبون...";
 
-                _logger.LogInformation("Saving new customer: {CustomerName}", CustomerName);
+                _logger.LogInformation("{Action} customer: {CustomerName}", IsEditMode ? "Updating" : "Creating", CustomerName);
 
                 // Final validation before saving
                 if (!await ValidateAllFieldsAsync())
@@ -212,32 +246,53 @@ namespace PoultrySlaughterPOS.ViewModels
                     return;
                 }
 
-                // Create customer entity
-                var customer = new Customer
+                if (IsEditMode && _editingCustomer != null)
                 {
-                    CustomerName = CustomerName.Trim(),
-                    PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
-                    Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
-                    TotalDebt = 0,
-                    IsActive = true,
-                    CreatedDate = DateTime.Now,
-                    UpdatedDate = DateTime.Now
-                };
+                    // Update existing customer
+                    _editingCustomer.CustomerName = CustomerName.Trim();
+                    _editingCustomer.PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim();
+                    _editingCustomer.Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim();
+                    _editingCustomer.IsActive = IsActive;
+                    _editingCustomer.UpdatedDate = DateTime.Now;
 
-                // Save customer using Unit of Work pattern
-                CreatedCustomer = await _unitOfWork.Customers.AddAsync(customer);
-                await _unitOfWork.SaveChangesAsync("POS_USER");
+                    await _unitOfWork.Customers.UpdateAsync(_editingCustomer);
+                    await _unitOfWork.SaveChangesAsync("POS_USER");
 
-                StatusMessage = "تم حفظ الزبون بنجاح";
+                    CreatedCustomer = _editingCustomer;
+                    StatusMessage = "تم تحديث بيانات الزبون بنجاح";
+
+                    _logger.LogInformation("Customer updated successfully - ID: {CustomerId}, Name: {CustomerName}",
+                        _editingCustomer.CustomerId, _editingCustomer.CustomerName);
+                }
+                else
+                {
+                    // Create new customer
+                    var customer = new Customer
+                    {
+                        CustomerName = CustomerName.Trim(),
+                        PhoneNumber = string.IsNullOrWhiteSpace(PhoneNumber) ? null : PhoneNumber.Trim(),
+                        Address = string.IsNullOrWhiteSpace(Address) ? null : Address.Trim(),
+                        IsActive = IsActive,
+                        TotalDebt = 0,
+                        CreatedDate = DateTime.Now,
+                        UpdatedDate = DateTime.Now
+                    };
+
+                    CreatedCustomer = await _unitOfWork.Customers.AddAsync(customer);
+                    await _unitOfWork.SaveChangesAsync("POS_USER");
+
+                    StatusMessage = "تم حفظ الزبون بنجاح";
+
+                    _logger.LogInformation("Customer created successfully - ID: {CustomerId}, Name: {CustomerName}",
+                        CreatedCustomer.CustomerId, CreatedCustomer.CustomerName);
+                }
+
                 DialogResult = true;
-
-                _logger.LogInformation("Customer saved successfully - ID: {CustomerId}, Name: {CustomerName}",
-                    CreatedCustomer.CustomerId, CreatedCustomer.CustomerName);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving customer {CustomerName}", CustomerName);
-                StatusMessage = $"خطأ في حفظ الزبون: {ex.Message}";
+                _logger.LogError(ex, "Error {Action} customer {CustomerName}", IsEditMode ? "updating" : "creating", CustomerName);
+                StatusMessage = $"خطأ في {(IsEditMode ? "تحديث" : "حفظ")} الزبون: {ex.Message}";
                 DialogResult = null;
             }
             finally
@@ -252,7 +307,7 @@ namespace PoultrySlaughterPOS.ViewModels
         [RelayCommand]
         private void CancelDialog()
         {
-            _logger.LogDebug("Customer creation cancelled by user");
+            _logger.LogDebug("Customer dialog cancelled by user");
             StatusMessage = "تم إلغاء العملية";
             CreatedCustomer = null;
             DialogResult = false;
@@ -267,6 +322,7 @@ namespace PoultrySlaughterPOS.ViewModels
             CustomerName = string.Empty;
             PhoneNumber = string.Empty;
             Address = string.Empty;
+            IsActive = true;
             ValidationErrors.Clear();
             HasValidationErrors = false;
             StatusMessage = string.Empty;
@@ -275,6 +331,52 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         private bool CanExecuteSaveCustomer() => CanSaveCustomer;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// ADDED: Loads customer data for editing
+        /// </summary>
+        /// <param name="customer">Customer to edit</param>
+        public void LoadCustomerForEdit(Customer customer)
+        {
+            if (customer == null)
+                throw new ArgumentNullException(nameof(customer));
+
+            _editingCustomer = customer;
+            _editingCustomerId = customer.CustomerId;
+            IsEditMode = true;
+
+            // Populate form with customer data
+            CustomerName = customer.CustomerName;
+            PhoneNumber = customer.PhoneNumber ?? string.Empty;
+            Address = customer.Address ?? string.Empty;
+            IsActive = customer.IsActive;
+
+            // Clear validation errors
+            ValidationErrors.Clear();
+            HasValidationErrors = false;
+            StatusMessage = "جاهز لتعديل بيانات الزبون";
+
+            _logger.LogDebug("Customer loaded for editing: {CustomerId} - {CustomerName}", customer.CustomerId, customer.CustomerName);
+        }
+
+        /// <summary>
+        /// ADDED: Configures dialog for new customer creation
+        /// </summary>
+        public void ConfigureForNewCustomer()
+        {
+            _editingCustomer = null;
+            _editingCustomerId = null;
+            IsEditMode = false;
+
+            ResetDialog();
+            StatusMessage = "أدخل بيانات الزبون الجديد";
+
+            _logger.LogDebug("Dialog configured for new customer creation");
+        }
 
         #endregion
 
@@ -307,9 +409,9 @@ namespace PoultrySlaughterPOS.ViewModels
                     return;
                 }
 
-                // Check for duplicate name
+                // Check for duplicate name (exclude current customer in edit mode)
                 var existingCustomer = await _unitOfWork.Customers.GetCustomerByNameAsync(CustomerName.Trim());
-                if (existingCustomer != null)
+                if (existingCustomer != null && existingCustomer.CustomerId != _editingCustomerId)
                 {
                     AddValidationError("اسم الزبون موجود مسبقاً");
                 }
@@ -348,9 +450,9 @@ namespace PoultrySlaughterPOS.ViewModels
                     return;
                 }
 
-                // Check for duplicate phone number
+                // Check for duplicate phone number (exclude current customer in edit mode)
                 var existingCustomer = await _unitOfWork.Customers.GetCustomerByPhoneAsync(PhoneNumber.Trim());
-                if (existingCustomer != null)
+                if (existingCustomer != null && existingCustomer.CustomerId != _editingCustomerId)
                 {
                     AddValidationError("رقم الهاتف مستخدم مسبقاً");
                 }
@@ -422,6 +524,8 @@ namespace PoultrySlaughterPOS.ViewModels
             StatusMessage = "أدخل بيانات الزبون الجديد";
             HasValidationErrors = false;
             DialogResult = null;
+            IsEditMode = false;
+            IsActive = true;
         }
 
         /// <summary>
@@ -462,15 +566,16 @@ namespace PoultrySlaughterPOS.ViewModels
             CustomerName = string.Empty;
             PhoneNumber = string.Empty;
             Address = string.Empty;
+            IsActive = true;
             ValidationErrors.Clear();
             HasValidationErrors = false;
-            StatusMessage = "أدخل بيانات الزبون الجديد";
+            StatusMessage = IsEditMode ? "جاهز لتعديل بيانات الزبون" : "أدخل بيانات الزبون الجديد";
             CreatedCustomer = null;
             DialogResult = null;
             IsLoading = false;
             IsSaving = false;
 
-            _logger.LogDebug("Add customer dialog reset to initial state");
+            _logger.LogDebug("Customer dialog reset to initial state");
         }
 
         #endregion

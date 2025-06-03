@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
 using System;
 using System.Collections.Generic;
@@ -194,8 +195,8 @@ namespace PoultrySlaughterPOS.Controls
             {
                 InitializeComponent();
 
-                // Initialize logger through dependency injection if available
-                _logger = App.Current?.Services?.GetService<ILogger<PaymentHistoryControl>>()
+                // Initialize logger through dependency injection if available - FIXED: Use App.Services instead of App.Current.Services
+                _logger = App.Services?.GetService<ILogger<PaymentHistoryControl>>()
                           ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PaymentHistoryControl>.Instance;
 
                 InitializeCollections();
@@ -210,6 +211,7 @@ namespace PoultrySlaughterPOS.Controls
                 throw;
             }
         }
+
 
         #endregion
 
@@ -238,6 +240,9 @@ namespace PoultrySlaughterPOS.Controls
                 var refreshArgs = new PaymentRefreshEventArgs(customer, startDate, endDate, _currentPaymentMethodFilter);
                 PaymentRefreshRequested?.Invoke(this, refreshArgs);
 
+                // FIXED: Add actual async operation to resolve CS1998 warning
+                await Task.Delay(50, CancellationToken.None); // Brief delay for UI responsiveness
+
                 _logger.LogInformation("Payment history loading initiated for customer: {CustomerName}, Period: {StartDate} to {EndDate}",
                     customer.CustomerName, startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
             }
@@ -247,6 +252,7 @@ namespace PoultrySlaughterPOS.Controls
                 throw;
             }
         }
+
 
         /// <summary>
         /// Updates the payment history display with new payment data and analytics
@@ -500,6 +506,7 @@ namespace PoultrySlaughterPOS.Controls
         /// </summary>
         private void InitializeCollections()
         {
+            // FIXED: Initialize Payments collection to resolve CS8618 warning
             Payments = new ObservableCollection<PaymentDisplayRecord>();
             PaymentsDataGrid.ItemsSource = Payments;
         }

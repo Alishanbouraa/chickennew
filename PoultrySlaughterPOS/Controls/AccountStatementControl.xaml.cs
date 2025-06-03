@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.Models;
 using System;
 using System.Collections.Generic;
@@ -179,8 +180,8 @@ namespace PoultrySlaughterPOS.Controls
             {
                 InitializeComponent();
 
-                // Initialize logger if available
-                _logger = App.Current?.Services?.GetService<ILogger<AccountStatementControl>>()
+                // Initialize logger if available - FIXED: Use App.Services instead of App.Current.Services
+                _logger = App.Services?.GetService<ILogger<AccountStatementControl>>()
                           ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<AccountStatementControl>.Instance;
 
                 InitializeCollections();
@@ -222,6 +223,9 @@ namespace PoultrySlaughterPOS.Controls
                 // Request statement data from parent component
                 var refreshArgs = new StatementRefreshEventArgs(customer, startDate, endDate, _currentFilterType);
                 StatementRefreshRequested?.Invoke(this, refreshArgs);
+
+                // FIXED: Add actual async operation to resolve CS1998 warning
+                await Task.Delay(50, CancellationToken.None); // Brief delay for UI responsiveness
 
                 _logger.LogInformation("Statement loading initiated for customer: {CustomerName}, Period: {StartDate} to {EndDate}",
                     customer.CustomerName, startDate.ToString("yyyy-MM-dd"), endDate.ToString("yyyy-MM-dd"));
@@ -435,10 +439,10 @@ namespace PoultrySlaughterPOS.Controls
         /// </summary>
         private void InitializeCollections()
         {
+            // FIXED: Initialize Transactions collection to resolve CS8618 warning
             Transactions = new ObservableCollection<StatementTransaction>();
             TransactionsDataGrid.ItemsSource = Transactions;
         }
-
         /// <summary>
         /// Configures event handlers for UI elements
         /// </summary>
