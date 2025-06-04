@@ -23,7 +23,7 @@ namespace PoultrySlaughterPOS.Views.Dialogs
 
         private readonly ILogger<PaymentDialog> _logger;
         private PaymentDialogViewModel? _viewModel;
-        private bool _isInitialized = false;
+        private bool _isDialogInitialized = false;
 
         #endregion
 
@@ -76,7 +76,12 @@ namespace PoultrySlaughterPOS.Views.Dialogs
             try
             {
                 _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-                DataContext = _viewModel;
+
+                // Set DataContext on UI thread
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    DataContext = _viewModel;
+                });
 
                 _logger.LogInformation("ViewModel set successfully for PaymentDialog");
 
@@ -161,14 +166,19 @@ namespace PoultrySlaughterPOS.Views.Dialogs
         {
             try
             {
-                if (!_isInitialized)
+                if (!_isDialogInitialized)
                 {
                     await InitializeDialogAsync();
                 }
 
-                // Focus on payment amount text box
-                PaymentAmountTextBox.Focus();
-                PaymentAmountTextBox.SelectAll();
+                // Focus on payment amount input using the corrected name
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    PaymentAmountInput.IsEnabled = true;
+                    PaymentAmountInput.IsReadOnly = false;
+                    PaymentAmountInput.Focus();
+                    PaymentAmountInput.SelectAll();
+                }, System.Windows.Threading.DispatcherPriority.Background);
             }
             catch (Exception ex)
             {
@@ -341,17 +351,31 @@ namespace PoultrySlaughterPOS.Views.Dialogs
         }
 
         /// <summary>
-        /// Initializes the dialog asynchronously with proper error handling
+        /// Enhanced dialog initialization with proper error handling
         /// </summary>
         private async Task InitializeDialogAsync()
         {
             try
             {
-                if (_viewModel != null && !_isInitialized)
+                if (_viewModel != null && !_isDialogInitialized)
                 {
-                    // Refresh customer debt information
-                    await _viewModel.RefreshCustomerDebtAsync();
-                    _isInitialized = true;
+                    // Ensure we're on the UI thread
+                    await Application.Current.Dispatcher.InvokeAsync(async () =>
+                    {
+                        // Refresh customer debt information
+                        await _viewModel.RefreshCustomerDebtAsync();
+
+                        _isDialogInitialized = true;
+
+                        // Ensure the payment amount input is focusable and enabled
+                        if (PaymentAmountInput != null)
+                        {
+                            PaymentAmountInput.IsEnabled = true;
+                            PaymentAmountInput.IsReadOnly = false;
+                            PaymentAmountInput.Focus();
+                            PaymentAmountInput.SelectAll();
+                        }
+                    });
 
                     _logger.LogDebug("PaymentDialog initialized successfully");
                 }
@@ -361,11 +385,14 @@ namespace PoultrySlaughterPOS.Views.Dialogs
                 _logger.LogError(ex, "Error during PaymentDialog initialization");
 
                 // Show user-friendly error message
-                MessageBox.Show(
-                    "حدث خطأ أثناء تحميل بيانات الزبون. يرجى المحاولة مرة أخرى.",
-                    "خطأ في التحميل",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    MessageBox.Show(
+                        "حدث خطأ أثناء تحميل بيانات الزبون. يرجى المحاولة مرة أخرى.",
+                        "خطأ في التحميل",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                });
 
                 // Close dialog on initialization failure
                 Close();

@@ -1,12 +1,54 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\viewmodels\\customeraccountsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\viewmodels\\customeraccountsviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|c:\\users\\$\\desktop\\poultryslaughterpos\\poultryslaughterpos\\viewmodels\\paymentdialogviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{74BA1800-0731-4B37-BF61-825C300AE96A}|PoultrySlaughterPOS\\PoultrySlaughterPOS.csproj|solutionrelative:poultryslaughterpos\\viewmodels\\paymentdialogviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CustomerAccountsViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\CustomerAccountsViewModel.cs",
+              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\ViewModels\\CustomerAccountsViewModel.cs",
+              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\CustomerAccountsViewModel.cs",
+              "RelativeToolTip": "PoultrySlaughterPOS\\ViewModels\\CustomerAccountsViewModel.cs",
+              "ViewState": "AgIAAPAGAAAAAAAAAAAAwP8GAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-04T17:09:11.322Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PaymentDialogViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\PaymentDialogViewModel.cs",
+              "RelativeDocumentMoniker": "PoultrySlaughterPOS\\ViewModels\\PaymentDialogViewModel.cs",
+              "ToolTip": "C:\\Users\\$\\Desktop\\PoultrySlaughterPOS\\PoultrySlaughterPOS\\ViewModels\\PaymentDialogViewModel.cs",
+              "RelativeToolTip": "PoultrySlaughterPOS\\ViewModels\\PaymentDialogViewModel.cs",
+              "ViewState": "AgIAACMEAAAAAAAAAAAcwDAEAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-04T17:00:21.488Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }

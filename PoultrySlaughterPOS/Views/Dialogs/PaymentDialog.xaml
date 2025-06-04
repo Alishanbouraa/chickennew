@@ -93,37 +93,54 @@
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
-        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ModernButtonStyle}">
-            <Setter Property="Background" Value="#EF4444"/>
-            <Setter Property="Foreground" Value="White"/>
-        </Style>
-
-        <!-- Modern Input Styles -->
+        <!-- CORRECTED Modern TextBox Style - This fixes the invisible text issue -->
         <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="44"/>
             <Setter Property="Padding" Value="16,12"/>
             <Setter Property="BorderBrush" Value="#D1D5DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Right"/>
+            <Setter Property="CaretBrush" Value="#10B981"/>
+            <Setter Property="SelectionBrush" Value="#10B981"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Background="{TemplateBinding Background}" 
+                        <Border x:Name="BorderElement"
+                                Background="{TemplateBinding Background}" 
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
-                            <ScrollViewer x:Name="PART_ContentHost" 
-                                          Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <Grid Margin="{TemplateBinding Padding}">
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                              Focusable="False"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              VerticalScrollBarVisibility="Hidden"
+                                              VerticalAlignment="Center"
+                                              HorizontalAlignment="Stretch"/>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="#10B981"/>
-                                <Setter Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#10B981"/>
+                                <Setter TargetName="BorderElement" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#6B7280"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#F3F4F6"/>
+                                <Setter Property="Foreground" Value="#9CA3AF"/>
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#E5E7EB"/>
                             </Trigger>
                             <Trigger Property="Validation.HasError" Value="True">
-                                <Setter Property="BorderBrush" Value="#EF4444"/>
-                                <Setter Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="BorderElement" Property="BorderBrush" Value="#EF4444"/>
+                                <Setter TargetName="BorderElement" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -131,13 +148,16 @@
             </Setter>
         </Style>
 
+        <!-- Simplified ComboBox Style -->
         <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="44"/>
             <Setter Property="Padding" Value="16,12"/>
             <Setter Property="BorderBrush" Value="#D1D5DB"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
             <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
         <!-- Label Style -->
@@ -153,6 +173,7 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="#EF4444"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
         <!-- Icon Style -->
@@ -226,12 +247,16 @@
                                        Foreground="#1E293B"/>
                         </StackPanel>
 
-                        <!-- Payment Amount -->
+                        <!-- Payment Amount Input -->
                         <StackPanel Grid.Row="1" Margin="0,0,0,16">
                             <TextBlock Text="مبلغ الدفعة (USD) *" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding PaymentAmount, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                            <TextBox x:Name="PaymentAmountInput"
+                                     Text="{Binding PaymentAmount, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, ValidatesOnDataErrors=True}"
                                      Style="{StaticResource ModernTextBoxStyle}"
-                                     x:Name="PaymentAmountTextBox"/>
+                                     IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
+                                     TabIndex="1"
+                                     ToolTip="أدخل مبلغ الدفعة المطلوب تسديده"
+                                     InputMethod.IsInputMethodEnabled="True"/>
                             <TextBlock Text="{Binding PaymentAmountError}" 
                                        Style="{StaticResource ErrorStyle}"
                                        Visibility="{Binding HasPaymentAmountError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
@@ -245,21 +270,25 @@
                                         Command="{Binding SetPercentageCommand}" 
                                         CommandParameter="0.25"
                                         Style="{StaticResource SecondaryButtonStyle}"
-                                        Width="80" FontSize="12"/>
+                                        Width="80" FontSize="12"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                                 <Button Content="50%" 
                                         Command="{Binding SetPercentageCommand}" 
                                         CommandParameter="0.50"
                                         Style="{StaticResource SecondaryButtonStyle}"
-                                        Width="80" FontSize="12"/>
+                                        Width="80" FontSize="12"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                                 <Button Content="75%" 
                                         Command="{Binding SetPercentageCommand}" 
                                         CommandParameter="0.75"
                                         Style="{StaticResource SecondaryButtonStyle}"
-                                        Width="80" FontSize="12"/>
+                                        Width="80" FontSize="12"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                                 <Button Content="كامل" 
                                         Command="{Binding SetFullAmountCommand}"
                                         Style="{StaticResource PrimaryButtonStyle}"
-                                        Width="80" FontSize="12"/>
+                                        Width="80" FontSize="12"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                             </StackPanel>
                         </StackPanel>
 
@@ -323,7 +352,8 @@
                         <StackPanel Grid.Row="1" Margin="0,0,0,16">
                             <TextBlock Text="طريقة الدفع *" Style="{StaticResource LabelStyle}"/>
                             <ComboBox SelectedValue="{Binding PaymentMethod}"
-                                      Style="{StaticResource ModernComboBoxStyle}">
+                                      Style="{StaticResource ModernComboBoxStyle}"
+                                      IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}">
                                 <ComboBoxItem Content="نقداً" Tag="CASH"/>
                                 <ComboBoxItem Content="شيك" Tag="CHECK"/>
                                 <ComboBoxItem Content="حوالة بنكية" Tag="TRANSFER"/>
@@ -335,7 +365,10 @@
                             <TextBlock Text="تاريخ الدفع *" Style="{StaticResource LabelStyle}"/>
                             <DatePicker SelectedDate="{Binding PaymentDate}"
                                         Height="44" FontSize="14"
-                                        BorderBrush="#D1D5DB" BorderThickness="1"/>
+                                        BorderBrush="#D1D5DB" BorderThickness="2"
+                                        Background="White"
+                                        Foreground="#1F2937"
+                                        IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
 
                         <!-- Payment Notes -->
@@ -346,7 +379,9 @@
                                      Height="80" 
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
-                                     VerticalScrollBarVisibility="Auto"/>
+                                     VerticalScrollBarVisibility="Auto"
+                                     VerticalContentAlignment="Top"
+                                     IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
