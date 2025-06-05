@@ -258,7 +258,7 @@ namespace PoultrySlaughterPOS
             services.AddScoped<ITruckLoadRepository, TruckLoadRepository>();
             services.AddScoped<IDailyReconciliationRepository, DailyReconciliationRepository>();
             services.AddScoped<IAuditLogRepository, AuditLogRepository>();
-
+            services.AddScoped<ITransactionProcessingService, TransactionProcessingService>();
             // Unit of Work pattern implementation
             services.AddScoped<IUnitOfWork>(serviceProvider =>
             {

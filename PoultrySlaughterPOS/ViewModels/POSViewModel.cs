@@ -61,7 +61,192 @@ namespace PoultrySlaughterPOS.ViewModels
         private string _statusColor = "#28A745";
 
         #endregion
+        // Add these properties to your existing POSViewModel class
 
+        #region Payment Transaction Properties
+
+        /// <summary>
+        /// Total amount due for current transaction (readonly calculated)
+        /// </summary>
+        public decimal AmountDue => FinalTotal;
+
+        private decimal _paymentReceived = 0;
+        /// <summary>
+        /// Payment amount received from customer during transaction
+        /// </summary>
+        public decimal PaymentReceived
+        {
+            get => _paymentReceived;
+            set
+            {
+                if (SetProperty(ref _paymentReceived, Math.Max(0, value)))
+                {
+                    CalculateRemainingBalance();
+                    OnPropertyChanged(nameof(PaymentReceivedDisplay));
+                    OnPropertyChanged(nameof(RemainingBalance));
+                    OnPropertyChanged(nameof(RemainingBalanceDisplay));
+                    OnPropertyChanged(nameof(IsFullyPaid));
+                    OnPropertyChanged(nameof(IsPartialPayment));
+                    OnPropertyChanged(nameof(IsOverpayment));
+                    NotifyValidationStateChanged();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Formatted payment received display
+        /// </summary>
+        public string PaymentReceivedDisplay
+        {
+            get => PaymentReceived.ToString("F2");
+            set
+            {
+                if (decimal.TryParse(value, out decimal amount))
+                {
+                    PaymentReceived = amount;
+                }
+            }
+        }
+
+        private decimal _remainingBalance = 0;
+        /// <summary>
+        /// Remaining balance after payment (will be added to customer debt if positive)
+        /// </summary>
+        public decimal RemainingBalance
+        {
+            get => _remainingBalance;
+            private set => SetProperty(ref _remainingBalance, value);
+        }
+
+        /// <summary>
+        /// Formatted remaining balance display
+        /// </summary>
+        public string RemainingBalanceDisplay => $"{RemainingBalance:F2}";
+
+        /// <summary>
+        /// Amount due display formatted for UI
+        /// </summary>
+        public string AmountDueDisplay => $"{AmountDue:F2}";
+
+        /// <summary>
+        /// Indicates if transaction is fully paid
+        /// </summary>
+        public bool IsFullyPaid => PaymentReceived >= AmountDue && AmountDue > 0;
+
+        /// <summary>
+        /// Indicates if transaction has partial payment
+        /// </summary>
+        public bool IsPartialPayment => PaymentReceived > 0 && PaymentReceived < AmountDue;
+
+        /// <summary>
+        /// Indicates if payment exceeds amount due
+        /// </summary>
+        public bool IsOverpayment => PaymentReceived > AmountDue && AmountDue > 0;
+
+        private string _paymentMethod = "CASH";
+        /// <summary>
+        /// Payment method for current transaction
+        /// </summary>
+        public string PaymentMethod
+        {
+            get => _paymentMethod;
+            set => SetProperty(ref _paymentMethod, value ?? "CASH");
+        }
+
+        /// <summary>
+        /// Available payment methods
+        /// </summary>
+        public List<string> AvailablePaymentMethods { get; } = new()
+{
+    "CASH", "CHECK", "BANK_TRANSFER", "CREDIT_CARD", "DEBIT_CARD"
+};
+
+        private string _paymentNotes = string.Empty;
+        /// <summary>
+        /// Optional payment notes
+        /// </summary>
+        public string PaymentNotes
+        {
+            get => _paymentNotes;
+            set => SetProperty(ref _paymentNotes, value ?? string.Empty);
+        }
+
+        #endregion
+
+        // Add these methods to your existing POSViewModel class
+
+        #region Payment Calculation Methods
+
+        /// <summary>
+        /// Calculates remaining balance after payment application
+        /// </summary>
+        private void CalculateRemainingBalance()
+        {
+            try
+            {
+                RemainingBalance = Math.Max(0, AmountDue - PaymentReceived);
+
+                _logger.LogDebug("Payment calculation - AmountDue: {AmountDue:C}, PaymentReceived: {PaymentReceived:C}, RemainingBalance: {RemainingBalance:C}",
+                    AmountDue, PaymentReceived, RemainingBalance);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calculating remaining balance");
+                RemainingBalance = AmountDue;
+            }
+        }
+
+        /// <summary>
+        /// Resets payment fields for new transaction
+        /// </summary>
+        private void ResetPaymentFields()
+        {
+            PaymentReceived = 0;
+            PaymentMethod = "CASH";
+            PaymentNotes = string.Empty;
+            RemainingBalance = 0;
+
+            _logger.LogDebug("Payment fields reset for new transaction");
+        }
+
+        /// <summary>
+        /// Sets payment to full amount due
+        /// </summary>
+        [RelayCommand]
+        private void SetFullPayment()
+        {
+            try
+            {
+                PaymentReceived = AmountDue;
+                UpdateStatus("تم تعيين المبلغ كاملاً", "CheckCircle", "#28A745");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting full payment amount");
+            }
+        }
+
+        /// <summary>
+        /// Sets payment to percentage of amount due
+        /// </summary>
+        [RelayCommand]
+        private void SetPercentagePayment(object parameter)
+        {
+            try
+            {
+                if (parameter is string percentageStr && decimal.TryParse(percentageStr, out var percentage))
+                {
+                    PaymentReceived = Math.Round(AmountDue * percentage, 2);
+                    UpdateStatus($"تم تعيين {percentage:P0} من المبلغ المستحق", "CheckCircle", "#28A745");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting percentage payment");
+            }
+        }
+
+        #endregion
         #region Constructor
 
         /// <summary>
@@ -338,36 +523,127 @@ namespace PoultrySlaughterPOS.ViewModels
                 await Task.CompletedTask;
             }, "حذف صف");
         }
-
         [RelayCommand(CanExecute = nameof(CanExecuteSaveAndPrintInvoice))]
         private async Task SaveAndPrintInvoiceAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing SaveAndPrintInvoice command for bulk invoice");
+                _logger.LogInformation("Executing SaveAndPrintInvoice with payment processing");
 
-                var savedInvoice = await SaveInvoiceInternalAsync();
-                if (savedInvoice != null)
+                var transactionResult = await ProcessTransactionWithPaymentAsync();
+                if (transactionResult?.Success == true)
                 {
-                    await PrintBulkInvoiceAsync(savedInvoice);
+                    await PrintBulkInvoiceAsync(transactionResult.Invoice!);
                     await ResetForNewInvoiceAsync();
+
+                    UpdateStatus($"تم حفظ وطباعة الفاتورة مع معالجة الدفعة بنجاح", "CheckCircle", "#28A745");
                 }
-            }, "حفظ وطباعة الفاتورة");
+            }, "حفظ وطباعة الفاتورة مع الدفعة");
         }
 
+        /// <summary>
+        /// Core transaction processing method with comprehensive payment handling
+        /// </summary>
+        private async Task<TransactionResult?> ProcessTransactionWithPaymentAsync()
+        {
+            try
+            {
+                if (!ValidateCurrentInvoice())
+                {
+                    return null;
+                }
+
+                UpdateStatus("جاري معالجة المعاملة والدفعة...", "Spinner", "#007BFF");
+
+                // Populate invoice from items
+                RecalculateTotals();
+                PopulateInvoiceFromItems();
+
+                // Get transaction processing service
+                var transactionService = _serviceProvider.GetService<ITransactionProcessingService>();
+                if (transactionService == null)
+                {
+                    throw new InvalidOperationException("Transaction processing service not available");
+                }
+
+                // Create transaction request
+                var transactionRequest = new TransactionRequest
+                {
+                    Invoice = CurrentInvoice,
+                    PaymentAmount = PaymentReceived,
+                    PaymentMethod = PaymentMethod,
+                    PaymentNotes = PaymentNotes
+                };
+
+                // Process transaction
+                var result = await transactionService.ProcessTransactionWithPaymentAsync(transactionRequest);
+
+                if (result.Success)
+                {
+                    _logger.LogInformation("Transaction processed successfully. Invoice: {InvoiceNumber}, Payment: {PaymentAmount:C}, Remaining: {RemainingBalance:C}",
+                        result.Invoice?.InvoiceNumber, result.PaymentReceived, result.RemainingBalance);
+
+                    // Display detailed result to user
+                    if (result.RemainingBalance > 0)
+                    {
+                        MessageBox.Show(
+                            $"تم إنشاء الفاتورة بنجاح!\n\n" +
+                            $"رقم الفاتورة: {result.Invoice?.InvoiceNumber}\n" +
+                            $"المبلغ المستحق: {result.AmountDue:F2} USD\n" +
+                            $"المبلغ المدفوع: {result.PaymentReceived:F2} USD\n" +
+                            $"الرصيد المتبقي: {result.RemainingBalance:F2} USD\n\n" +
+                            $"تم إضافة الرصيد المتبقي إلى دين الزبون.",
+                            "تأكيد المعاملة",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                    else if (result.OverpaymentAmount > 0)
+                    {
+                        MessageBox.Show(
+                            $"تم إنشاء الفاتورة وتسجيل الدفعة بنجاح!\n\n" +
+                            $"رقم الفاتورة: {result.Invoice?.InvoiceNumber}\n" +
+                            $"المبلغ المستحق: {result.AmountDue:F2} USD\n" +
+                            $"المبلغ المدفوع: {result.PaymentReceived:F2} USD\n" +
+                            $"المبلغ الزائد: {result.OverpaymentAmount:F2} USD\n\n" +
+                            $"تم تسجيل المبلغ الزائد كرصيد دائن للزبون.",
+                            "تأكيد المعاملة",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        UpdateStatus($"تم إتمام المعاملة بنجاح - تم تسديد المبلغ بالكامل", "CheckCircle", "#28A745");
+                    }
+                }
+                else
+                {
+                    UpdateStatus($"خطأ في معالجة المعاملة: {result.Error}", "ExclamationTriangle", "#DC3545");
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing transaction with payment");
+                UpdateStatus("خطأ في معالجة المعاملة والدفعة", "ExclamationTriangle", "#DC3545");
+                throw;
+            }
+        }
         [RelayCommand(CanExecute = nameof(CanExecuteSaveInvoice))]
         private async Task SaveInvoiceAsync()
         {
             await ExecuteWithErrorHandlingAsync(async () =>
             {
-                _logger.LogInformation("Executing SaveInvoice command for bulk invoice");
+                _logger.LogInformation("Executing SaveInvoice with payment processing");
 
-                var savedInvoice = await SaveInvoiceInternalAsync();
-                if (savedInvoice != null)
+                var transactionResult = await ProcessTransactionWithPaymentAsync();
+                if (transactionResult?.Success == true)
                 {
                     await ResetForNewInvoiceAsync();
+
+                    UpdateStatus(transactionResult.Message, "CheckCircle", "#28A745");
                 }
-            }, "حفظ الفاتورة");
+            }, "حفظ الفاتورة مع الدفعة");
         }
 
         [RelayCommand]
@@ -875,7 +1151,7 @@ namespace PoultrySlaughterPOS.ViewModels
         }
 
         /// <summary>
-        /// Recalculates totals across all invoice items
+        /// Override RecalculateTotals to include payment calculations
         /// </summary>
         private void RecalculateTotals()
         {
@@ -887,6 +1163,7 @@ namespace PoultrySlaughterPOS.ViewModels
                     TotalAmount = 0;
                     TotalDiscount = 0;
                     FinalTotal = 0;
+                    CalculateRemainingBalance(); // Add this line
                     return;
                 }
 
@@ -907,12 +1184,17 @@ namespace PoultrySlaughterPOS.ViewModels
                     CurrentInvoice.CurrentBalance = SelectedCustomer.TotalDebt + FinalTotal;
                 }
 
-                _logger.LogDebug("Totals recalculated - Net Weight: {NetWeight}, Final Total: {FinalTotal}",
-                    TotalNetWeight, FinalTotal);
+                // Calculate payment-related fields
+                CalculateRemainingBalance();
+                OnPropertyChanged(nameof(AmountDue));
+                OnPropertyChanged(nameof(AmountDueDisplay));
+
+                _logger.LogDebug("Totals recalculated with payment processing - Net Weight: {NetWeight}, Final Total: {FinalTotal}, Amount Due: {AmountDue}",
+                    TotalNetWeight, FinalTotal, AmountDue);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error recalculating totals");
+                _logger.LogError(ex, "Error recalculating totals with payment processing");
             }
         }
 
@@ -2110,7 +2392,7 @@ namespace PoultrySlaughterPOS.ViewModels
 
 
         /// <summary>
-        /// Resets the form for a new invoice
+        /// Enhanced reset method with payment fields
         /// </summary>
         private async Task ResetForNewInvoiceAsync()
         {
@@ -2121,12 +2403,13 @@ namespace PoultrySlaughterPOS.ViewModels
 
                 InitializeCurrentInvoice();
                 InitializeInvoiceItems();
+                ResetPaymentFields(); // Add this line
 
                 await GenerateNewInvoiceNumberAsync();
                 CurrentDateTime = DateTime.Now;
 
                 UpdateStatus("جاهز لإنشاء فاتورة جديدة", "CheckCircle", "#28A745");
-                _logger.LogDebug("Form reset for new bulk invoice");
+                _logger.LogDebug("Form reset for new transaction with payment fields");
             }
             catch (Exception ex)
             {
