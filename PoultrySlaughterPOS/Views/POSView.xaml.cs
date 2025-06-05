@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿// PoultrySlaughterPOS/Views/POSView.xaml.cs
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PoultrySlaughterPOS.ViewModels;
 using System;
@@ -13,8 +14,8 @@ using System.Windows.Media;
 namespace PoultrySlaughterPOS.Views
 {
     /// <summary>
-    /// Enhanced Point of Sale view with modern scrollable design and improved user experience.
-    /// Implements comprehensive MVVM patterns with optimized performance and accessibility.
+    /// Enhanced Point of Sale view with comprehensive invoice search, edit capabilities, and modern scrollable design.
+    /// Implements MVVM patterns with optimized performance, accessibility, and advanced user experience features.
     /// </summary>
     public partial class POSView : UserControl
     {
@@ -25,13 +26,14 @@ namespace PoultrySlaughterPOS.Views
         private bool _isInitialized = false;
         private ScrollViewer? _mainScrollViewer;
         private DataGrid? _invoiceDataGrid;
+        private TextBox? _invoiceSearchTextBox;
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Enhanced constructor with improved initialization for the new design
+        /// Enhanced constructor with improved initialization for search and edit capabilities
         /// </summary>
         /// <param name="viewModel">POS ViewModel injected via DI container</param>
         /// <param name="logger">Logger instance for diagnostic and error tracking</param>
@@ -53,7 +55,7 @@ namespace PoultrySlaughterPOS.Views
                 // Wire up comprehensive event handlers
                 WireUpEnhancedEventHandlers();
 
-                _logger.LogInformation("Enhanced POSView initialized successfully with modern scrollable design");
+                _logger.LogInformation("Enhanced POSView initialized successfully with search and edit capabilities");
             }
             catch (Exception ex)
             {
@@ -130,6 +132,47 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
+        /// NEW: Sets focus to the invoice search input with enhanced targeting
+        /// </summary>
+        public void FocusInvoiceSearch()
+        {
+            try
+            {
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    try
+                    {
+                        if (_invoiceSearchTextBox != null)
+                        {
+                            _invoiceSearchTextBox.Focus();
+                            _invoiceSearchTextBox.SelectAll();
+                            _logger.LogDebug("Focus set to invoice search TextBox");
+                        }
+                        else
+                        {
+                            // Try to find by name if cached reference is null
+                            var searchBox = FindName("InvoiceSearchTextBox") as TextBox;
+                            if (searchBox != null)
+                            {
+                                searchBox.Focus();
+                                searchBox.SelectAll();
+                                _logger.LogDebug("Focus set to invoice search TextBox via FindName");
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Error setting focus to invoice search");
+                    }
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error in FocusInvoiceSearch method");
+            }
+        }
+
+        /// <summary>
         /// Scrolls to a specific section of the page
         /// </summary>
         /// <param name="section">Target section to scroll to</param>
@@ -142,10 +185,12 @@ namespace PoultrySlaughterPOS.Views
                 double targetOffset = section switch
                 {
                     POSSection.Header => 0,
-                    POSSection.CustomerSelection => 120,
-                    POSSection.InvoiceItems => 300,
-                    POSSection.Summary => 600,
-                    POSSection.Actions => 800,
+                    POSSection.InvoiceSearch => 120,
+                    POSSection.EditModeIndicator => 200,
+                    POSSection.CustomerSelection => 300,
+                    POSSection.InvoiceItems => 500,
+                    POSSection.Summary => 800,
+                    POSSection.Actions => 1000,
                     _ => 0
                 };
 
@@ -186,7 +231,7 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// Enhanced initialization with improved performance
+        /// Enhanced initialization with improved performance and search capabilities
         /// </summary>
         public async Task InitializeViewAsync()
         {
@@ -198,7 +243,7 @@ namespace PoultrySlaughterPOS.Views
                     return;
                 }
 
-                _logger.LogInformation("Initializing enhanced POSView with comprehensive data loading");
+                _logger.LogInformation("Initializing enhanced POSView with comprehensive data loading and search capabilities");
 
                 // Cache important UI elements for performance
                 CacheUIElements();
@@ -228,7 +273,7 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// Enhanced refresh with UI state preservation
+        /// Enhanced refresh with UI state preservation and search state management
         /// </summary>
         public async Task RefreshViewAsync()
         {
@@ -236,12 +281,24 @@ namespace PoultrySlaughterPOS.Views
             {
                 _logger.LogDebug("Refreshing enhanced POSView data and UI state");
 
-                // Preserve scroll position
+                // Preserve scroll position and search state
                 double currentScrollPosition = _mainScrollViewer?.VerticalOffset ?? 0;
+                bool wasSearchVisible = _viewModel?.IsInvoiceSearchVisible ?? false;
+                string currentSearchTerm = _viewModel?.InvoiceSearchTerm ?? string.Empty;
 
                 if (_viewModel != null)
                 {
                     await _viewModel.InitializeAsync();
+
+                    // Restore search state if it was active
+                    if (wasSearchVisible)
+                    {
+                        _viewModel.IsInvoiceSearchVisible = true;
+                        if (!string.IsNullOrEmpty(currentSearchTerm))
+                        {
+                            _viewModel.InvoiceSearchTerm = currentSearchTerm;
+                        }
+                    }
                 }
 
                 // Restore scroll position
@@ -286,6 +343,581 @@ namespace PoultrySlaughterPOS.Views
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error applying emergency TextBox visibility fix");
+            }
+        }
+
+        /// <summary>
+        /// NEW: Toggles invoice search visibility with smooth UI transitions
+        /// </summary>
+        public void ToggleInvoiceSearchVisibility()
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    var isCurrentlyVisible = _viewModel.IsInvoiceSearchVisible;
+                    _viewModel.IsInvoiceSearchVisible = !isCurrentlyVisible;
+
+                    // Focus search box when opening
+                    if (_viewModel.IsInvoiceSearchVisible)
+                    {
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            FocusInvoiceSearch();
+                            ScrollToSection(POSSection.InvoiceSearch);
+                        }), System.Windows.Threading.DispatcherPriority.Loaded);
+                    }
+
+                    _logger.LogDebug("Invoice search visibility toggled to: {IsVisible}", _viewModel.IsInvoiceSearchVisible);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling invoice search visibility");
+            }
+        }
+
+        /// <summary>
+        /// NEW: Handles edit mode state changes with UI updates
+        /// </summary>
+        public void HandleEditModeChange()
+        {
+            try
+            {
+                if (_viewModel != null)
+                {
+                    if (_viewModel.IsEditMode)
+                    {
+                        // Scroll to show edit mode indicator
+                        ScrollToSection(POSSection.EditModeIndicator);
+
+                        // Update window title or other UI elements to reflect edit mode
+                        var window = Window.GetWindow(this);
+                        if (window != null)
+                        {
+                            window.Title = $"نقطة البيع - تعديل الفاتورة: {_viewModel.CurrentInvoice?.InvoiceNumber}";
+                        }
+                    }
+                    else
+                    {
+                        // Reset to normal mode
+                        var window = Window.GetWindow(this);
+                        if (window != null)
+                        {
+                            window.Title = "نقطة البيع - فاتورة جديدة";
+                        }
+                    }
+
+                    _logger.LogDebug("Edit mode state handled: {IsEditMode}", _viewModel.IsEditMode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling edit mode change");
+            }
+        }
+
+        #endregion
+
+        #region Enhanced Event Handlers
+
+        /// <summary>
+        /// Enhanced view loaded event with improved initialization and search setup
+        /// </summary>
+        private async void POSView_Loaded(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (!_isInitialized)
+                {
+                    await InitializeViewAsync();
+                }
+
+                // Set initial focus for optimal user experience
+                FocusCustomerSelection();
+
+                // Subscribe to ViewModel property changes for UI updates
+                if (_viewModel != null)
+                {
+                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                }
+
+                _logger.LogDebug("Enhanced POSView loaded event handled successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in enhanced POSView_Loaded event handler");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced keyboard shortcuts handling with search capabilities
+        /// </summary>
+        private void POSView_KeyDown(object sender, KeyEventArgs e)
+        {
+            try
+            {
+                if (_viewModel == null) return;
+
+                switch (e.Key)
+                {
+                    case Key.F1:
+                        // Quick customer selection focus
+                        FocusCustomerSelection();
+                        ScrollToSection(POSSection.CustomerSelection);
+                        e.Handled = true;
+                        break;
+
+                    case Key.F2:
+                        // New invoice shortcut
+                        if (_viewModel.NewInvoiceCommand.CanExecute(null))
+                        {
+                            _viewModel.NewInvoiceCommand.Execute(null);
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.F3:
+                        // Add new customer shortcut
+                        if (_viewModel.AddNewCustomerCommand.CanExecute(null))
+                        {
+                            _viewModel.AddNewCustomerCommand.Execute(null);
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.F4:
+                        // Focus on invoice items
+                        FocusInvoiceItems();
+                        ScrollToSection(POSSection.InvoiceItems);
+                        e.Handled = true;
+                        break;
+
+                    case Key.F5:
+                        // Refresh view shortcut
+                        _ = RefreshViewAsync();
+                        e.Handled = true;
+                        break;
+
+                    // NEW: Search functionality shortcuts
+                    case Key.F when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
+                        // Ctrl+F: Toggle invoice search
+                        if (_viewModel.ToggleInvoiceSearchCommand.CanExecute(null))
+                        {
+                            _viewModel.ToggleInvoiceSearchCommand.Execute(null);
+                            FocusInvoiceSearch();
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.Escape:
+                        // Escape: Clear search or exit edit mode
+                        if (_viewModel.IsInvoiceSearchVisible)
+                        {
+                            if (_viewModel.ClearInvoiceSearchCommand.CanExecute(null))
+                            {
+                                _viewModel.ClearInvoiceSearchCommand.Execute(null);
+                            }
+                        }
+                        else if (_viewModel.IsEditMode)
+                        {
+                            if (_viewModel.NewInvoiceCommand.CanExecute(null))
+                            {
+                                var result = MessageBox.Show(
+                                    "هل تريد إلغاء تعديل الفاتورة والعودة لإنشاء فاتورة جديدة؟",
+                                    "تأكيد الإلغاء",
+                                    MessageBoxButton.YesNo,
+                                    MessageBoxImage.Question);
+
+                                if (result == MessageBoxResult.Yes)
+                                {
+                                    _viewModel.NewInvoiceCommand.Execute(null);
+                                }
+                            }
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.Enter when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
+                        // Ctrl+Enter: Save and print invoice
+                        if (_viewModel.SaveAndPrintInvoiceCommand.CanExecute(null))
+                        {
+                            _viewModel.SaveAndPrintInvoiceCommand.Execute(null);
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.S when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
+                        // Ctrl+S: Save invoice
+                        if (_viewModel.SaveInvoiceCommand.CanExecute(null))
+                        {
+                            _viewModel.SaveInvoiceCommand.Execute(null);
+                        }
+                        e.Handled = true;
+                        break;
+
+                    // NEW: Quick payment shortcuts
+                    case Key.P when (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt:
+                        // Alt+P: Set full payment
+                        if (_viewModel.SetFullPaymentCommand.CanExecute(null))
+                        {
+                            _viewModel.SetFullPaymentCommand.Execute(null);
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.D1 when (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt:
+                        // Alt+1: Set 25% payment
+                        if (_viewModel.SetPercentagePaymentCommand.CanExecute("0.25"))
+                        {
+                            _viewModel.SetPercentagePaymentCommand.Execute("0.25");
+                        }
+                        e.Handled = true;
+                        break;
+
+                    case Key.D2 when (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt:
+                        // Alt+2: Set 50% payment
+                        if (_viewModel.SetPercentagePaymentCommand.CanExecute("0.50"))
+                        {
+                            _viewModel.SetPercentagePaymentCommand.Execute("0.50");
+                        }
+                        e.Handled = true;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced keyboard shortcut: {Key}", e.Key);
+            }
+        }
+
+        /// <summary>
+        /// Enhanced property change handling with UI optimizations and search support
+        /// </summary>
+        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            try
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(POSViewModel.IsLoading):
+                        HandleLoadingStateChanged();
+                        break;
+
+                    case nameof(POSViewModel.HasValidationErrors):
+                        HandleValidationStateChanged();
+                        break;
+
+                    case nameof(POSViewModel.StatusMessage):
+                        HandleStatusMessageChanged();
+                        break;
+
+                    case nameof(POSViewModel.InvoiceItems):
+                        HandleInvoiceItemsChanged();
+                        break;
+
+                    case nameof(POSViewModel.IsInvoiceSearchVisible):
+                        HandleSearchVisibilityChanged();
+                        break;
+
+                    case nameof(POSViewModel.IsEditMode):
+                        HandleEditModeChange();
+                        break;
+
+                    case nameof(POSViewModel.InvoiceSearchResults):
+                        HandleSearchResultsChanged();
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced ViewModel property change: {PropertyName}", e.PropertyName);
+            }
+        }
+
+        /// <summary>
+        /// NEW: Handles search visibility changes
+        /// </summary>
+        private void HandleSearchVisibilityChanged()
+        {
+            try
+            {
+                if (_viewModel?.IsInvoiceSearchVisible == true)
+                {
+                    // Focus search input when becoming visible
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        FocusInvoiceSearch();
+                    }), System.Windows.Threading.DispatcherPriority.Loaded);
+                }
+
+                _logger.LogDebug("Search visibility changed: {IsVisible}", _viewModel?.IsInvoiceSearchVisible);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling search visibility change");
+            }
+        }
+
+        /// <summary>
+        /// NEW: Handles search results changes
+        /// </summary>
+        private void HandleSearchResultsChanged()
+        {
+            try
+            {
+                var resultsCount = _viewModel?.InvoiceSearchResults?.Count ?? 0;
+                _logger.LogDebug("Search results changed: {Count} results found", resultsCount);
+
+                // Auto-scroll to search results if any found
+                if (resultsCount > 0 && _viewModel?.IsInvoiceSearchVisible == true)
+                {
+                    ScrollToSection(POSSection.InvoiceSearch);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling search results change");
+            }
+        }
+
+        #endregion
+
+        #region Enhanced Private Methods
+
+        /// <summary>
+        /// Sets the ViewModel for this view and establishes data binding
+        /// </summary>
+        /// <param name="viewModel">POSViewModel instance</param>
+        public void SetViewModel(POSViewModel viewModel)
+        {
+            try
+            {
+                _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+                DataContext = _viewModel;
+
+                // Wire up ViewModel event handlers if needed
+                if (_viewModel != null)
+                {
+                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
+                }
+
+                _logger.LogInformation("POSView ViewModel set successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error setting ViewModel for POSView");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously initializes the view with comprehensive data loading
+        /// </summary>
+        public async Task InitializeAsync()
+        {
+            try
+            {
+                if (!_isInitialized)
+                {
+                    await InitializeViewAsync();
+                }
+
+                _logger.LogInformation("POSView async initialization completed successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during POSView async initialization");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Enhanced view properties configuration with search support
+        /// </summary>
+        private void ConfigureEnhancedViewProperties()
+        {
+            try
+            {
+                // Configure focus management
+                Focusable = true;
+
+                // Configure keyboard handling
+                KeyDown += POSView_KeyDown;
+
+                // Enable touch scrolling
+                IsManipulationEnabled = true;
+
+                _logger.LogDebug("Enhanced POSView properties configured successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error configuring enhanced view properties");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced event handlers wiring with search capabilities
+        /// </summary>
+        private void WireUpEnhancedEventHandlers()
+        {
+            try
+            {
+                // View lifecycle events
+                Loaded += POSView_Loaded;
+                Unloaded += POSView_Unloaded;
+
+                _logger.LogDebug("Enhanced event handlers wired up successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error wiring up enhanced event handlers");
+            }
+        }
+
+        /// <summary>
+        /// Caches important UI elements for performance optimization and search functionality
+        /// </summary>
+        private void CacheUIElements()
+        {
+            try
+            {
+                // Find and cache the main scroll viewer
+                _mainScrollViewer = FindVisualChild<ScrollViewer>(this);
+
+                // Cache the DataGrid
+                _invoiceDataGrid = InvoiceItemsDataGrid;
+
+                // Cache the search TextBox
+                _invoiceSearchTextBox = FindName("InvoiceSearchTextBox") as TextBox;
+
+                _logger.LogDebug("UI elements cached successfully including search components");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error caching UI elements");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced initial UI state configuration with automatic TextBox visibility fix and search setup
+        /// </summary>
+        private void ConfigureInitialUIState()
+        {
+            try
+            {
+                // Set initial focus
+                FocusCustomerSelection();
+
+                // Configure DataGrid for optimal performance
+                if (_invoiceDataGrid != null)
+                {
+                    _invoiceDataGrid.EnableRowVirtualization = true;
+                    _invoiceDataGrid.EnableColumnVirtualization = true;
+                }
+
+                // Configure search TextBox if available
+                if (_invoiceSearchTextBox != null)
+                {
+                    _invoiceSearchTextBox.TextChanged += (s, e) =>
+                    {
+                        // Additional search enhancement could be added here
+                    };
+                }
+
+                // Apply automatic TextBox visibility fix
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    ForceTextBoxVisibility();
+                }), System.Windows.Threading.DispatcherPriority.Loaded);
+
+                _logger.LogDebug("Enhanced initial UI state configured successfully with search support");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error configuring enhanced initial UI state");
+            }
+        }
+
+        /// <summary>
+        /// Handles invoice items collection changes with search context awareness
+        /// </summary>
+        private void HandleInvoiceItemsChanged()
+        {
+            try
+            {
+                if (_invoiceDataGrid != null && _viewModel?.InvoiceItems != null)
+                {
+                    // Auto-scroll to show new items
+                    if (_viewModel.InvoiceItems.Count > 0)
+                    {
+                        var lastItem = _viewModel.InvoiceItems[_viewModel.InvoiceItems.Count - 1];
+                        _invoiceDataGrid.ScrollIntoView(lastItem);
+                    }
+                }
+
+                _logger.LogDebug("Invoice items changed handling completed");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling invoice items change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced loading state handling
+        /// </summary>
+        private void HandleLoadingStateChanged()
+        {
+            try
+            {
+                if (_viewModel?.IsLoading == true)
+                {
+                    Cursor = Cursors.Wait;
+                    IsEnabled = false;
+                }
+                else
+                {
+                    Cursor = Cursors.Arrow;
+                    IsEnabled = true;
+                }
+
+                _logger.LogDebug("Enhanced loading state changed: {IsLoading}", _viewModel?.IsLoading);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced loading state change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced validation state handling
+        /// </summary>
+        private void HandleValidationStateChanged()
+        {
+            try
+            {
+                // Additional validation UI feedback implementation
+                _logger.LogDebug("Enhanced validation state changed: {HasErrors}", _viewModel?.HasValidationErrors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced validation state change");
+            }
+        }
+
+        /// <summary>
+        /// Enhanced status message handling
+        /// </summary>
+        private void HandleStatusMessageChanged()
+        {
+            try
+            {
+                _logger.LogDebug("Enhanced status message changed: {StatusMessage}", _viewModel?.StatusMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Error handling enhanced status message change");
             }
         }
 
@@ -498,375 +1130,6 @@ namespace PoultrySlaughterPOS.Views
             }
         }
 
-        #endregion
-
-        #region Enhanced Event Handlers
-
-        /// <summary>
-        /// Enhanced view loaded event with improved initialization
-        /// </summary>
-        private async void POSView_Loaded(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                if (!_isInitialized)
-                {
-                    await InitializeViewAsync();
-                }
-
-                // Set initial focus for optimal user experience
-                FocusCustomerSelection();
-
-                _logger.LogDebug("Enhanced POSView loaded event handled successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error in enhanced POSView_Loaded event handler");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced keyboard shortcuts handling
-        /// </summary>
-        private void POSView_KeyDown(object sender, KeyEventArgs e)
-        {
-            try
-            {
-                if (_viewModel == null) return;
-
-                switch (e.Key)
-                {
-                    case Key.F1:
-                        // Quick customer selection focus
-                        FocusCustomerSelection();
-                        ScrollToSection(POSSection.CustomerSelection);
-                        e.Handled = true;
-                        break;
-
-                    case Key.F2:
-                        // New invoice shortcut
-                        if (_viewModel.NewInvoiceCommand.CanExecute(null))
-                        {
-                            _viewModel.NewInvoiceCommand.Execute(null);
-                        }
-                        e.Handled = true;
-                        break;
-
-                    case Key.F3:
-                        // Add new customer shortcut
-                        if (_viewModel.AddNewCustomerCommand.CanExecute(null))
-                        {
-                            _viewModel.AddNewCustomerCommand.Execute(null);
-                        }
-                        e.Handled = true;
-                        break;
-
-                    case Key.F4:
-                        // Focus on invoice items
-                        FocusInvoiceItems();
-                        ScrollToSection(POSSection.InvoiceItems);
-                        e.Handled = true;
-                        break;
-
-                    case Key.F5:
-                        // Refresh view shortcut
-                        _ = RefreshViewAsync();
-                        e.Handled = true;
-                        break;
-
-                    case Key.Enter when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
-                        // Ctrl+Enter: Save and print invoice
-                        if (_viewModel.SaveAndPrintInvoiceCommand.CanExecute(null))
-                        {
-                            _viewModel.SaveAndPrintInvoiceCommand.Execute(null);
-                        }
-                        e.Handled = true;
-                        break;
-
-                    case Key.S when (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control:
-                        // Ctrl+S: Save invoice
-                        if (_viewModel.SaveInvoiceCommand.CanExecute(null))
-                        {
-                            _viewModel.SaveInvoiceCommand.Execute(null);
-                        }
-                        e.Handled = true;
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling enhanced keyboard shortcut: {Key}", e.Key);
-            }
-        }
-
-        /// <summary>
-        /// Enhanced property change handling with UI optimizations
-        /// </summary>
-        private void ViewModel_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            try
-            {
-                switch (e.PropertyName)
-                {
-                    case nameof(POSViewModel.IsLoading):
-                        HandleLoadingStateChanged();
-                        break;
-
-                    case nameof(POSViewModel.HasValidationErrors):
-                        HandleValidationStateChanged();
-                        break;
-
-                    case nameof(POSViewModel.StatusMessage):
-                        HandleStatusMessageChanged();
-                        break;
-
-                    case nameof(POSViewModel.InvoiceItems):
-                        HandleInvoiceItemsChanged();
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling enhanced ViewModel property change: {PropertyName}", e.PropertyName);
-            }
-        }
-
-        #endregion
-
-        #region Enhanced Private Methods
-
-        /// <summary>
-        /// Sets the ViewModel for this view and establishes data binding
-        /// ADDED: Missing SetViewModel method required by MainWindow
-        /// </summary>
-        /// <param name="viewModel">POSViewModel instance</param>
-        public void SetViewModel(POSViewModel viewModel)
-        {
-            try
-            {
-                _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
-                DataContext = _viewModel;
-
-                // Wire up ViewModel event handlers if needed
-                if (_viewModel != null)
-                {
-                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-                }
-
-                _logger.LogInformation("POSView ViewModel set successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error setting ViewModel for POSView");
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Asynchronously initializes the view with comprehensive data loading
-        /// ADDED: Missing InitializeAsync method required by MainWindow
-        /// </summary>
-        public async Task InitializeAsync()
-        {
-            try
-            {
-                if (!_isInitialized)
-                {
-                    await InitializeViewAsync();
-                }
-
-                _logger.LogInformation("POSView async initialization completed successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during POSView async initialization");
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Enhanced view properties configuration
-        /// </summary>
-        private void ConfigureEnhancedViewProperties()
-        {
-            try
-            {
-                // Configure focus management
-                Focusable = true;
-
-                // Configure keyboard handling
-                KeyDown += POSView_KeyDown;
-
-                // Enable touch scrolling
-                IsManipulationEnabled = true;
-
-                _logger.LogDebug("Enhanced POSView properties configured successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error configuring enhanced view properties");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced event handlers wiring
-        /// </summary>
-        private void WireUpEnhancedEventHandlers()
-        {
-            try
-            {
-                // View lifecycle events
-                Loaded += POSView_Loaded;
-                Unloaded += POSView_Unloaded;
-
-                // ViewModel event handlers
-                if (_viewModel != null)
-                {
-                    _viewModel.PropertyChanged += ViewModel_PropertyChanged;
-                }
-
-                _logger.LogDebug("Enhanced event handlers wired up successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error wiring up enhanced event handlers");
-            }
-        }
-
-        /// <summary>
-        /// Caches important UI elements for performance optimization
-        /// </summary>
-        private void CacheUIElements()
-        {
-            try
-            {
-                // Find and cache the main scroll viewer
-                _mainScrollViewer = FindVisualChild<ScrollViewer>(this);
-
-                // Cache the DataGrid
-                _invoiceDataGrid = InvoiceItemsDataGrid;
-
-                _logger.LogDebug("UI elements cached successfully");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error caching UI elements");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced initial UI state configuration with automatic TextBox visibility fix
-        /// </summary>
-        private void ConfigureInitialUIState()
-        {
-            try
-            {
-                // Set initial focus
-                FocusCustomerSelection();
-
-                // Configure DataGrid for optimal performance
-                if (_invoiceDataGrid != null)
-                {
-                    _invoiceDataGrid.EnableRowVirtualization = true;
-                    _invoiceDataGrid.EnableColumnVirtualization = true;
-                }
-
-                // Apply automatic TextBox visibility fix
-                Dispatcher.BeginInvoke(new Action(() =>
-                {
-                    ForceTextBoxVisibility();
-                }), System.Windows.Threading.DispatcherPriority.Loaded);
-
-                _logger.LogDebug("Enhanced initial UI state configured successfully with TextBox visibility fix");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error configuring enhanced initial UI state");
-            }
-        }
-
-        /// <summary>
-        /// Handles invoice items collection changes
-        /// </summary>
-        private void HandleInvoiceItemsChanged()
-        {
-            try
-            {
-                if (_invoiceDataGrid != null && _viewModel?.InvoiceItems != null)
-                {
-                    // Auto-scroll to show new items
-                    if (_viewModel.InvoiceItems.Count > 0)
-                    {
-                        var lastItem = _viewModel.InvoiceItems[_viewModel.InvoiceItems.Count - 1];
-                        _invoiceDataGrid.ScrollIntoView(lastItem);
-                    }
-                }
-
-                _logger.LogDebug("Invoice items changed handling completed");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling invoice items change");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced loading state handling
-        /// </summary>
-        private void HandleLoadingStateChanged()
-        {
-            try
-            {
-                if (_viewModel?.IsLoading == true)
-                {
-                    Cursor = Cursors.Wait;
-                    IsEnabled = false;
-                }
-                else
-                {
-                    Cursor = Cursors.Arrow;
-                    IsEnabled = true;
-                }
-
-                _logger.LogDebug("Enhanced loading state changed: {IsLoading}", _viewModel?.IsLoading);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling enhanced loading state change");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced validation state handling
-        /// </summary>
-        private void HandleValidationStateChanged()
-        {
-            try
-            {
-                // Additional validation UI feedback implementation
-                _logger.LogDebug("Enhanced validation state changed: {HasErrors}", _viewModel?.HasValidationErrors);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling enhanced validation state change");
-            }
-        }
-
-        /// <summary>
-        /// Enhanced status message handling
-        /// </summary>
-        private void HandleStatusMessageChanged()
-        {
-            try
-            {
-                _logger.LogDebug("Enhanced status message changed: {StatusMessage}", _viewModel?.StatusMessage);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error handling enhanced status message change");
-            }
-        }
-
         /// <summary>
         /// Enhanced visual child finder with performance optimization
         /// </summary>
@@ -946,6 +1209,12 @@ namespace PoultrySlaughterPOS.Views
         {
             try
             {
+                // Unsubscribe from ViewModel events
+                if (_viewModel != null)
+                {
+                    _viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+                }
+
                 _logger.LogDebug("Enhanced POSView unloaded event handled");
             }
             catch (Exception ex)
@@ -955,7 +1224,7 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// Enhanced cleanup method
+        /// Enhanced cleanup method with search state cleanup
         /// </summary>
         public void Cleanup()
         {
@@ -966,6 +1235,7 @@ namespace PoultrySlaughterPOS.Views
                 // Clear cached references
                 _mainScrollViewer = null;
                 _invoiceDataGrid = null;
+                _invoiceSearchTextBox = null;
 
                 // Cleanup ViewModel
                 if (_viewModel is IDisposable disposableViewModel)
@@ -1015,11 +1285,13 @@ namespace PoultrySlaughterPOS.Views
     }
 
     /// <summary>
-    /// Enumeration for POSView sections for programmatic navigation
+    /// Enhanced enumeration for POSView sections for programmatic navigation including search
     /// </summary>
     public enum POSSection
     {
         Header,
+        InvoiceSearch,
+        EditModeIndicator,
         CustomerSelection,
         InvoiceItems,
         Summary,
