@@ -229,7 +229,7 @@ namespace PoultrySlaughterPOS.Converters
     }
 
     /// <summary>
-    /// Count to visibility converter for conditional UI element display with enhanced type support
+    /// Enhanced count to visibility converter with proper inverse parameter support
     /// </summary>
     public class CountToVisibilityConverter : IValueConverter
     {
@@ -239,22 +239,38 @@ namespace PoultrySlaughterPOS.Converters
         {
             try
             {
-                if (value is int count)
+                bool isInverse = parameter?.ToString()?.ToLowerInvariant().Contains("inverse") == true;
+                int count = 0;
+
+                if (value is int intCount)
                 {
-                    return count > 0 ? Visibility.Visible : Visibility.Collapsed;
+                    count = intCount;
+                }
+                else if (value is decimal countDecimal)
+                {
+                    count = (int)countDecimal;
+                }
+                else if (value is double countDouble)
+                {
+                    count = (int)countDouble;
+                }
+                else if (value is System.Collections.ICollection collection)
+                {
+                    count = collection.Count;
+                }
+                else if (value is System.Collections.IEnumerable enumerable)
+                {
+                    count = enumerable.Cast<object>().Count();
                 }
 
-                if (value is decimal countDecimal)
+                bool hasItems = count > 0;
+
+                if (isInverse)
                 {
-                    return countDecimal > 0 ? Visibility.Visible : Visibility.Collapsed;
+                    return hasItems ? Visibility.Collapsed : Visibility.Visible;
                 }
 
-                if (value is double countDouble)
-                {
-                    return countDouble > 0 ? Visibility.Visible : Visibility.Collapsed;
-                }
-
-                return Visibility.Collapsed;
+                return hasItems ? Visibility.Visible : Visibility.Collapsed;
             }
             catch (Exception ex)
             {

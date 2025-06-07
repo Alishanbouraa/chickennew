@@ -660,7 +660,7 @@ namespace PoultrySlaughterPOS.Views
         }
 
         /// <summary>
-        /// NEW: Handles search results changes
+        /// NEW: Handles search result selection changes
         /// </summary>
         private void HandleSearchResultsChanged()
         {
@@ -673,6 +673,15 @@ namespace PoultrySlaughterPOS.Views
                 if (resultsCount > 0 && _viewModel?.IsInvoiceSearchVisible == true)
                 {
                     ScrollToSection(POSSection.InvoiceSearch);
+
+                    // Auto-focus first result for keyboard navigation
+                    Dispatcher.BeginInvoke(new Action(() =>
+                    {
+                        if (_viewModel?.InvoiceSearchResults?.Count > 0 && _viewModel.SelectedInvoiceSearchResult == null)
+                        {
+                            _viewModel.SelectedInvoiceSearchResult = _viewModel.InvoiceSearchResults[0];
+                        }
+                    }), System.Windows.Threading.DispatcherPriority.Loaded);
                 }
             }
             catch (Exception ex)

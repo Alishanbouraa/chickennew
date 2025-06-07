@@ -582,17 +582,17 @@
 
                     <!-- Search Results -->
                     <ScrollViewer Grid.Row="2" 
-                                  MaxHeight="300" 
-                                  VerticalScrollBarVisibility="Auto"
-                                  Visibility="{Binding InvoiceSearchResults.Count, Converter={StaticResource CountToVisibilityConverter}}">
+              MaxHeight="300" 
+              VerticalScrollBarVisibility="Auto"
+              Visibility="{Binding InvoiceSearchResults.Count, Converter={StaticResource CountToVisibilityConverter}}">
                         <ItemsControl ItemsSource="{Binding InvoiceSearchResults}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource SearchResultItemStyle}">
                                         <Border.InputBindings>
                                             <MouseBinding MouseAction="LeftClick" 
-                                                          Command="{Binding DataContext.LoadSelectedInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                          CommandParameter="{Binding}"/>
+                                      Command="{Binding DataContext.SelectInvoiceSearchResultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding}"/>
                                         </Border.InputBindings>
                                         <Grid>
                                             <Grid.ColumnDefinitions>
@@ -603,31 +603,31 @@
 
                                             <!-- Selection Indicator -->
                                             <Border Grid.Column="0" 
-                                                    Width="4" Height="40" 
-                                                    Background="#3B82F6" 
-                                                    CornerRadius="2"
-                                                    Margin="0,0,12,0"
-                                                    Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                Width="4" Height="40" 
+                                Background="#3B82F6" 
+                                CornerRadius="2"
+                                Margin="0,0,12,0"
+                                Visibility="{Binding IsSelected, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
                                             <!-- Invoice Details -->
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding DisplayText}" 
-                                                           FontSize="14" FontWeight="SemiBold" 
-                                                           Foreground="#1F2937"/>
+                                       FontSize="14" FontWeight="SemiBold" 
+                                       Foreground="#1F2937"/>
                                                 <TextBlock Text="{Binding SecondaryText}" 
-                                                           FontSize="12" 
-                                                           Foreground="#6B7280" 
-                                                           Margin="0,2,0,0"/>
+                                       FontSize="12" 
+                                       Foreground="#6B7280" 
+                                       Margin="0,2,0,0"/>
                                             </StackPanel>
 
                                             <!-- Quick Action -->
                                             <Button Grid.Column="2" 
-                                                    Style="{StaticResource PrimaryButtonStyle}"
-                                                    Width="80" Height="32"
-                                                    Content="تحديد"
-                                                    FontSize="12"
-                                                    Command="{Binding DataContext.LoadSelectedInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"/>
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Width="80" Height="32"
+                                Content="تحديد"
+                                FontSize="12"
+                                Command="{Binding DataContext.SelectInvoiceSearchResultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -635,27 +635,28 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <!-- No Results Message -->
+                    <!-- Enhanced No Results Message -->
                     <Border Grid.Row="2" 
-                            Background="White" 
-                            CornerRadius="8" 
-                            Padding="20"
-                            Visibility="{Binding InvoiceSearchResults.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverse}">
-                        <StackPanel HorizontalAlignment="Center">
+        Background="White" 
+        CornerRadius="8" 
+        Padding="20"
+        Visibility="{Binding InvoiceSearchResults.Count, Converter={StaticResource CountToVisibilityConverter}, ConverterParameter=Inverse}">
+                        <StackPanel HorizontalAlignment="Center"
+                Visibility="{Binding InvoiceSearchTerm, Converter={StaticResource NullToVisibilityConverter}}">
                             <TextBlock Text="🔍" 
-                                       FontSize="32" 
-                                       HorizontalAlignment="Center" 
-                                       Opacity="0.5"/>
+                   FontSize="32" 
+                   HorizontalAlignment="Center" 
+                   Opacity="0.5"/>
                             <TextBlock Text="لا توجد فواتير مطابقة لمصطلح البحث" 
-                                       FontSize="14" 
-                                       Foreground="#6B7280" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,8,0,0"/>
+                   FontSize="14" 
+                   Foreground="#6B7280" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,8,0,0"/>
                             <TextBlock Text="جرب استخدام رقم الفاتورة أو اسم العميل" 
-                                       FontSize="12" 
-                                       Foreground="#9CA3AF" 
-                                       HorizontalAlignment="Center" 
-                                       Margin="0,4,0,0"/>
+                   FontSize="12" 
+                   Foreground="#9CA3AF" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,4,0,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>

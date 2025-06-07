@@ -212,7 +212,49 @@ namespace PoultrySlaughterPOS.ViewModels
         public InvoiceSearchResult? SelectedInvoiceSearchResult
         {
             get => _selectedInvoiceSearchResult;
-            set => SetProperty(ref _selectedInvoiceSearchResult, value);
+            set
+            {
+                // Clear previous selection
+                if (_selectedInvoiceSearchResult != null)
+                {
+                    _selectedInvoiceSearchResult.IsSelected = false;
+                }
+
+                if (SetProperty(ref _selectedInvoiceSearchResult, value))
+                {
+                    // Set new selection
+                    if (_selectedInvoiceSearchResult != null)
+                    {
+                        _selectedInvoiceSearchResult.IsSelected = true;
+                    }
+
+                    // Notify command availability changes
+                    LoadSelectedInvoiceCommand.NotifyCanExecuteChanged();
+                    OnPropertyChanged(nameof(HasSelectedInvoiceResult));
+                }
+            }
+        }
+        /// <summary>
+        /// Indicates if there's a selected search result
+        /// </summary>
+        public bool HasSelectedInvoiceResult => SelectedInvoiceSearchResult != null;
+
+        /// <summary>
+        /// NEW: Command to select a search result item
+        /// </summary>
+        [RelayCommand]
+        private async Task SelectInvoiceSearchResultAsync(InvoiceSearchResult searchResult)
+        {
+            await ExecuteWithErrorHandlingAsync(async () =>
+            {
+                if (searchResult == null) return;
+
+                SelectedInvoiceSearchResult = searchResult;
+
+                _logger.LogDebug("Selected invoice search result: {InvoiceNumber}", searchResult.InvoiceNumber);
+
+                await Task.CompletedTask;
+            }, "تحديد نتيجة البحث");
         }
 
         /// <summary>
@@ -695,6 +737,7 @@ namespace PoultrySlaughterPOS.ViewModels
                 if (string.IsNullOrWhiteSpace(InvoiceSearchTerm) || InvoiceSearchTerm.Length < 3)
                 {
                     InvoiceSearchResults.Clear();
+                    SelectedInvoiceSearchResult = null;
                     return;
                 }
 
@@ -716,8 +759,8 @@ namespace PoultrySlaughterPOS.ViewModels
                     DateTime.Today.AddDays(1)
                 );
 
-                // Convert to search result DTOs
-                var results = searchResults.Select(invoice => new InvoiceSearchResult
+                // Convert to enhanced search result DTOs with selection support
+                var results = searchResults.Select((invoice, index) => new InvoiceSearchResult
                 {
                     InvoiceId = invoice.InvoiceId,
                     InvoiceNumber = invoice.InvoiceNumber,
@@ -725,13 +768,23 @@ namespace PoultrySlaughterPOS.ViewModels
                     CustomerName = invoice.Customer?.CustomerName ?? "غير محدد",
                     TruckNumber = invoice.Truck?.TruckNumber ?? "غير محدد",
                     FinalAmount = invoice.FinalAmount,
-                    NetWeight = invoice.NetWeight
+                    NetWeight = invoice.NetWeight,
+                    IsSelected = false // Initialize all as unselected
                 }).OrderByDescending(r => r.InvoiceDate).Take(20);
 
+                // Clear and populate results
                 InvoiceSearchResults.Clear();
+                SelectedInvoiceSearchResult = null;
+
                 foreach (var result in results)
                 {
                     InvoiceSearchResults.Add(result);
+                }
+
+                // Auto-select first result if only one found
+                if (InvoiceSearchResults.Count == 1)
+                {
+                    SelectedInvoiceSearchResult = InvoiceSearchResults[0];
                 }
 
                 _logger.LogDebug("Found {Count} invoices matching search term", InvoiceSearchResults.Count);
@@ -1874,9 +1927,9 @@ namespace PoultrySlaughterPOS.ViewModels
     #region Invoice Search DTOs
 
     /// <summary>
-    /// Data transfer object for invoice search results
+    /// Enhanced data transfer object for invoice search results with selection support
     /// </summary>
-    public class InvoiceSearchResult
+    public partial class InvoiceSearchResult : ObservableObject
     {
         public int InvoiceId { get; set; }
         public string InvoiceNumber { get; set; } = string.Empty;
@@ -1885,6 +1938,9 @@ namespace PoultrySlaughterPOS.ViewModels
         public string TruckNumber { get; set; } = string.Empty;
         public decimal FinalAmount { get; set; }
         public decimal NetWeight { get; set; }
+
+        [ObservableProperty]
+        private bool _isSelected = false;
 
         /// <summary>
         /// Display text for search results
@@ -1895,6 +1951,21 @@ namespace PoultrySlaughterPOS.ViewModels
         /// Secondary display information
         /// </summary>
         public string SecondaryText => $"الشاحنة: {TruckNumber} | الوزن: {NetWeight:F2} كغم";
+
+        /// <summary>
+        /// Formatted invoice date for display
+        /// </summary>
+        public string FormattedDate => InvoiceDate.ToString("yyyy/MM/dd");
+
+        /// <summary>
+        /// Formatted amount for display
+        /// </summary>
+        public string FormattedAmount => $"{FinalAmount:F2} USD";
+
+        /// <summary>
+        /// Status indicator for UI styling
+        /// </summary>
+        public string StatusIndicator => IsSelected ? "Selected" : "Available";
     }
 
     #endregion
